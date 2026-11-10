@@ -4,11 +4,15 @@ Orientation for Claude working on clash-configurator. Read this first.
 
 ## What this is
 
-TODO: what the project does, its main parts, and how they fit together.
+A new project with no code yet; the purpose isn't written down anywhere in
+the repo. See the TODO question in README.md before building anything.
 
 ## Layout
 
-TODO: the important folders and files, one line each.
+- README.md, CHANGELOG.md, DEPLOY.md, SECURITY.md, ROADMAP.md: the standard docs
+- CLAUDE.md: this file
+
+No source folders yet.
 
 ## Workflow
 
@@ -22,11 +26,16 @@ TODO: the important folders and files, one line each.
    - SECURITY.md: when secrets, access or permissions change
    - ROADMAP.md: when something on it is done, or new plans are made
    - this file: when the layout, workflow or conventions change
-4. Run the checks (TODO: the lint and test commands), then commit.
+4. Run the checks (none yet; TODO: the lint and test commands once there's
+   code), then commit.
 
 ## Conventions
 
-TODO: coding style, naming, anything a newcomer would get wrong.
+- Remote: `origin` is `addohm/clash-configurator` on GitHub, reached through
+  the `deploy-ws-clash-configurator` SSH host alias.
+- Branch: `main`.
+
+TODO: language, coding style and naming, once chosen.
 
 ## Don't
 

@@ -9,3 +9,4 @@ All notable changes to clash-configurator. The format follows
 ### Added
 
 - Standard docs: README, CLAUDE, CHANGELOG, DEPLOY, SECURITY and ROADMAP (2026-11-10).
+- Docs filled in with what's known so far, with TODO questions for the rest (2026-11-10).

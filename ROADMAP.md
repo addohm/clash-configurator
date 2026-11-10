@@ -9,8 +9,9 @@ change.
 
 ## Next
 
-TODO: the planned work, most important first.
+TODO: the planned work, most important first. First: decide what it does
+(see README.md).
 
 ## Ideas
 
-TODO: things that might be worth doing later.
+None yet.

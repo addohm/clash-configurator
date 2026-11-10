@@ -2,14 +2,19 @@
 
 ## Reporting a problem
 
-TODO: who to tell, and how. Please don't open a public issue for a
-vulnerability.
+TODO: who to tell, and how (an email address?). Please don't open a public
+issue for a vulnerability.
 
 ## Secrets
 
-TODO: which secrets clash-configurator uses, where each one lives, and how to rotate it.
-Never commit them.
+None yet: there's no code. Never commit them (`.env`, keys, tokens).
+
+TODO: list each secret, where it lives and how to rotate it, as they're added.
 
 ## Access
 
-TODO: who can deploy, push, or reach production, and how that's granted.
+- The repo is `addohm/clash-configurator` on GitHub. This workspace pushes
+  with a per-workspace deploy key (SSH alias `deploy-ws-clash-configurator`).
+- No production yet.
+
+TODO: is the repo private? Who else has push access?

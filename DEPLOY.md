@@ -1,19 +1,22 @@
 # Deploying clash-configurator
 
-TODO: where it runs (host, service, URL).
+Not deployed: there's no code yet.
+
+TODO: will it run as a service (where?), as a library inside another
+system, or as a CLI people run themselves?
 
 ## First-time setup
 
-TODO: step by step, with every command.
+TODO: once it's deployed.
 
 ## Shipping a change
 
-TODO: how a change gets from `main` to live, and how to roll back.
+TODO: once it's deployed.
 
 ## Configuration
 
-TODO: the settings it needs (names only, never the values) and where they live.
+TODO: once it's deployed.
 
 ## Troubleshooting
 
-TODO: logs, health checks, common problems.
+TODO: once it's deployed.

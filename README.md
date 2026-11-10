@@ -1,14 +1,20 @@
 # clash-configurator
 
-TODO: one or two sentences on what this is and who it's for.
+No code yet: the repo holds only the standard docs (first commit 2026-11-10).
+
+TODO: what will clash-configurator do, and for whom? Is it the per-client
+Clash config builder for the proxy business plan (base config plus set
+choices per client, variants per app), or something separate?
 
 ## Getting started
 
-TODO: what you need installed, and how to set it up and run it locally.
+Nothing to install or run yet.
+
+TODO: language and tooling, once chosen.
 
 ## Usage
 
-TODO: how to use it.
+Nothing to use yet.
 
 ## Docs
 

@@ -24,6 +24,11 @@ build order. The owner said go on 2026-11-11; build one step at a time.
     `output.ts` (YAML out, keeping the original's layout), `references.ts`
     (renames that update every reference), `session.ts` (original + changes
     -> built config), `settings.ts` (the saved settings file)
+  - core/src/links/: share links (vless, trojan, ss, hysteria2, vmess) to
+    mihomo server entries; refuses what it can't convert faithfully
+  - core/src/edit/servers.ts: adding servers (into chosen groups) and
+    removing them (refused when a rule, a dialer-proxy or an emptied group
+    would break)
 - tests/: tests that need Node, with their own `tsconfig.json` (Node types).
   `mihomo.test.ts` runs `mihomo -t` on every output
 - app/: the page (Svelte 5). `app/src/i18n/en.ts` holds every piece of text
@@ -31,6 +36,8 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   - app/src/lib/: `store.svelte.ts` (the page's state: steps, intake result,
     session), `Info.svelte` (the ⓘ tooltip), `Step.svelte` (a numbered step)
   - app/src/steps/: one component per Simple-mode step
+  - app/src/edit/: the edit step (`EditStep.svelte`) and one card per part
+    (`Basics.svelte`, `Servers.svelte`, ...)
   - `App.test.ts`: page tests in happy-dom; `frozen.test.ts` runs the main
     path with Object.prototype frozen, as the app does
 - src-tauri/: the Windows app shell (Tauri 2, Rust): `tauri.conf.json` (CSP,
@@ -92,6 +99,11 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   blocks them. Use classes; for values, set them from code (`style:` is fine).
 - Keep intake results, sessions and anything holding a YAML document in
   `$state.raw`, replaced whole: deep proxies of big configs are slow.
+- Edits go through `store.edit(changes)`: it applies them to the open
+  document in place (fast), adds them to the session, and bumps
+  `store.version`; `store.data` is the plain view to read. Work out changes
+  from `store.data` at the moment of the edit. Undo rebuilds from the
+  original.
 - The core must run in a browser: no Node APIs, and no `@types/node`. Tests
   read fixtures with `import.meta.glob(..., { query: '?raw' })`.
 - mihomo for the tests is at `~/.local/opt/mihomo/mihomo` here (v1.19.33,

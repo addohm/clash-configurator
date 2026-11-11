@@ -83,3 +83,23 @@ All notable changes to clash-configurator. The format follows
   - Dropping a file on the page works in the Windows app: Tauri's own
     drag-and-drop handling is off, so the page gets the file.
   - Editing, review and saving come in 4b and 4c.
+- Simple mode, step 4b-1 (2026-11-11): the edit step.
+  - The config's parts as cards (Basics, Servers, Groups, Rules, DNS), one
+    at a time with Next and Back; Undo takes back the last edit. Groups,
+    Rules and DNS come in 4b-2 and 4b-3.
+  - Basics: mode, ports, sharing with the network, IPv6, as the config has
+    them, with ⓘ tooltips.
+  - Servers: the list; rename (every group, rule and DNS reference follows);
+    remove (taken out of every group, or refused with the reason: a rule
+    sends traffic to it, another server connects through it, or it's a
+    group's only member); add from share links, into the groups that list
+    every server (changeable).
+  - Share links (`core/src/links/`): vless (incl. Reality, ws, grpc, h2,
+    xhttp), trojan, ss (SIP002 and old), hysteria2 (incl. port hopping and
+    salamander), vmess. Options that can't be converted faithfully are
+    refused, not guessed. All 43 links of a real subscription parse.
+  - Edits change the open config in place: a few milliseconds each on a
+    config with 5,830 rules, instead of a full rebuild.
+  - New top-level settings go above the servers, groups and rules.
+  - mihomo loads every test config with servers added from each kind of
+    link.

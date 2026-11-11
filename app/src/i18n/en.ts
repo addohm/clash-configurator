@@ -43,6 +43,91 @@ export const en = {
 
   edit: {
     ready: 'Your config is ready to edit: {servers} servers, {groups} groups and {rules} rules.',
+    sections: {
+      basics: 'Basics',
+      servers: 'Servers',
+      groups: 'Groups',
+      rules: 'Rules',
+      dns: 'DNS',
+    },
+    sectionOf: 'Part {n} of {total}',
+    next: 'Next',
+    done: 'Done: review it',
+    back: 'Back',
+    undo: 'Undo last change',
+    changes: '{count} changes so far.',
+    noChanges: 'No changes yet.',
+    failed: "That change couldn't be made: {reason}",
+    save: 'Save',
+    cancel: 'Cancel',
+    notSet: 'Not set: your app uses its default ({value}).',
+    notSetPlain: 'Not set: your app uses its default.',
+  },
+
+  basics: {
+    intro: 'How your app handles traffic overall.',
+    mode: 'Mode',
+    modeInfo:
+      'Rules: each site goes where your rules say (the usual choice). Everything through the proxy: every site uses the proxy. Direct: nothing uses the proxy.',
+    modes: { rule: 'Rules', global: 'Everything through the proxy', direct: 'Direct (proxy off)' },
+    ports: 'Ports',
+    portsInfo:
+      'The local "door" other programs on this device use to reach the proxy. Only change it if another program already uses this number. Your app may set its own.',
+    portNames: {
+      'mixed-port': 'Mixed port (web and other apps)',
+      port: 'Web port (HTTP)',
+      'socks-port': 'SOCKS port',
+      'redir-port': 'Redirect port',
+      'tproxy-port': 'Transparent proxy port',
+    },
+    badPort: 'A port is a whole number from 1 to 65535.',
+    allowLan: 'Share with other devices on your network',
+    allowLanInfo:
+      'Lets other devices on the same Wi-Fi send their traffic through this proxy. Leave it off on public or hotel Wi-Fi.',
+    ipv6: 'Use IPv6',
+    ipv6Info:
+      'IPv6 is the newer kind of internet address. Turn it off if sites fail to load or your real location leaks; turn it on if your network needs it.',
+  },
+
+  servers: {
+    intro: 'The servers your traffic can go through. Renaming one updates every group and rule that uses it.',
+    count: '{count} servers',
+    name: 'Name',
+    type: 'Type',
+    address: 'Address',
+    rename: 'Rename',
+    remove: 'Remove',
+    renameErrors: {
+      'name in use': 'Another server or group already has that name.',
+      'bad name': "Names can't be empty, start or end with a space, or contain a comma.",
+      'built-in name': "That's a built-in name.",
+      'no such name': 'That server no longer exists.',
+    },
+    blocked: "Can't remove it yet:",
+    blockers: {
+      rule: 'rule {n} sends traffic to it',
+      dialer: '{server} connects through it',
+      'last-member': 'it is the only member of the group {group}',
+    },
+    add: 'Add servers',
+    addInfo:
+      'Paste share links, one per line (vless://, trojan://, ss://, hysteria2://, vmess://), or a whole subscription block. They are read here; nothing is fetched.',
+    addPlaceholder: 'vless://...\ntrojan://...',
+    addTo: 'Add them to these groups:',
+    addToInfo: "A server that's in no group can't be picked in your app. Groups that already list every server are ticked.",
+    addButton: 'Add {count} servers',
+    addRead: 'Read the links',
+    linkErrors: {
+      'not-a-link': "isn't a share link",
+      'unsupported-type': 'is a kind of link this page cannot add yet',
+      'bad-address': 'has an address that cannot be read',
+      'bad-port': 'has a port that cannot be read',
+      'bad-id': 'has an ID (UUID) that cannot be read',
+      'missing-password': 'has no password',
+      'unsupported-option': 'uses an option this page cannot convert ({detail}), so it was left out',
+    },
+    lineError: 'Line {line} {reason}.',
+    added: 'Added {count} servers.',
   },
 
   report: {

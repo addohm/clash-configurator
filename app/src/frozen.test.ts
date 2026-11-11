@@ -24,7 +24,9 @@ it('works with Object.prototype frozen', async () => {
   flushSync();
   store.startEditing();
   flushSync();
-  expect(store.built?.ok).toBe(true);
+  expect(store.doc).not.toBeNull();
+  store.edit([{ op: 'set', path: ['mode'], value: 'global' }]);
+  expect(store.data['mode']).toBe('global');
   expect(target.textContent).toContain('2 servers');
   unmount(app);
 });

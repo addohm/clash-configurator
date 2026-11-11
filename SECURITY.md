@@ -31,6 +31,9 @@ None yet. Never commit them (`.env`, keys, tokens).
   plugins, no outside connections.
 - **`freezePrototype`** is on, so a crafted config can't change how
   JavaScript objects behave (PLAN.md Q4).
+- **Share links are read on the device, never fetched.** Every field is
+  checked, options that can't be converted faithfully are refused, control
+  characters are refused, and newlines in names become spaces.
 - **Opened files are size-checked before they're read:** a config over 8 MB
   is refused without loading it.
 - **Saved settings files are treated as hostile too:** every field is

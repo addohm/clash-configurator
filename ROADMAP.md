@@ -21,7 +21,9 @@ The build order from PLAN.md:
 
 - Step 4, Simple mode, in three parts:
   - 4a, done (2026-11-11): pick the app, bring a config, the safety report
-  - 4b: the Basics, Servers, Groups, Rules and DNS cards
+  - 4b-1, done (2026-11-11): the edit step, Basics and Servers
+  - 4b-2: Groups and Rules
+  - 4b-3: DNS
   - 4c: review the changes, save the config and the settings file
 
 5. Subscription fetcher
@@ -30,8 +32,14 @@ The build order from PLAN.md:
 8. Send to phone
 9. Updates, release script and release kit
 
+Moved from step 4 to step 6: greying out the settings the chosen app can't
+use (PLAN.md Q7). That needs each app's own format, which step 6 builds.
+
 ## Ideas
 
+- Accept a list of share links (a Shadowrocket subscription) as the input,
+  by turning it into a basic Clash config. Asked 2026-11-11, not decided;
+  the link parser (`core/src/links/`) already reads them.
 - The Linux app (after Windows)
 - The website version (free hosting, its own fetcher)
 - More languages, starting with Simplified Chinese

@@ -240,6 +240,10 @@ Not reusable as it is for a public tool:
   from "anything bad" and never objected to. Confirm when the safety report
   is built.
 - Where to report security problems (SECURITY.md).
+- A list of share links as input (e.g. Wannaflix's Shadowrocket
+  subscription, which isn't a Clash config): build a basic Clash config from
+  it, refuse it with a clearer message, or leave it to Scratch mode. Asked
+  2026-11-11; the owner moved on without choosing.
 - Making the repo public: the owner's step, at the first release (Q15).
 
 ## Build order

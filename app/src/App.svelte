@@ -3,6 +3,7 @@
   import { format, strings as t } from './i18n';
   import Step from './lib/Step.svelte';
   import { STEPS, type StepId, store } from './lib/store.svelte';
+  import EditStep from './edit/EditStep.svelte';
   import BringConfig from './steps/BringConfig.svelte';
   import PickApp from './steps/PickApp.svelte';
   import SafetyReport from './steps/SafetyReport.svelte';
@@ -21,7 +22,7 @@
   const current = $derived(STEPS.indexOf(store.step) + 1);
 
   const counts = $derived.by(() => {
-    const data = store.checked?.ok ? store.checked.data : {};
+    const data = store.data;
     const len = (v: unknown) => (Array.isArray(v) ? v.length : 0);
     return { servers: len(data['proxies']), groups: len(data['proxy-groups']), rules: len(data['rules']) };
   });
@@ -85,7 +86,7 @@
               <SafetyReport />
             {:else if id === 'edit'}
               <p>{format(t.edit.ready, counts)}</p>
-              <p class="muted">{t.notBuiltYet}</p>
+              <EditStep />
             {:else}
               <p class="muted">{t.notBuiltYet}</p>
             {/if}

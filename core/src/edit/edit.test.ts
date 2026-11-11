@@ -250,3 +250,12 @@ describe('the saved settings file', () => {
     expect(JSON.parse(writeSettings(s)).format).toBe(SETTINGS_FORMAT);
   });
 });
+
+describe('new top-level settings', () => {
+  it('go above the servers, groups and rules', () => {
+    const s = session('configs/indentless.yaml', [{ op: 'set', path: ['ipv6'], value: false }]);
+    const keys = Object.keys(built(s).doc.toJS());
+    expect(keys.indexOf('ipv6')).toBeLessThan(keys.indexOf('proxies'));
+    expect(keys.slice(0, 3)).toEqual(['mixed-port', 'mode', 'ipv6']);
+  });
+});

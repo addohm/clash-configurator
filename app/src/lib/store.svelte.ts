@@ -7,14 +7,18 @@
  * document and possibly megabytes of config, which mustn't be wrapped in
  * Svelte's deep proxies. They're replaced whole, never edited in place.
  */
+import type { Document } from 'yaml';
 import {
   type AppId,
-  build,
-  type Built,
+  applyChange,
+  buildDoc,
+  type Change,
+  ChangeError,
   DEFAULT_MODE,
   type Finding,
   type Intake,
   intake,
+  LIMITS,
   type Mode,
   readSettings,
   type ReadSettings,
@@ -25,6 +29,10 @@ import {
 
 export const STEPS = ['app', 'input', 'report', 'edit', 'review'] as const;
 export type StepId = (typeof STEPS)[number];
+
+/** The parts of the edit step, in order (PLAN.md Q10). */
+export const SECTIONS = ['basics', 'servers', 'groups', 'rules', 'dns'] as const;
+export type SectionId = (typeof SECTIONS)[number];
 
 class Store {
   mode: Mode = $state(DEFAULT_MODE);
@@ -42,7 +50,24 @@ class Store {
   ticked: readonly boolean[] = $state.raw([]);
 
   session: Session | null = $state.raw(null);
-  built: Built | null = $derived(this.session ? build(this.session) : null);
+  /**
+   * The config as edited so far. Edits change it in place (rebuilding a big
+   * config from the original on every keystroke would be slow), so `version`
+   * is bumped to tell the page to read it again.
+   */
+  doc: Document | null = $state.raw(null);
+  version = $state(0);
+  /** A plain-object view of `doc`, for showing values. Never edit it. */
+  data: Record<string, unknown> = $derived.by(() => {
+    void this.version;
+    const d = this.doc?.toJS({ maxAliasCount: LIMITS.maxAliasCount }) as unknown;
+    return d !== null && typeof d === 'object' && !Array.isArray(d) ? (d as Record<string, unknown>) : {};
+  });
+  /** How many changes each edit added, newest last, so Undo takes back a whole edit. */
+  edits: readonly number[] = $state.raw([]);
+  /** Why the last edit failed, if it did. */
+  editError = $state('');
+  section: SectionId = $state('basics');
 
   open(step: StepId): void {
     const i = STEPS.indexOf(step);
@@ -69,6 +94,8 @@ class Store {
     this.original = result.ok ? (typeof input === 'string' ? input : new TextDecoder().decode(input)) : null;
     this.ticked = result.ok ? result.findings.map((f) => !!(f.fix && f.fixByDefault)) : [];
     this.session = null;
+    this.doc = null;
+    this.edits = [];
     this.reached = STEPS.indexOf('report');
     this.step = 'report';
   }
@@ -81,8 +108,58 @@ class Store {
   startEditing(): void {
     if (!this.checked?.ok || this.original === null || !this.source || !this.app) return;
     const fixes: Finding[] = this.checked.findings.filter((f, i) => f.fix && this.ticked[i]);
-    this.session = startSession(this.original, this.source, this.app, this.mode, fixes);
+    this.load(startSession(this.original, this.source, this.app, this.mode, fixes));
     this.advance('edit');
+  }
+
+  /** Builds the document for a session (its changes so far can't be undone). */
+  private load(session: Session): boolean {
+    const r = buildDoc(session);
+    if (!r.ok) return false;
+    this.session = session;
+    this.doc = r.doc;
+    this.edits = [];
+    this.editError = '';
+    this.section = 'basics';
+    this.version++;
+    return true;
+  }
+
+  /**
+   * Makes one edit: its changes go into the document and the session
+   * together. If one doesn't fit, nothing of the edit is kept.
+   */
+  edit(changes: readonly Change[]): boolean {
+    if (!this.session || !this.doc || changes.length === 0) return false;
+    this.editError = '';
+    try {
+      for (const c of changes) applyChange(this.doc, c);
+    } catch (e) {
+      if (!(e instanceof ChangeError)) throw e;
+      this.editError = e.message;
+      this.rebuild(this.session); // the document may be half-changed
+      return false;
+    }
+    this.session = { ...this.session, changes: [...this.session.changes, ...changes] };
+    this.edits = [...this.edits, changes.length];
+    this.version++;
+    return true;
+  }
+
+  undo(): void {
+    const last = this.edits[this.edits.length - 1];
+    if (!this.session || last === undefined) return;
+    const session = { ...this.session, changes: this.session.changes.slice(0, -last) };
+    this.edits = this.edits.slice(0, -1);
+    this.rebuild(session);
+  }
+
+  private rebuild(session: Session): void {
+    const r = buildDoc(session);
+    if (!r.ok) return;
+    this.session = session;
+    this.doc = r.doc;
+    this.version++;
   }
 
   /** Restores a saved settings file: the same config, changes, app and mode. */
@@ -96,7 +173,7 @@ class Store {
     this.original = s.original;
     this.checked = intake(s.original);
     this.ticked = [];
-    this.session = s;
+    if (!this.load(s)) return { ok: false, error: 'bad-change' };
     this.reached = STEPS.indexOf('review');
     this.step = 'edit';
     return r;
@@ -107,6 +184,8 @@ class Store {
     this.checked = null;
     this.original = null;
     this.session = null;
+    this.doc = null;
+    this.edits = [];
     this.reached = STEPS.indexOf('input');
     this.step = 'input';
   }

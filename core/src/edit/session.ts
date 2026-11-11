@@ -38,6 +38,26 @@ export type Built =
   /** The changes left something intake refuses, e.g. no servers at all. */
   | { ok: false; reason: 'result'; refusal: Refusal };
 
+export type BuiltDoc =
+  | { ok: true; doc: Document }
+  | { ok: false; reason: 'original'; refusal: Refusal }
+  | { ok: false; reason: 'change'; index: number; message: string };
+
+/** The edited document only, without writing it out: for the page while editing. */
+export function buildDoc(session: Session): BuiltDoc {
+  const start = intake(session.original);
+  if (!start.ok) return { ok: false, reason: 'original', refusal: start.refusal };
+  for (const [index, change] of session.changes.entries()) {
+    try {
+      applyChange(start.doc, change);
+    } catch (e) {
+      if (e instanceof ChangeError) return { ok: false, reason: 'change', index, message: e.message };
+      throw e;
+    }
+  }
+  return { ok: true, doc: start.doc };
+}
+
 /** Rebuilds the edited config: the original, then every change in order. */
 export function build(session: Session): Built {
   const start = intake(session.original);

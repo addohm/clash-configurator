@@ -39,6 +39,12 @@ function targetIndex(parts: string[]): number {
   return parts[0]?.trim().toUpperCase() === 'MATCH' ? 1 : 2;
 }
 
+/** Where a rule sends traffic: the group or server it names (trimmed). */
+export function ruleTargetOf(rule: string): string | undefined {
+  const parts = splitRule(rule);
+  return parts[targetIndex(parts)]?.trim();
+}
+
 /** The rule with its target renamed, or null if it targets something else. */
 export function renameRuleTarget(rule: string, from: string, to: string): string | null {
   const parts = splitRule(rule);

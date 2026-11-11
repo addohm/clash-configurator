@@ -7,7 +7,7 @@
  * typed value can't smuggle in extra settings (Q4): a name containing a
  * newline stays one quoted name.
  */
-import { type Document, isScalar, isSeq, type YAMLSeq } from 'yaml';
+import { type Document, isMap, isScalar, isSeq, type YAMLSeq } from 'yaml';
 import type { Path } from '../intake';
 
 /** Plain data a change can write: what YAML and JSON can both hold. */
@@ -24,6 +24,9 @@ export type Change =
   | { op: 'move'; path: Path; from: number; to: number };
 
 export class ChangeError extends Error {}
+
+/** The long lists at the end of most configs. */
+const BIG_SECTIONS = new Set(['proxies', 'proxy-providers', 'proxy-groups', 'rule-providers', 'rules', 'sub-rules']);
 
 /** Limits on a change, so a settings file can't hide something huge in one. */
 const MAX_VALUE_NODES = 50_000;
@@ -128,6 +131,15 @@ export function applyChange(doc: Document, change: Change): void {
     case 'set': {
       const node = doc.getIn(change.path, true);
       const v = change.value;
+      const [key] = change.path;
+      if (change.path.length === 1 && typeof key === 'string' && node === undefined && isMap(doc.contents)) {
+        // A new top-level setting goes above the servers, groups and rules,
+        // with the other settings, not after thousands of rules.
+        const items = doc.contents.items;
+        const at = items.findIndex((p) => isScalar(p.key) && typeof p.key.value === 'string' && BIG_SECTIONS.has(p.key.value));
+        items.splice(at === -1 ? items.length : at, 0, doc.createPair(key, v));
+        return;
+      }
       const scalar = v === null || typeof v !== 'object';
       // Setting a scalar over a scalar keeps the node's comments and quoting.
       if (scalar && isScalar(node)) node.value = v;

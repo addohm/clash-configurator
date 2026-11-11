@@ -68,7 +68,7 @@ npm test          # unit tests
 
 ## Usage
 
-So far, Simple mode covers the first three steps:
+So far, Simple mode covers these steps:
 
 1. **Pick your app:** mihomo apps (Clash Verge Rev, FlClash, Clash Meta for
    Android, Clash Party), Stash or Shadowrocket.
@@ -78,7 +78,13 @@ So far, Simple mode covers the first three steps:
    reason. Risky settings are listed with a fix: dangerous ones start
    ticked, and you can untick any.
 
-Editing, review and saving come next. Advanced and Scratch modes come later.
+4. **Make your changes:** the config's parts one at a time, with **Undo**.
+   - **Basics:** mode, ports, sharing with your network, IPv6.
+   - **Servers:** rename (groups and rules follow), remove, or add servers
+     by pasting share links (vless, trojan, ss, hysteria2, vmess).
+   - Groups, Rules and DNS come next.
+
+Review and saving come after that. Advanced and Scratch modes come later.
 
 ## Docs
 

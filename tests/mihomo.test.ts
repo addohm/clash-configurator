@@ -8,7 +8,29 @@ import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:
 import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
-import { build, type Change, defaultFixes, intake, renameChanges, type Session, startSession } from '../core/src';
+import {
+  addServersChanges,
+  build,
+  type Change,
+  defaultFixes,
+  groupsWithAllServers,
+  intake,
+  parseLinks,
+  renameChanges,
+  type Session,
+  startSession,
+} from '../core/src';
+
+// One made-up link of each kind the page can add (fake servers and keys).
+const UUID = '00000000-0000-4000-8000-0000000000aa';
+const LINKS = [
+  `vless://${UUID}@192.0.2.50:443?encryption=none&flow=xtls-rprx-vision&security=reality&sni=www.example.com&fp=chrome&pbk=SbVKOEMjK0sIlbwg4akyBg5mL5KZwwB-ed4eEE7YnRc&sid=0123abcd&type=tcp#Added VLESS`,
+  `vless://${UUID}@ws.example.com:443?security=tls&type=ws&path=%2Fray&host=cdn.example.com&sni=ws.example.com#Added VLESS WS`,
+  'trojan://fake-pw@jp.example.net:443?peer=jp.example.net#Added Trojan',
+  `ss://${btoa('aes-256-gcm:fake-pw')}@198.51.100.60:8388#Added SS`,
+  'hysteria2://fake-pw@192.0.2.61:443/?sni=hy.example.com&obfs=salamander&obfs-password=ob&mport=20000-30000#Added Hy2',
+  `vmess://${btoa(JSON.stringify({ v: '2', ps: 'Added VMess', add: 'vm.example.net', port: '443', id: UUID, aid: '0', net: 'ws', path: '/v', host: 'vm.example.net', tls: 'tls' }))}`,
+].join('\n');
 
 const FIXTURES = import.meta.glob<string>('../fixtures/configs/*.yaml', {
   query: '?raw',
@@ -85,6 +107,12 @@ describe.skipIf(!mihomo)('mihomo loads every output', () => {
       { op: 'insert', path: ['rules'], index: 0, value: 'DOMAIN-SUFFIX,example.net,DIRECT' },
     );
     sessions.push([`${name}-edited`, { ...s, changes: [...s.changes, ...edits] }]);
+
+    // Servers added from share links, joining the groups that list every server.
+    const parsed = parseLinks(LINKS);
+    if (parsed.errors.length > 0) throw new Error(`links: ${JSON.stringify(parsed.errors)}`);
+    const added = addServersChanges(data, parsed.servers, groupsWithAllServers(data)).changes;
+    sessions.push([`${name}-added-servers`, { ...s, changes: [...s.changes, ...added] }]);
   }
 
   for (const [name, s] of sessions) {

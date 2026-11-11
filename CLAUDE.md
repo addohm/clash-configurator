@@ -4,9 +4,10 @@ Orientation for Claude working on clash-configurator. Read this first.
 
 ## What this is
 
-A one-page Clash config editor, planned as a website plus a Windows/Linux
-Tauri app: config in, safety check, guided edits, config out. No code yet;
-every design decision is in PLAN.md. Don't build until the owner says go.
+A one-page Clash config editor, planned as a Windows Tauri app first (Linux
+and a website later): config in, safety check, guided edits, config out. No
+code yet; every design decision is in PLAN.md, with a build order. Don't
+build until the owner says go.
 
 ## Layout
 
@@ -37,7 +38,13 @@ No source folders yet.
   the `deploy-ws-clash-configurator` SSH host alias.
 - Branch: `main`.
 
-TODO: language, coding style and naming, once chosen.
+- Stack (PLAN.md Q14): TypeScript config core (separate from the UI),
+  Svelte 5 + Vite page, Tauri 2 app, Rust fetcher.
+- The owner builds and tests on Windows by pulling and running the build
+  script; this sandbox can't build the Windows app (Q24).
+- Real provider configs hold credentials: git-ignored folder only (Q26).
+
+TODO: coding style and naming, once there's code.
 
 ## Don't
 

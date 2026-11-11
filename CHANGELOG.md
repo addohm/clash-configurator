@@ -10,4 +10,4 @@ All notable changes to clash-configurator. The format follows
 
 - Standard docs: README, CLAUDE, CHANGELOG, DEPLOY, SECURITY and ROADMAP (2026-11-10).
 - Docs filled in with what's known so far, with TODO questions for the rest (2026-11-10).
-- PLAN.md: design decisions Q1–Q17 (2026-11-11).
+- PLAN.md: design decisions Q1–Q27 and the build order (2026-11-11).

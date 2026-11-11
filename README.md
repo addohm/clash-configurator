@@ -4,7 +4,7 @@ A free, public, one-page tool: bring a Clash config (pasted, uploaded or by
 subscription URL), it checks it's safe, fills the page with what's in it,
 guides you through changes with plain-English tooltips, and gives back a file
 for your app (mihomo apps, Stash or Shadowrocket). Everything stays on your
-device. It's planned as both a website and a Windows/Linux app.
+device. It's planned as a Windows app first, then Linux and a website.
 
 No code yet: the design is being decided in [PLAN.md](PLAN.md).
 

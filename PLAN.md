@@ -85,22 +85,27 @@ entry gives the question number and date. Nothing here is built yet.
   as it stays local to the user (in their browser, never on our server).
   - The file holds working server passwords and possibly the subscription
     URL, so the page says to keep it private when saving.
-- **Q10 (2026-11-10): settings offered** ("for now"). Seven sections, most
-  used first:
+- **Q10 (2026-11-10, corrected 2026-11-11): settings offered** ("for now").
+  The input is a working config, usually from a provider, that already has
+  its servers, groups, rules, rule providers and DNS. The page shows what's
+  there and lets the user change it or add their own entries. Nothing is
+  ready-made or pre-selected; that only makes sense for a start-from-scratch
+  mode. Seven sections, most used first:
   1. Basics: mode, port, IPv6, sharing with the local network
   2. Servers: view, rename, remove; add by share link (vless, hy2, trojan,
      ss, vmess)
-  3. Groups: manual pick, fastest, fallback; ready-made country groups
-  4. Rules: site or app to a group; ready-made lists (ads, China direct,
-     streaming, AI services, Telegram)
+  3. Groups: change type (manual pick, fastest, fallback, load-balance) and
+     members; add a group
+  4. Rules and rule providers: reorder, change the target group, remove; add
+     a site, IP or app rule
   5. DNS: main servers, proxy-server-nameserver, fake-IP or real-IP mode,
-     fake-IP exceptions (addohm.net's recommended set), per-site DNS
-     (nameserver-policy)
+     fake-IP exceptions, per-site DNS (nameserver-policy)
   6. Advanced: TUN, sniffing
   7. Advanced: dashboard and controller password, geo data files
-- **Q11 (2026-11-11): workflow.** Two modes, simple by default:
+- **Q11 (2026-11-11): workflow.** Simple by default, plus Advanced (and
+  Scratch, Q22):
   - Simple: numbered steps down one page (pick app, bring config, safety
-    report, the sections as cards with a recommended choice and Skip, review
+    report, the sections as cards showing what the config has, with Skip, review
     what changed and download), with a progress bar and jumping between steps.
   - Advanced: everything at once on one page, still with the tooltips.
 - **Q12 (2026-11-11): tooltips.** A small ⓘ next to every setting: hover on
@@ -135,13 +140,77 @@ entry gives the question number and date. Nothing here is built yet.
     of `.github/workflows` before every release.
   - The repo isn't made public yet; that's the owner's step, at release.
 - **Q16 (2026-11-11): local app devices.** Windows and Linux (one Tauri
-  build). No Mac app, ever (changed by Q17). Phones and Macs use the website.
+  build), Windows first (Q25). No Mac app, ever (changed by Q17). Phones and
+  Macs use the website.
 - **Q17 (2026-11-11): signing and cost.** Nothing that costs money, and no
   Mac at all. So the apps are unsigned:
   - Windows shows "Windows protected your PC"; the download page walks
     through "More info", "Run anyway".
   - Every release publishes SHA-256 checksums, signed with a free key
     (minisign) kept on the owner's machine, never on GitHub.
+- **Q18 (2026-11-11): local first.** Build only the local app (Windows and
+  Linux) for now; the internet-accessible website comes later. Until then:
+  - The app fetches subscription URLs itself (Rust fetcher inside the app);
+    the website's fetcher server (Q3) and hosting (Q5) wait for the website.
+  - The page is still built as static files, so the website is mostly a
+    hosting job later.
+  - Phone and Mac users make their file on a Windows or Linux PC.
+- **Q19 (2026-11-11): getting files to a phone.** A normal save, plus a
+  "Send to phone" button: the app serves the file(s) on the local Wi-Fi for a
+  few minutes behind a random one-time link and shows a QR code; the phone's
+  app (Stash, Shadowrocket, Clash Meta for Android) imports from that link.
+  It serves only that file and stops after the download or 5 minutes.
+  Windows asks once to allow network access; hotel Wi-Fi that isolates
+  devices falls back to the normal save.
+- **Q20 (2026-11-11): updates.** The app checks the project's GitHub
+  releases automatically and tells the user when there's a newer version;
+  it only downloads and installs when they click, after checking the
+  release's signature (Tauri updater, free key). Besides that check, it only
+  goes online for a URL the user gives it, and the download page says so.
+- **Q21 (2026-11-11): dropped.** It asked where ready-made rule lists come
+  from, but an input config already has its own. Presets belong only to the
+  scratch mode (Q22, Q23).
+- **Q22 (2026-11-11): three modes.** Simple (the default), Advanced, and
+  Scratch: build a config from nothing, which is also a way to learn how a
+  Clash config works.
+- **Q23 (2026-11-11): scratch mode.** Every step opens with a line or two
+  on what that piece is and why it's there.
+  1. Pick your app.
+  2. Servers: paste share links (vless, hy2, trojan, ss, vmess) or give a
+     subscription URL (its servers stay linked, as in Q8).
+  3. Groups: a manual-pick group, an optional fastest-server group, and
+     country groups made automatically from server names.
+  4. Rules: tick lists (ad blocking, China sites direct, streaming, AI
+     services, Telegram); everything else goes through the proxy. Sources:
+     mihomo's own site data (MetaCubeX) for mihomo, blackmatrix7's
+     `ios_rule_script` for Stash and Shadowrocket, set up to download from
+     inside China.
+  5. DNS: China-friendly settings, filled in and explained, with addohm.net's
+     fake-IP exceptions.
+  6. Review and download, or open the result in Simple or Advanced mode.
+- **Q24 (2026-11-11): building and testing.** The owner builds and tests on
+  their Windows PC by pulling and running a build script from the repo. No
+  GitHub Actions, so nothing runs or is stored on GitHub. Same pattern as
+  pebble's `tools\update.cmd` / `deploy.ps1`: pull, run the checks, build,
+  install or run. A second script signs the checksums and the update file
+  with the owner's free keys and publishes the release. This sandbox tests
+  the core and the page (unit and browser tests, `mihomo -t`), but can't
+  build or run the Windows app.
+- **Q25 (2026-11-11): Windows first.** Start with the Windows app only. The
+  Linux app comes later, also built and tested locally by the owner (WSL or
+  a Linux machine) with a Linux version of the build script.
+- **Q26 (2026-11-11): test configs.** Both real and made-up:
+  - Real: Wannaflix's and addohm.net's configs. The copies in this sandbox
+    (addohmnet-modern `backend/_clash_dumps/`) are only tiny smoke-test
+    stubs, so the real files come from the owner: downloaded from
+    addohm.net's Clash tab and Wannaflix, then attached in Discord or dropped
+    on the PC. They hold working credentials, so they live in a git-ignored
+    folder and never reach the public repo.
+  - Made up, committed: the shapes common provider panels produce, with fake
+    servers and passwords, plus booby-trapped ones that prove the safety
+    checks work.
+- **Q27 (2026-11-11): name.** Clash Configurator. Look (not objected to):
+  light and dark follow the system, one accent colour, clean readable fonts.
 
 ## From addohm.net (addohmnet-modern), studied 2026-11-10
 
@@ -165,4 +234,32 @@ Not reusable as it is for a public tool:
 
 ## Open
 
-Still to drill. Questions come one at a time.
+- Website: hosting (Q5) and its fetcher server (Q3) wait until after the
+  local app (Q18). It must cost nothing (Q17).
+- Q4: flagging settings that put the user at risk, fix ticked, was assumed
+  from "anything bad" and never objected to. Confirm when the safety report
+  is built.
+- Where to report security problems (SECURITY.md).
+- Making the repo public: the owner's step, at the first release (Q15).
+
+## Build order (proposed, not started)
+
+Waiting for the owner's go-ahead. Each step is commit-sized; the owner builds
+and tests on Windows.
+
+1. Skeleton: TypeScript core, Svelte page, Tauri shell, and `tools\update`
+   (pull, checks, build, run), as in pebble.
+2. Core intake: size, depth and alias limits, safe parsing, the hostile and
+   injection checks, with made-up and booby-trapped test configs.
+3. Core editing: read a config, apply changes while keeping the original's
+   order and comments, write mihomo YAML checked by `mihomo -t`, and the
+   saved settings file.
+4. Page, Simple mode: the numbered steps, sections 1-5, ⓘ tooltips.
+5. Rust fetcher in the app, with subscription servers kept linked (Q8).
+6. Stash YAML, then Shadowrocket `.conf` plus nodes file.
+7. Advanced mode (sections 6-7), then Scratch mode.
+8. Send to phone.
+9. Update check, the release script (checksums and update file signed on the
+   owner's PC), and the release kit: zip and tag, LISTING.md, icon, banner.
+
+Later: the Linux app, the website, more locales.

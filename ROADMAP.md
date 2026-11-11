@@ -9,10 +9,21 @@ change.
 
 ## Next
 
-- Finish planning: the decisions so far are in [PLAN.md](PLAN.md).
+Planning is done (Q1–Q27 in [PLAN.md](PLAN.md)). The build follows PLAN.md's
+build order, starting when the owner says go:
 
-TODO: the build steps, most important first, once planning is done.
+1. Skeleton (core, page, Tauri shell, Windows build script)
+2. Safe intake
+3. Editing and mihomo output
+4. Simple mode
+5. Subscription fetcher
+6. Stash and Shadowrocket output
+7. Advanced and Scratch modes
+8. Send to phone
+9. Updates, release script and release kit
 
 ## Ideas
 
-None yet.
+- The Linux app (after Windows)
+- The website version (free hosting, its own fetcher)
+- More languages, starting with Simplified Chinese

@@ -19,7 +19,11 @@ change.
 
 The build order from PLAN.md:
 
-4. Simple mode
+- Step 4, Simple mode, in three parts:
+  - 4a, done (2026-11-11): pick the app, bring a config, the safety report
+  - 4b: the Basics, Servers, Groups, Rules and DNS cards
+  - 4c: review the changes, save the config and the settings file
+
 5. Subscription fetcher
 6. Stash and Shadowrocket output
 7. Advanced and Scratch modes

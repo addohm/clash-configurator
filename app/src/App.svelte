@@ -1,18 +1,50 @@
 <script lang="ts">
-  import { DEFAULT_MODE, MODES, type Mode } from '../../core/src';
-  import { strings as t } from './i18n';
-
-  let mode: Mode = $state(DEFAULT_MODE);
+  import { MODES, type Mode } from '../../core/src';
+  import { format, strings as t } from './i18n';
+  import Step from './lib/Step.svelte';
+  import { STEPS, type StepId, store } from './lib/store.svelte';
+  import BringConfig from './steps/BringConfig.svelte';
+  import PickApp from './steps/PickApp.svelte';
+  import SafetyReport from './steps/SafetyReport.svelte';
 
   const hints: Record<Mode, string> = {
     simple: t.modes.simpleHint,
     advanced: t.modes.advancedHint,
     scratch: t.modes.scratchHint,
   };
+
+  const stateOf = (id: StepId): 'open' | 'done' | 'later' => {
+    if (store.step === id) return 'open';
+    return STEPS.indexOf(id) <= store.reached ? 'done' : 'later';
+  };
+
+  const current = $derived(STEPS.indexOf(store.step) + 1);
+
+  const counts = $derived.by(() => {
+    const data = store.checked?.ok ? store.checked.data : {};
+    const len = (v: unknown) => (Array.isArray(v) ? v.length : 0);
+    return { servers: len(data['proxies']), groups: len(data['proxy-groups']), rules: len(data['rules']) };
+  });
+
+  const summaries = $derived({
+    app: store.app ? format(t.pickApp.picked, { app: t.apps[store.app] }) : '',
+    input:
+      store.source?.kind === 'file'
+        ? format(t.input.loaded, { name: store.source.name ?? '' })
+        : store.source
+          ? format(t.input.loaded, { name: t.input.pasted })
+          : '',
+    report: store.checked?.ok ? format(t.report.summary, {
+      problems: store.checked.findings.filter((f) => f.severity !== 'info').length,
+      notes: store.checked.findings.filter((f) => f.severity === 'info').length,
+    }) : '',
+    edit: '',
+    review: '',
+  });
 </script>
 
 <main>
-  <header>
+  <header class="top">
     <h1>{t.title}</h1>
     <p class="tagline">{t.tagline}</p>
     <p class="local">{t.local}</p>
@@ -23,19 +55,45 @@
       <button
         type="button"
         role="radio"
-        aria-checked={mode === m}
-        class:active={mode === m}
-        onclick={() => (mode = m)}
+        aria-checked={store.mode === m}
+        class:active={store.mode === m}
+        onclick={() => (store.mode = m)}
       >
         {t.modes[m]}
       </button>
     {/each}
   </div>
-  <p class="hint">{hints[mode]}</p>
+  <p class="hint">{hints[store.mode]}</p>
 
-  <section class="card">
-    <p>{t.firstBuild}</p>
-  </section>
+  {#if store.mode !== 'simple'}
+    <section class="card"><p>{t.notBuiltYet}</p></section>
+  {:else}
+    <div class="progress" aria-hidden="true">
+      <div class="bar"><div class="fill fill-{current}"></div></div>
+      <span>{format(t.steps.progress, { n: current, total: STEPS.length })}</span>
+    </div>
+
+    <ol class="steps">
+      {#each STEPS as id, i (id)}
+        <li>
+          <Step n={i + 1} title={t.steps[id]} state={stateOf(id)} summary={summaries[id]} onopen={() => store.open(id)}>
+            {#if id === 'app'}
+              <PickApp />
+            {:else if id === 'input'}
+              <BringConfig />
+            {:else if id === 'report'}
+              <SafetyReport />
+            {:else if id === 'edit'}
+              <p>{format(t.edit.ready, counts)}</p>
+              <p class="muted">{t.notBuiltYet}</p>
+            {:else}
+              <p class="muted">{t.notBuiltYet}</p>
+            {/if}
+          </Step>
+        </li>
+      {/each}
+    </ol>
+  {/if}
 </main>
 
 <style>
@@ -75,10 +133,7 @@
     border: 0;
     border-radius: calc(var(--radius) - 4px);
     padding: 0.4rem 1rem;
-    font: inherit;
-    color: var(--text);
     background: transparent;
-    cursor: pointer;
   }
 
   .modes button.active {
@@ -101,5 +156,46 @@
 
   .card p {
     margin: 0;
+  }
+
+  .progress {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .bar {
+    flex: 1;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--border);
+    overflow: hidden;
+  }
+
+  /* Widths as classes: the security policy allows no inline styles. */
+  .fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.2s;
+  }
+  .fill-1 { width: 20%; }
+  .fill-2 { width: 40%; }
+  .fill-3 { width: 60%; }
+  .fill-4 { width: 80%; }
+  .fill-5 { width: 100%; }
+
+  .steps {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .muted {
+    color: var(--muted);
   }
 </style>

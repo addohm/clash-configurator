@@ -60,8 +60,17 @@ npm test          # unit tests
 
 ## Usage
 
-Nothing to use yet: the first build only shows the three modes (Simple,
-Advanced, Scratch).
+So far, Simple mode covers the first three steps:
+
+1. **Pick your app:** mihomo apps (Clash Verge Rev, FlClash, Clash Meta for
+   Android, Clash Party), Stash or Shadowrocket.
+2. **Bring your config:** paste it, open or drop the file, or open settings
+   you saved before.
+3. **Safety report:** anything that can't be used is refused, with the
+   reason. Risky settings are listed with a fix: dangerous ones start
+   ticked, and you can untick any.
+
+Editing, review and saving come next. Advanced and Scratch modes come later.
 
 ## Docs
 

@@ -63,3 +63,14 @@ All notable changes to clash-configurator. The format follows
   - `tests/mihomo.test.ts` loads every output with `mihomo -t`.
     `tools\update` downloads a pinned, hash-checked mihomo into `tools\bin\`
     for it.
+- Simple mode, first part, step 4a (2026-11-11):
+  - The numbered steps with a progress bar; finished steps can be reopened.
+  - Pick your app.
+  - Bring your config: paste it, open a file, drop a file, or open a saved
+    settings file. Files over 8 MB are refused before they're read.
+  - The safety report: refusals in plain words; risky settings, most serious
+    first, with their fixes ticked or not, and the setting each is about.
+  - The ⓘ tooltip: hover, tap or keyboard; tap elsewhere or Escape closes it.
+  - Page tests in a simulated browser (happy-dom), including one with
+    JavaScript's object prototype frozen, as the app runs it.
+  - Editing, review and saving come in 4b and 4c.

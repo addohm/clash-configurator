@@ -28,6 +28,11 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   `mihomo.test.ts` runs `mihomo -t` on every output
 - app/: the page (Svelte 5). `app/src/i18n/en.ts` holds every piece of text
   the page shows; nothing user-facing is written inline
+  - app/src/lib/: `store.svelte.ts` (the page's state: steps, intake result,
+    session), `Info.svelte` (the ⓘ tooltip), `Step.svelte` (a numbered step)
+  - app/src/steps/: one component per Simple-mode step
+  - `App.test.ts`: page tests in happy-dom; `frozen.test.ts` runs the main
+    path with Object.prototype frozen, as the app does
 - src-tauri/: the Windows app shell (Tauri 2, Rust): `tauri.conf.json` (CSP,
   window, installer), `capabilities/` (what the page may ask for), `icons/`
 - tools/update.cmd + update.ps1: the owner's build script (menu: update,
@@ -81,6 +86,10 @@ build order. The owner said go on 2026-11-11; build one step at a time.
 - Heavy jobs (installs, builds) run under `nice -n 19`: the CPU is shared.
 - Svelte 5 runes (`$state`, `onclick=`), strict TypeScript. Comments say why,
   briefly.
+- No inline styles anywhere in the page (`style="..."`): the app's CSP
+  blocks them. Use classes; for values, set them from code (`style:` is fine).
+- Keep intake results, sessions and anything holding a YAML document in
+  `$state.raw`, replaced whole: deep proxies of big configs are slow.
 - The core must run in a browser: no Node APIs, and no `@types/node`. Tests
   read fixtures with `import.meta.glob(..., { query: '?raw' })`.
 - mihomo for the tests is at `~/.local/opt/mihomo/mihomo` here (v1.19.33,

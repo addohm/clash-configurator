@@ -4,7 +4,57 @@ export const en = {
   title: 'Clash Configurator',
   tagline: 'Bring your Clash config, change what you need, take it back to your app.',
   local: 'Everything stays on this device.',
-  firstBuild: 'This is the first build: there is nothing to edit yet.',
+  notBuiltYet: 'This part comes in a later build.',
+  info: 'What is this?',
+  settingName: 'Setting:',
+
+  // The numbered steps of Simple mode (PLAN.md Q11).
+  steps: {
+    progress: 'Step {n} of {total}',
+    change: 'Change',
+    app: 'Pick your app',
+    input: 'Bring your config',
+    report: 'Safety report',
+    edit: 'Make your changes',
+    review: 'Review and save',
+  },
+
+  pickApp: {
+    intro: "Which app will use the config? You'll get a file made for it, and settings it can't use are greyed out.",
+    picked: 'Making a config for {app}.',
+  },
+
+  input: {
+    intro: 'Paste your Clash config below, or open the file. It stays on this device.',
+    pasteLabel: 'Your config',
+    placeholder: 'Paste your Clash config here (it starts with lines like "mixed-port: 7890" or "proxies:")',
+    pasteInfo:
+      'Your Clash app can show or export the config it uses. In Clash Verge Rev: Profiles, right-click your profile, then Edit File, and copy everything.',
+    openFile: 'Open a file',
+    openSettings: 'Open saved settings',
+    openSettingsInfo: 'A settings file you saved here before. It holds your config and your changes, so you can carry on where you left off.',
+    check: 'Check it',
+    dropHint: 'You can also drop a file here.',
+    tooBig: 'That file is too big to be a Clash config (over 8 MB), so it was not opened.',
+    loaded: 'Checked {name}.',
+    pasted: 'the pasted config',
+    restored: 'Restored your saved settings.',
+  },
+
+  edit: {
+    ready: 'Your config is ready to edit: {servers} servers, {groups} groups and {rules} rules.',
+  },
+
+  report: {
+    refusedTitle: "This can't be used",
+    tryAgain: 'Try another config',
+    clean: 'Nothing risky found.',
+    summary: '{problems} to look at, {notes} to know about.',
+    severities: { danger: 'Danger', warning: 'Warning', info: 'Note' },
+    keepAsIs: 'Ticked fixes are made in your new config. Untick any you want to keep as they are.',
+    continue: 'Continue',
+  },
+
   modes: {
     label: 'Mode',
     simple: 'Simple',
@@ -15,9 +65,12 @@ export const en = {
     scratchHint: 'Build a new config from nothing, and learn how one works.',
   },
   apps: {
-    mihomo: 'Clash Verge Rev, FlClash, Clash Meta for Android, Clash Party (mihomo)',
+    mihomo: 'mihomo apps',
+    mihomoHint: 'Clash Verge Rev, FlClash, Clash Meta for Android, Clash Party',
     stash: 'Stash',
+    stashHint: 'iPhone and iPad, and Mac',
     shadowrocket: 'Shadowrocket',
+    shadowrocketHint: 'iPhone and iPad. Gets a settings file and a server list.',
   },
 
   // Why a config was refused. {at} becomes " (line 4)" when the line is known.

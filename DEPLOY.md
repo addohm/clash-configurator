@@ -19,12 +19,18 @@ run `tools\update`. Pick **1** from the menu.
    with that. The first
    time, the checks download mihomo into `tools\bin\` (hash checked) to
    load every test config with.
-3. It offers to start the new build. The app is
+3. It offers to install the new build (quietly, for the current user: Start
+   menu, **Clash Configurator**) and start it. Saying no to installing offers
+   to start the build itself instead. The build is
    `src-tauri\target\release\clash-configurator.exe`, and the installer is in
    `src-tauri\target\release\bundle\nsis\`.
 
+An open app window holds its program open, so the script offers to close it
+before building or installing.
+
 To roll back, check out an older commit (`git checkout <commit>`), then pick
-**2** (build what's here). `git checkout main` goes back.
+**2** (build and install what's here). `git checkout main` goes back.
+Uninstall from Windows Settings, Apps, like any app.
 
 Releases (signed checksums, the update file, the GitHub release) come with
 build step 9 in ROADMAP.md. TODO: write that up then.

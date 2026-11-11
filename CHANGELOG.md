@@ -6,6 +6,13 @@ All notable changes to clash-configurator. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- `tools\update` offers to install each new build (quietly, for your user,
+  with a Start menu entry) and start it. A new menu option, **Start the
+  app**, opens the installed app or else the last build. It offers to close
+  an open app window before building or installing over it (2026-11-11).
+
 ### Fixed
 
 - `tools\update`: when an update changes the build script itself, it starts

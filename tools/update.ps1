@@ -6,11 +6,16 @@
 .DESCRIPTION
     The menu:
       1  Update: get the latest commits from GitHub, check the tools, install the packages,
-         run the checks and build the app. Then it offers to start it.
+         run the checks and build the app. Then it offers to install it (Start menu:
+         Clash Configurator) and start it.
       2  The same without getting anything from GitHub (builds what's here).
       3  Run the checks only (type checks and unit tests).
       4  Start the app in development mode: the page reloads as files change.
-      5  Nothing (quit).
+      5  Start the app: the installed one, or else the last build.
+      6  Nothing (quit).
+
+    An open Clash Configurator window holds its program open, so building or installing over
+    it fails: the script offers to close it first.
 
     Getting the latest is fast-forward only. It stops before changing anything if the checkout
     has uncommitted changes, is in the middle of a merge, or has diverged from GitHub, so it
@@ -319,8 +324,60 @@ function Invoke-Checks {
     Ok 'All checks passed.'
 }
 
+# Open Clash Configurator windows (the installed app, a build, or development mode), found by
+# their title. A running copy holds its exe open, so building or installing over it fails.
+function Get-OpenApp {
+    return @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -eq 'Clash Configurator' })
+}
+
+# Asks to close any open Clash Configurator windows (as their close button does); stops if not.
+function Close-OpenApp([string]$Why) {
+    $open = Get-OpenApp
+    if ($open.Count -eq 0) { return }
+    if (-not (Ask-YN "Clash Configurator is open. Close it $Why?" $true)) {
+        throw "Close Clash Configurator, then run this again."
+    }
+    foreach ($p in $open) {
+        [void]$p.CloseMainWindow()
+        if (-not $p.WaitForExit(15000)) { throw "Clash Configurator (process $($p.Id)) didn't close within 15 s: close it by hand." }
+    }
+    Ok 'Closed.'
+}
+
+# The Start menu shortcut the installer makes, or $null if it isn't installed.
+function Get-InstalledShortcut {
+    $programs = [Environment]::GetFolderPath('Programs')
+    if (-not $programs) { return $null }
+    return Get-ChildItem -Path $programs -Recurse -Filter 'Clash Configurator.lnk' -ErrorAction SilentlyContinue |
+        Select-Object -First 1
+}
+
+# Runs the installer quietly (for this user only, no admin needed).
+function Install-App($Installer) {
+    Close-OpenApp 'so it can be updated'
+    Dim "> $($Installer.Name) /S"
+    $p = Start-Process -FilePath $Installer.FullName -ArgumentList '/S' -Wait -PassThru
+    if ($p.ExitCode -ne 0) { throw "The installer stopped with code $($p.ExitCode)." }
+    if (Get-InstalledShortcut) { Ok 'Installed: Start menu, Clash Configurator.' } else { Ok 'Installed.' }
+}
+
+# Starts the installed app if there is one, else the last build.
+function Start-App {
+    $shortcut = Get-InstalledShortcut
+    if ($shortcut) {
+        Start-Process -FilePath $shortcut.FullName
+        Ok 'Started the installed app.'
+    } elseif (Test-Path $appExe) {
+        Start-Process -FilePath $appExe -WorkingDirectory $root
+        Ok 'Started the last build.'
+    } else {
+        throw 'There is no build yet: pick 1 or 2 to build it first.'
+    }
+}
+
 function Build-App {
     Step 'Build the app' @('The first build compiles every Rust package and takes several minutes; later ones are quicker.')
+    Close-OpenApp 'so the new build can replace it'
     Invoke-Tool 'npm' @('run', 'tauri', 'build') 'The build failed (see above).'
     $installer = Get-ChildItem -Path $bundleDir -Filter '*-setup.exe' -ErrorAction SilentlyContinue |
         Sort-Object LastWriteTime -Descending | Select-Object -First 1
@@ -328,7 +385,10 @@ function Build-App {
     if ($installer) { $lines += "Installer: $($installer.FullName)" }
     $lines += 'Both are unsigned, so Windows may warn: More info, then Run anyway.'
     Banner 'DONE' $lines
-    if ((Test-Path $appExe) -and (Ask-YN 'Start the app now?' $true)) {
+    if ($installer -and (Ask-YN 'Install it (Start menu: Clash Configurator)?' $true)) {
+        Install-App $installer
+        if (Ask-YN 'Start it now?' $true) { Start-App }
+    } elseif ((Test-Path $appExe) -and (Ask-YN 'Start this build now?' $true)) {
         Start-Process -FilePath $appExe -WorkingDirectory $root
         Ok 'Started.'
     }
@@ -336,6 +396,7 @@ function Build-App {
 
 function Start-Dev {
     Step 'Start the app in development mode' @('Edits to the page show up straight away. Close the app window (or press Ctrl+C) to stop.')
+    Close-OpenApp 'first'
     Invoke-Tool 'npm' @('run', 'tauri', 'dev') 'Development mode stopped with an error (see above).'
 }
 
@@ -351,6 +412,7 @@ function Show-Status {
     } else {
         Say 'Last build: none yet'
     }
+    if (Get-InstalledShortcut) { Say 'Installed:  yes (Start menu: Clash Configurator)' } else { Say 'Installed:  no' }
 }
 
 # ---- Menu ----------------------------------------------------------------------------------
@@ -370,17 +432,19 @@ Write-Host ''
 if (Get-Command git -ErrorAction SilentlyContinue) { Show-Status }
 Write-Host ''
 Say 'What would you like to do?'
-Say '  1  Update: get the latest from GitHub, check, build, run'
-Say '  2  Build and run what is here (nothing from GitHub)'
+Say '  1  Update: get the latest from GitHub, check, build, install'
+Say '  2  Build and install what is here (nothing from GitHub)'
 Say '  3  Run the checks only'
 Say '  4  Start the app in development mode'
-Say '  5  Nothing (quit)'
-$choice = Ask-Int 'Choice' 5 1 5
+Say '  5  Start the app'
+Say '  6  Nothing (quit)'
+$choice = Ask-Int 'Choice' 6 1 6
 
 switch ($choice) {
     1 { $script:Steps = 5; Get-Latest; Test-Tools; Install-Packages; Invoke-Checks; Build-App }
     2 { $script:Steps = 4; Test-Tools; Install-Packages; Invoke-Checks; Build-App }
     3 { $script:Steps = 3; Test-Tools -NodeOnly; Install-Packages; Invoke-Checks; Banner 'DONE' @('All checks passed.') }
     4 { $script:Steps = 3; Test-Tools; Install-Packages; Start-Dev }
-    5 { exit 0 }
+    5 { Start-App }
+    6 { exit 0 }
 }

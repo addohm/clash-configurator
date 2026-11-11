@@ -29,13 +29,21 @@ tools\update
 
 It shows a menu. Its options:
 
-1. Update: get the latest from GitHub, check, build and run
-2. Build and run what's here
+1. Update: get the latest from GitHub, check, build and install
+2. Build and install what's here
 3. Run the checks only
 4. Start the app in development mode (the page reloads as you edit)
+5. Start the app
 
 If something's missing, it says what to install. The first build takes
 several minutes, while Rust compiles everything; later ones are quicker.
+
+After a build it offers to install the app, for your user only, with no
+admin needed. Say yes, and from then on open **Clash Configurator** from the
+Start menu like any other app; you only run `tools\update` to get a new
+version. Option 5 opens the installed app (or, if you never installed it,
+the last build). If the app is open when you build or install, the script
+offers to close it first.
 
 The app is unsigned, so Windows may show "Windows protected your PC". Click
 **More info**, then **Run anyway**.

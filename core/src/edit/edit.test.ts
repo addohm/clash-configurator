@@ -39,9 +39,14 @@ function built(s: Session) {
 }
 
 /** Lines that differ between two texts, as "line: before -> after". */
+// Git for Windows checks text files out with CRLF line endings, so the
+// fixtures can come with either; these make a test independent of that.
+const lf = (text: string) => text.replace(/\r\n/g, '\n');
+const crlf = (text: string) => lf(text).replace(/\n/g, '\r\n');
+
 function diff(a: string, b: string): string[] {
-  const x = a.split('\n');
-  const y = b.split('\n');
+  const x = a.split(/\r?\n/);
+  const y = b.split(/\r?\n/);
   const out: string[] = [];
   for (let i = 0; i < Math.max(x.length, y.length); i++) if (x[i] !== y[i]) out.push(`${i + 1}: ${x[i]} -> ${y[i]}`);
   return out;
@@ -49,20 +54,18 @@ function diff(a: string, b: string): string[] {
 
 describe('output with no changes', () => {
   for (const file of ['provider-basic', 'panel-style', 'providers', 'indentless', 'risky']) {
-    it(`${file}.yaml comes back unchanged`, () => {
-      const text = fixture(`configs/${file}.yaml`);
-      const r = intake(text);
-      if (!r.ok) throw new Error('refused');
-      expect(writeYaml(r.doc, text)).toBe(text);
-    });
+    for (const [endings, convert] of [
+      ['LF', lf],
+      ['CRLF', crlf],
+    ] as const) {
+      it(`${file}.yaml comes back unchanged (${endings})`, () => {
+        const text = convert(fixture(`configs/${file}.yaml`));
+        const r = intake(text);
+        if (!r.ok) throw new Error('refused');
+        expect(writeYaml(r.doc, text)).toBe(text);
+      });
+    }
   }
-
-  it('keeps Windows line endings', () => {
-    const text = fixture('configs/indentless.yaml').replace(/\n/g, '\r\n');
-    const r = intake(text);
-    if (!r.ok) throw new Error('refused');
-    expect(writeYaml(r.doc, text)).toBe(text);
-  });
 
   it('reads the original layout', () => {
     expect(detectStyle(fixture('configs/indentless.yaml')).indentSeq).toBe(false);
@@ -102,7 +105,7 @@ describe('changes', () => {
 
   it('keeps flush lists flush when adding to them', () => {
     const s = session('configs/indentless.yaml', [{ op: 'insert', path: ['rules'], value: 'GEOIP,CN,DIRECT' }]);
-    expect(built(s).output).toContain('- MATCH,Proxy\n- GEOIP,CN,DIRECT\n');
+    expect(lf(built(s).output)).toContain('- MATCH,Proxy\n- GEOIP,CN,DIRECT\n');
   });
 
   it("can't smuggle in settings through a value", () => {

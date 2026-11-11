@@ -8,6 +8,12 @@ All notable changes to clash-configurator. The format follows
 
 ### Fixed
 
+- `tools\update`: when an update changes the build script itself, it starts
+  the new version, which carries on from step 2. Before, the rest of that
+  run used the old script (2026-11-11).
+- Tests pass on a Windows checkout, where Git turns line endings into CRLF.
+  The output tests now run every fixture with both LF and CRLF
+  (2026-11-11).
 - `tools\update`: when GitHub refuses SSH sign-in, it says how to switch to
   HTTPS. It no longer prints a stray `RemoteException` line in git errors
   (2026-11-11).

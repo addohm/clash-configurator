@@ -160,6 +160,20 @@ function Get-Version([string]$Program) {
 
 # ---- The steps -----------------------------------------------------------------------------
 
+# PowerShell has already read this script, so an update to it only counts from its next run.
+# When the update just pulled changed it, this starts the new version, which carries on from
+# step 2 (CC_UPDATE_RESUME tells it to), and then exits with its result.
+$script:SelfHash = (Get-FileHash -Path $PSCommandPath -Algorithm SHA256).Hash
+function Restart-IfUpdated {
+    if ((Get-FileHash -Path $PSCommandPath -Algorithm SHA256).Hash -eq $script:SelfHash) { return }
+    Warn 'This build script was updated too: starting the new version.'
+    $env:CC_UPDATE_RESUME = '1'
+    $hostExe = (Get-Process -Id $PID).Path
+    try { & $hostExe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath }
+    finally { Remove-Item Env:CC_UPDATE_RESUME -ErrorAction SilentlyContinue }
+    exit $LASTEXITCODE
+}
+
 function Get-Latest {
     Step 'Get the latest from GitHub' @('Fast-forward only: nothing here is merged or overwritten.')
     if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
@@ -199,6 +213,7 @@ function Get-Latest {
         $incoming | ForEach-Object { Dim "  $_" }
         Invoke-Git @('merge', '--ff-only', $upstream) | Out-Null
         Ok "Updated to $((Invoke-Git @('log', '-1', '--format=%h %s')) -join '')"
+        Restart-IfUpdated
     }
     if ($outgoing.Count -gt 0) {
         Warn "$($outgoing.Count) local commits aren't on GitHub."
@@ -339,6 +354,16 @@ function Show-Status {
 }
 
 # ---- Menu ----------------------------------------------------------------------------------
+
+# Started by an older version of this script that just updated it: carry on with the update.
+if ($env:CC_UPDATE_RESUME -eq '1') {
+    Remove-Item Env:CC_UPDATE_RESUME
+    $script:Steps = 5
+    $script:StepNo = 1
+    Test-Tools; Install-Packages; Invoke-Checks; Build-App
+    exit 0
+}
+
 Write-Host ''
 Write-Host 'clash-configurator - build and test Clash Configurator on this PC' -ForegroundColor Cyan
 Write-Host ''

@@ -87,6 +87,9 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   hash checked); its geo data is cached in `~/.cache/clash-configurator-mihomo`.
   On the owner's PC, `tools\update` puts it in `tools\bin\` (pinned version
   and hash at the top of `update.ps1`).
+- Git for Windows checks text files out with CRLF line endings, so on the
+  owner's PC every fixture is CRLF. Tests must not depend on line endings
+  (split on `/\r?\n/`, or convert first); the output tests run both.
 - Changes that name list positions (rules[3]) are worked out against the
   config as it is at that moment; add them in the order they were made.
 - Every refusal code and finding id has English text in `app/src/i18n/en.ts`;

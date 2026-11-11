@@ -86,6 +86,17 @@ function Ask-YN([string]$Question, [bool]$DefaultYes) {
 
 # ---- Running programs ----------------------------------------------------------------------
 
+# Turns one line of a program's output back into plain text. Windows PowerShell 5.1 wraps
+# each error-output line in an error record whose own text is just its type name
+# (System.Management.Automation.RemoteException); the line itself is its TargetObject.
+function ConvertTo-Text($Line) {
+    if ($Line -is [System.Management.Automation.ErrorRecord]) {
+        if ($Line.TargetObject -is [string]) { return $Line.TargetObject }
+        return $Line.Exception.Message
+    }
+    return "$Line"
+}
+
 # Runs git in the repository and returns its output as text lines; stops the script if git
 # fails, unless -AllowFail (then it returns $null).
 #
@@ -97,7 +108,8 @@ function Invoke-Git([string[]]$GitArgs, [switch]$AllowFail) {
     $saved = $ErrorActionPreference
     $ErrorActionPreference = 'Continue'
     try {
-        $out = @(& git -C $root @GitArgs 2>&1 | ForEach-Object { "$_" })
+        $out = @(& git -C $root @GitArgs 2>&1 | ForEach-Object { ConvertTo-Text $_ } |
+            Where-Object { $_ -and $_ -ne 'System.Management.Automation.RemoteException' })
         $code = $LASTEXITCODE
     }
     finally {
@@ -154,7 +166,15 @@ function Get-Latest {
     if ($dirty) {
         throw "This checkout has uncommitted changes, so it can't be updated safely:`n$($dirty -join "`n")`nCommit them or stash them (git stash), then run this again."
     }
-    Invoke-Git @('fetch', '--prune', 'origin') | Out-Null
+    $fetched = Invoke-Git @('fetch', '--prune', 'origin') -AllowFail
+    if ($null -eq $fetched) {
+        $url = (Invoke-Git @('remote', 'get-url', 'origin') -AllowFail) -join ''
+        if ($url -match '^(git@|ssh://)') {
+            # An SSH address needs a key GitHub knows; HTTPS signs in through the browser instead.
+            throw "GitHub refused this PC's SSH sign-in for $url. Switch to the HTTPS address (Git asks you to sign in once, in your browser), then run this again:`n  git remote set-url origin https://github.com/addohm/clash-configurator.git"
+        }
+        Invoke-Git @('fetch', '--prune', 'origin') | Out-Null
+    }
     $current = (Invoke-Git @('rev-parse', '--abbrev-ref', 'HEAD')) -join ''
     $upstream = (Invoke-Git @('rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{u}') -AllowFail) -join ''
     if (-not $upstream) {

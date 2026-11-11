@@ -6,6 +6,12 @@ All notable changes to clash-configurator. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- `tools\update`: when GitHub refuses SSH sign-in, it says how to switch to
+  HTTPS. It no longer prints a stray `RemoteException` line in git errors
+  (2026-11-11).
+
 ### Added
 
 - Standard docs: README, CLAUDE, CHANGELOG, DEPLOY, SECURITY and ROADMAP (2026-11-10).

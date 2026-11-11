@@ -31,6 +31,10 @@ None. The app has no settings files or environment variables yet.
 
 ## Troubleshooting
 
+- **"Permission denied (publickey)" or "refused this PC's SSH sign-in":** the
+  checkout uses GitHub's SSH address and this PC has no key for it. Switch to
+  HTTPS: `git remote set-url origin https://github.com/addohm/clash-configurator.git`.
+  Git signs you in through the browser once.
 - **"... is not installed" or "too old":** run the `winget` line it prints,
   open a new terminal, and run `tools\update` again.
 - **"uncommitted changes" or "diverged":** the script won't touch a checkout

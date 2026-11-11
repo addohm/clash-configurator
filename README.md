@@ -22,7 +22,7 @@ On Windows you need:
 Then clone the repo and run the build script from its folder:
 
 ```
-git clone git@github.com:addohm/clash-configurator.git
+git clone https://github.com/addohm/clash-configurator.git
 cd clash-configurator
 tools\update
 ```

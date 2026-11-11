@@ -278,3 +278,114 @@ describe('editing: Servers', () => {
     expect((store.data['proxy-groups'] as { proxies: string[] }[])[0]?.proxies).toContain('New One');
   });
 });
+
+describe('editing: Groups', () => {
+  const toGroups = () => {
+    toEditing('configs/provider-basic.yaml');
+    click(t.edit.next);
+    click(t.edit.next);
+    expect(card()?.getAttribute('aria-label')).toBe(t.edit.sections.groups);
+  };
+  const groupsData = () => store.data['proxy-groups'] as { name: string; type: string; proxies: string[] }[];
+
+  it('changes a group type and its members', () => {
+    toGroups();
+    click(t.groups.open); // the first group, Proxy
+    const select = card()?.querySelector<HTMLSelectElement>('.detail select');
+    if (!select) throw new Error('no type select');
+    change(select, 'fallback');
+    expect(groupsData()[0]?.type).toBe('fallback');
+    const down = card()?.querySelector<HTMLButtonElement>(`button[aria-label="${t.groups.down}"]`);
+    down?.click();
+    flushSync();
+    expect(groupsData()[0]?.proxies.slice(0, 2)).toEqual(['🇭🇰 Hong Kong 01', 'Auto']);
+  });
+
+  it("doesn't offer a group that would contain itself", () => {
+    toGroups();
+    // Open Auto (the second group) and try adding Proxy, which contains Auto.
+    const openButtons = buttons().filter((b) => b.textContent?.trim() === t.groups.open);
+    openButtons[1]?.click();
+    flushSync();
+    const picker = card()?.querySelector<HTMLSelectElement>(`select[aria-label="${t.groups.addMember}"]`);
+    expect([...(picker?.options ?? [])].map((o) => o.value)).not.toContain('Proxy');
+  });
+
+  it('will not remove a group that is used, and says where', () => {
+    toGroups();
+    click(t.groups.open);
+    click(t.groups.remove);
+    expect(card()?.textContent).toContain("Can't remove it while it's used by: rule 5");
+  });
+
+  it('adds a group', () => {
+    toGroups();
+    const name = card()?.querySelector<HTMLInputElement>(`fieldset.new input[type="text"]`);
+    if (!name) throw new Error('no name input');
+    change(name, 'Video');
+    const boxes = [...(card()?.querySelectorAll<HTMLInputElement>('fieldset.new input[type="checkbox"]') ?? [])];
+    boxes[0]?.click();
+    flushSync();
+    click(t.groups.create);
+    expect(groupsData().map((g) => g.name)).toContain('Video');
+  });
+});
+
+describe('editing: Rules', () => {
+  const toRules = (file = 'configs/provider-basic.yaml') => {
+    toEditing(file);
+    for (let i = 0; i < 3; i++) click(t.edit.next);
+    expect(card()?.getAttribute('aria-label')).toBe(t.edit.sections.rules);
+  };
+  const rules = () => store.data['rules'] as string[];
+
+  it('shows rules in plain words, and searches them', () => {
+    toRules();
+    expect(card()?.textContent).toContain('Site and its subdomains');
+    expect(card()?.textContent).toContain(t.rules.types.MATCH);
+    const search = card()?.querySelector<HTMLInputElement>('input[type="search"]');
+    if (!search) throw new Error('no search');
+    change(search, 'GEOIP');
+    expect(card()?.querySelectorAll('ol.rules li')).toHaveLength(1);
+  });
+
+  it('retargets, moves and removes a rule', () => {
+    toRules();
+    card()?.querySelector<HTMLButtonElement>('ol.rules li .target-name')?.click();
+    flushSync();
+    const target = card()?.querySelector<HTMLSelectElement>('ol.rules li .target select');
+    if (!target) throw new Error('no target');
+    change(target, 'Proxy');
+    expect(card()?.querySelectorAll('ol.rules li .target select')).toHaveLength(0);
+    expect(rules()[0]).toBe('DOMAIN-SUFFIX,local,Proxy');
+    card()?.querySelectorAll<HTMLButtonElement>(`button[aria-label="${t.rules.down}"]`)[0]?.click();
+    flushSync();
+    expect(rules()[1]).toBe('DOMAIN-SUFFIX,local,Proxy');
+    card()?.querySelectorAll<HTMLButtonElement>(`button[aria-label="${t.rules.remove}"]`)[0]?.click();
+    flushSync();
+    expect(rules()).toHaveLength(4);
+  });
+
+  it('adds a rule above the last one, and refuses a bad value', () => {
+    toRules();
+    const value = card()?.querySelector<HTMLInputElement>('fieldset.add input[type="text"]');
+    if (!value) throw new Error('no value input');
+    change(value, 'not a domain');
+    click(t.rules.add);
+    expect(card()?.textContent).toContain(t.editErrors['bad value']);
+    change(value, 'Example.org');
+    click(t.rules.add);
+    expect(rules().slice(-2)).toEqual(['DOMAIN-SUFFIX,example.org,Proxy', 'MATCH,Proxy']);
+    expect(card()?.textContent).toContain('Added as rule 5.');
+  });
+
+  it('pages through long rule lists', () => {
+    toEditing('configs/indentless.yaml');
+    for (let i = 0; i < 60; i++) store.edit([{ op: 'insert', path: ['rules'], index: 0, value: `DOMAIN,r${i}.example.com,DIRECT` }]);
+    flushSync();
+    for (let i = 0; i < 3; i++) click(t.edit.next);
+    expect(card()?.querySelectorAll('ol.rules li')).toHaveLength(50);
+    click(t.rules.next);
+    expect(card()?.querySelectorAll('ol.rules li')).toHaveLength(12);
+  });
+});

@@ -82,7 +82,10 @@ So far, Simple mode covers these steps:
    - **Basics:** mode, ports, sharing with your network, IPv6.
    - **Servers:** rename (groups and rules follow), remove, or add servers
      by pasting share links (vless, trojan, ss, hysteria2, vmess).
-   - Groups, Rules and DNS come next.
+   - **Groups:** type and members, rename, remove, add one.
+   - **Rules:** search, change where a rule goes, move, remove, add one;
+     the rule lists they use.
+   - DNS comes next.
 
 Review and saving come after that. Advanced and Scratch modes come later.
 

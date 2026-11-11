@@ -29,6 +29,9 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   - core/src/edit/servers.ts: adding servers (into chosen groups) and
     removing them (refused when a rule, a dialer-proxy or an emptied group
     would break)
+  - core/src/edit/groups.ts, rules.ts: group type/members/add/remove (no
+    empty groups, loops or `relay`) and rule read/add/retarget/move/remove,
+    rule providers
 - tests/: tests that need Node, with their own `tsconfig.json` (Node types).
   `mihomo.test.ts` runs `mihomo -t` on every output
 - app/: the page (Svelte 5). `app/src/i18n/en.ts` holds every piece of text
@@ -99,6 +102,8 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   blocks them. Use classes; for values, set them from code (`style:` is fine).
 - Keep intake results, sessions and anything holding a YAML document in
   `$state.raw`, replaced whole: deep proxies of big configs are slow.
+- Big lists in the page: page them, and don't render a dropdown per row
+  (5,830 rules x every group was ~2,700 elements); open one at a time.
 - Edits go through `store.edit(changes)`: it applies them to the open
   document in place (fast), adds them to the session, and bumps
   `store.version`; `store.data` is the plain view to read. Work out changes

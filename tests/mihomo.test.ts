@@ -9,8 +9,16 @@ import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
 import {
+  addGroupChanges,
+  addRuleChanges,
   addServersChanges,
   build,
+  buildDoc,
+  groupsOf,
+  insertPosition,
+  serverNames,
+  setGroupTypeChanges,
+  setRuleTargetChanges,
   type Change,
   defaultFixes,
   groupsWithAllServers,
@@ -113,6 +121,26 @@ describe.skipIf(!mihomo)('mihomo loads every output', () => {
     if (parsed.errors.length > 0) throw new Error(`links: ${JSON.stringify(parsed.errors)}`);
     const added = addServersChanges(data, parsed.servers, groupsWithAllServers(data)).changes;
     sessions.push([`${name}-added-servers`, { ...s, changes: [...s.changes, ...added] }]);
+
+    // Groups and rules: a new group of two servers, a rule sending a site to
+    // it, MATCH pointed at it, and the first group switched to fallback.
+    const servers = serverNames(data).slice(0, 2);
+    if (servers.length > 0) {
+      const step = (prev: Change[], make: (d: Record<string, unknown>) => Change[]): Change[] => {
+        const b = buildDoc({ ...s, changes: [...s.changes, ...prev] });
+        if (!b.ok) throw new Error('build failed');
+        return [...prev, ...make(b.doc.toJS() as Record<string, unknown>)];
+      };
+      let ge: Change[] = addGroupChanges(data, { name: 'Test Group', type: 'url-test', members: servers });
+      ge = step(ge, (d) => addRuleChanges(d, { type: 'DOMAIN-SUFFIX', value: 'example.org', target: 'Test Group' }));
+      ge = step(ge, (d) => {
+        const last = insertPosition(d);
+        const rules = (d['rules'] as unknown[] | undefined) ?? [];
+        return last < rules.length ? setRuleTargetChanges(d, last, 'Test Group') : [];
+      });
+      ge = step(ge, (d) => (groupsOf(d).length > 0 ? setGroupTypeChanges(d, 0, 'fallback') : []));
+      sessions.push([`${name}-groups-rules`, { ...s, changes: [...s.changes, ...ge] }]);
+    }
   }
 
   for (const [name, s] of sessions) {

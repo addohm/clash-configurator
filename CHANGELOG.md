@@ -103,3 +103,15 @@ All notable changes to clash-configurator. The format follows
   - New top-level settings go above the servers, groups and rules.
   - mihomo loads every test config with servers added from each kind of
     link.
+- Simple mode, step 4b-2 (2026-11-11): Groups and Rules.
+  - Groups: type (pick by hand, fastest, first that works, spread out) and
+    members (add, reorder, take out); rename; remove when nothing uses it,
+    else what uses it; add a group. It won't make an empty group, a group
+    inside itself, or the `relay` type mihomo dropped (all checked with
+    `mihomo -t`).
+  - Rules: in plain words ("Site and its subdomains: example.com goes to
+    Proxy"), searched and paged 50 at a time for long provider lists; change
+    where one goes, move, remove; add one (checked by kind) just above the
+    last rule, so it takes effect. Rule lists: shown with where they come
+    from and which rules use them; unused ones can be removed.
+  - One target dropdown at a time, so 5,830 rules stay quick.

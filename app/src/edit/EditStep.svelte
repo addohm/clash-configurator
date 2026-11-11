@@ -7,6 +7,8 @@
   import { format, strings as t } from '../i18n';
   import { SECTIONS, store } from '../lib/store.svelte';
   import Basics from './Basics.svelte';
+  import Groups from './Groups.svelte';
+  import Rules from './Rules.svelte';
   import Servers from './Servers.svelte';
 
   const index = $derived(SECTIONS.indexOf(store.section));
@@ -39,6 +41,10 @@
     <Basics />
   {:else if store.section === 'servers'}
     <Servers />
+  {:else if store.section === 'groups'}
+    <Groups />
+  {:else if store.section === 'rules'}
+    <Rules />
   {:else}
     <p class="muted">{t.notBuiltYet}</p>
   {/if}

@@ -4,13 +4,15 @@ Orientation for Claude working on clash-configurator. Read this first.
 
 ## What this is
 
-A new project with no code yet; the purpose isn't written down anywhere in
-the repo. See the TODO question in README.md before building anything.
+A one-page Clash config editor, planned as a website plus a Windows/Linux
+Tauri app: config in, safety check, guided edits, config out. No code yet;
+every design decision is in PLAN.md. Don't build until the owner says go.
 
 ## Layout
 
 - README.md, CHANGELOG.md, DEPLOY.md, SECURITY.md, ROADMAP.md: the standard docs
 - CLAUDE.md: this file
+- PLAN.md: the design decisions log (Q1, Q2, ...); read it before building
 
 No source folders yet.
 

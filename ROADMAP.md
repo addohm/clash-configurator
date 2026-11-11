@@ -9,8 +9,9 @@ change.
 
 ## Next
 
-TODO: the planned work, most important first. First: decide what it does
-(see README.md).
+- Finish planning: the decisions so far are in [PLAN.md](PLAN.md).
+
+TODO: the build steps, most important first, once planning is done.
 
 ## Ideas
 

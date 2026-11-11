@@ -88,7 +88,14 @@ So far, Simple mode covers these steps:
    - **DNS:** on or off, fake or real addresses, the DNS servers, sites
      that get their real address, and per-site DNS.
 
-Review and saving come after that. Advanced and Scratch modes come later.
+5. **Review and save:** what changed, shown line by line next to your
+   original; anything still flagged; then **Save the config** (a Save
+   dialog) and **Save settings** (to carry on later with **Open saved
+   settings**). Everything you didn't change stays exactly as it was in your
+   original file.
+
+Stash and Shadowrocket files of their own come later; for now every app
+gets the Clash (mihomo) config. Advanced and Scratch modes come later.
 
 ## Docs
 

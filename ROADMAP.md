@@ -14,17 +14,15 @@ change.
 - Step 3, editing and mihomo output: changes, renames that update every
   reference, layout-keeping output, the saved settings file, `mihomo -t` on
   every output (2026-11-11).
+- Step 4, Simple mode (2026-11-11): pick the app, bring a config, the safety
+  report (4a); Basics and Servers (4b-1); Groups and Rules (4b-2); DNS
+  (4b-3); review and save (4c). The Save dialog is untested until the
+  owner's next build.
 
 ## Next
 
 The build order from PLAN.md:
 
-- Step 4, Simple mode, in three parts:
-  - 4a, done (2026-11-11): pick the app, bring a config, the safety report
-  - 4b-1, done (2026-11-11): the edit step, Basics and Servers
-  - 4b-2, done (2026-11-11): Groups and Rules
-  - 4b-3, done (2026-11-11): DNS
-  - 4c: review the changes, save the config and the settings file
 
 5. Subscription fetcher
 6. Stash and Shadowrocket output

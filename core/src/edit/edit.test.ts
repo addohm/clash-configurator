@@ -53,7 +53,7 @@ function diff(a: string, b: string): string[] {
 }
 
 describe('output with no changes', () => {
-  for (const file of ['provider-basic', 'panel-style', 'providers', 'indentless', 'risky']) {
+  for (const file of ['provider-basic', 'panel-style', 'providers', 'indentless', 'risky', 'mixed-indent']) {
     for (const [endings, convert] of [
       ['LF', lf],
       ['CRLF', crlf],
@@ -75,6 +75,52 @@ describe('output with no changes', () => {
 });
 
 describe('changes', () => {
+  it('keeps each section laid out as it was, even when sections differ', () => {
+    const s = session('configs/mixed-indent.yaml', [
+      { op: 'insert', path: ['rules'], index: 0, value: 'DOMAIN,new.example.com,REJECT' },
+      { op: 'insert', path: ['dns', 'nameserver'], value: 'tls://1.1.1.1' },
+      { op: 'set', path: ['proxies', 1, 'port'], value: 8389 },
+    ]);
+    const out = built(s).output;
+    // Exactly the three edits, each in its own section's layout.
+    const added = lf(out).split('\n').filter((l) => !lf(s.original).split('\n').includes(l));
+    expect(added).toEqual(['        - tls://1.1.1.1', '    port: 8389', "    - DOMAIN,new.example.com,REJECT"]);
+    // Comments between and after sections stay put.
+    expect(lf(out)).toContain('\n# Servers\nproxies:');
+    expect(lf(out)).toContain("    - 'MATCH,Proxy'\n# the end\n");
+  });
+
+  it('changes only the lines an edit is about', () => {
+    const changedLines = (file: string, changes: Change[]) => {
+      const s = session(file, changes);
+      return diff(s.original, built(s).output);
+    };
+    // A server's name: its first line, which carries the list dash.
+    expect(changedLines('configs/mixed-indent.yaml', [{ op: 'set', path: ['proxies', 0, 'name'], value: 'Server One' }])).toEqual([
+      '14:   - name: "Server A" ->   - name: "Server One"',
+    ]);
+    // One field deep inside a server.
+    expect(changedLines('configs/provider-basic.yaml', [{ op: 'set', path: ['proxies', 1, 'port'], value: 8443 }])).toEqual([
+      '48:     port: 443 ->     port: 8443',
+    ]);
+    // A flow-style value is rewritten on its own line only.
+    expect(changedLines('configs/provider-basic.yaml', [{ op: 'set', path: ['dns', 'nameserver-policy', 'geosite:cn'], value: ['223.5.5.5'] }])).toEqual([
+      "28:     'geosite:cn': [https://doh.pub/dns-query] ->     'geosite:cn': [223.5.5.5]",
+    ]);
+  });
+
+  it('removes a whole server, and nothing else', () => {
+    const s = session('configs/mixed-indent.yaml', [
+      { op: 'delete', path: ['proxy-groups', 0, 'proxies', 1] },
+      { op: 'delete', path: ['proxies', 1] },
+    ]);
+    const before = lf(s.original).split('\n');
+    const after = lf(built(s).output).split('\n');
+    const gone = before.filter((l) => !after.includes(l));
+    expect(gone).toEqual(['  - name: "Server B"', '    type: ss', '    server: 192.0.2.42', '    port: 8388', '    cipher: aes-256-gcm', '    password: fake-password-42', '      - Server B']);
+    expect(after.filter((l) => !before.includes(l))).toEqual([]);
+  });
+
   it('change one value, and only that line changes', () => {
     const s = session('configs/provider-basic.yaml', [{ op: 'set', path: ['mixed-port'], value: 7890 }]);
     expect(diff(s.original, built(s).output)).toEqual(['3: mixed-port: 7897 -> mixed-port: 7890']);

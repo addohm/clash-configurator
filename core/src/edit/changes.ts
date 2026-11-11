@@ -7,7 +7,7 @@
  * typed value can't smuggle in extra settings (Q4): a name containing a
  * newline stays one quoted name.
  */
-import { type Document, isMap, isScalar, isSeq, type YAMLSeq } from 'yaml';
+import { type Document, isCollection, isMap, isScalar, isSeq, type YAMLSeq } from 'yaml';
 import type { Path } from '../intake';
 
 /** Plain data a change can write: what YAML and JSON can both hold. */
@@ -143,7 +143,12 @@ export function applyChange(doc: Document, change: Change): void {
       const scalar = v === null || typeof v !== 'object';
       // Setting a scalar over a scalar keeps the node's comments and quoting.
       if (scalar && isScalar(node)) node.value = v;
-      else doc.setIn(change.path, doc.createNode(v));
+      else {
+        const created = doc.createNode(v);
+        // A list or map replacing one written [a, b] or {a: 1} keeps that style.
+        if (isCollection(node) && node.flow && isCollection(created)) created.flow = true;
+        doc.setIn(change.path, created);
+      }
       return;
     }
     case 'delete':

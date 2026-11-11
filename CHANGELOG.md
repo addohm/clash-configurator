@@ -126,3 +126,27 @@ All notable changes to clash-configurator. The format follows
   - Sites that get their real address (fake-IP exceptions) and per-site
     DNS: add, edit, remove. No ready-made entries (PLAN.md Q10).
   - mihomo loads every test config after DNS edits.
+- Review and save, step 4c (2026-11-11):
+  - The review step compares the original and the new config line by line,
+    only where they differ (with two lines around each change), says what
+    the safety checks still flag in the result, and saves.
+  - **Save the config** and **Save settings** open a Windows Save dialog
+    (a new `save_file` command in the app, using Tauri's dialog plugin);
+    in a browser they download. **Show the whole config** shows it to copy.
+  - Stash and Shadowrocket users are told their own files come later; they
+    get the mihomo config for now.
+
+### Fixed
+
+- Output now keeps everything that didn't change exactly as it was. Before,
+  the whole file was rewritten with one indentation, so a real provider
+  config (four spaces in some sections, two in others) came back with
+  5,845 lines changed and no edits at all. The writer now copies unchanged
+  entries from the original text and rewrites only what changed, at the
+  original's indentation: WF configs come back byte for byte, and the two
+  safety fixes change exactly two lines (2026-11-11).
+- Replacing a `[a, b]` or `{a: 1}` value keeps that style instead of
+  turning it into a multi-line list (2026-11-11).
+- The comparison uses a patience diff, so a rename that touches thousands
+  of rules compares in well under a second instead of timing out
+  (2026-11-11).

@@ -6,6 +6,7 @@
   import EditStep from './edit/EditStep.svelte';
   import BringConfig from './steps/BringConfig.svelte';
   import PickApp from './steps/PickApp.svelte';
+  import Review from './steps/Review.svelte';
   import SafetyReport from './steps/SafetyReport.svelte';
 
   const hints: Record<Mode, string> = {
@@ -88,7 +89,7 @@
               <p>{format(t.edit.ready, counts)}</p>
               <EditStep />
             {:else}
-              <p class="muted">{t.notBuiltYet}</p>
+              <Review />
             {/if}
           </Step>
         </li>

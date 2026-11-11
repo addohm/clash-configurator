@@ -25,6 +25,7 @@ import {
   type Session,
   type Source,
   startSession,
+  writeYaml,
 } from '../../../core/src';
 
 export const STEPS = ['app', 'input', 'report', 'edit', 'review'] as const;
@@ -68,6 +69,18 @@ class Store {
   /** Why the last edit failed, if it did. */
   editError = $state('');
   section: SectionId = $state('basics');
+
+  /**
+   * The new config as it will be saved, and what intake makes of it: only
+   * worked out while the review step is open (writing a big config out takes
+   * a moment).
+   */
+  review = $derived.by(() => {
+    void this.version;
+    if (this.step !== 'review' || !this.doc || this.original === null) return null;
+    const output = writeYaml(this.doc, this.original);
+    return { output, result: intake(output) };
+  });
 
   open(step: StepId): void {
     const i = STEPS.indexOf(step);

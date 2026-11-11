@@ -292,6 +292,33 @@ export const en = {
     added: 'Added {count} servers.',
   },
 
+  review: {
+    intro: 'Check what changed, then save your new config.',
+    changes: '{count} changes made.',
+    noChanges: 'No changes: the new config is the same as the original.',
+    compare: 'What changed',
+    compareInfo:
+      'Your original on the left of each pair (−, red) and the new config (+, green), only where they differ, with a couple of lines around each change for context. Line numbers are from each file.',
+    lines: '{added} lines added, {removed} removed.',
+    moreHidden: '{count} more changed parts not shown.',
+    showMore: 'Show them',
+    stillFlagged: 'Still flagged in the new config:',
+    clean: 'The new config passes the safety checks.',
+    refused: "The new config can't be used: {reason}",
+    appNote: 'Stash and Shadowrocket files of their own come in a later build. For now you get the Clash (mihomo) config, which Stash can usually read.',
+    saveConfig: 'Save the config',
+    saveSettings: 'Save settings',
+    saveSettingsInfo:
+      'A file with your original config and every change, so you can open it here again and carry on. It holds your server passwords: keep it private.',
+    showWhole: 'Show the whole config',
+    hideWhole: 'Hide it',
+    wholeLabel: 'The new config (select all and copy, if you prefer)',
+    saved: 'Saved to {path}.',
+    downloaded: 'Downloaded {name}.',
+    cancelled: 'Not saved.',
+    failed: "Couldn't save it: {reason}",
+  },
+
   report: {
     refusedTitle: "This can't be used",
     tryAgain: 'Try another config',

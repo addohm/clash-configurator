@@ -26,6 +26,11 @@ None yet. Never commit them (`.env`, keys, tokens).
   plugins: no file, shell or network access from the page
   (`src-tauri/capabilities/default.json`). Each feature that needs more adds
   one narrow permission, noted here.
+- **Saving:** the page's only way to write a file is the app's `save_file`
+  command (`src-tauri/src/main.rs`): it shows a Save dialog and writes only
+  where the user chose, a file name with no folders in it, up to 64 MB.
+  The dialog plugin is used from Rust only; the page gets none of its
+  permissions.
 - **Strict Content Security Policy** (`src-tauri/tauri.conf.json`): scripts
   and styles only from the app itself, no inline scripts, no frames, no
   plugins, no outside connections.

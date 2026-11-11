@@ -447,3 +447,70 @@ describe('editing: DNS', () => {
     expect(dns()['enhanced-mode']).toBe('redir-host');
   });
 });
+
+describe('review and save', () => {
+  const toReview = () => {
+    click(t.edit.done);
+    expect(openStep()).toBe(t.steps.review);
+  };
+  const reviewCard = () => target.querySelector('[aria-current="step"]');
+
+  it('compares the original and the new config', () => {
+    toEditing('configs/panel-style.yaml');
+    const select = card()?.querySelector('select');
+    if (!select) throw new Error('no select');
+    change(select, 'global');
+    for (let i = 0; i < 4; i++) click(t.edit.next);
+    toReview();
+    const text = reviewCard()?.textContent ?? '';
+    expect(text).toContain('2 changes made.'); // the allow-lan fix and the mode
+    const added = [...(reviewCard()?.querySelectorAll('tr.added .text') ?? [])].map((td) => td.textContent);
+    const removed = [...(reviewCard()?.querySelectorAll('tr.removed .text') ?? [])].map((td) => td.textContent);
+    expect(added).toEqual(['allow-lan: false', 'mode: global']);
+    expect(removed).toEqual(['allow-lan: true', 'mode: Rule']);
+    expect(text).toContain(t.review.clean);
+  });
+
+  it('says what the safety checks still flag', () => {
+    toEditing('configs/indentless.yaml');
+    store.edit([{ op: 'set', path: ['allow-lan'], value: true }]);
+    flushSync();
+    for (let i = 0; i < 4; i++) click(t.edit.next);
+    toReview();
+    expect(reviewCard()?.textContent).toContain(t.review.stillFlagged);
+    expect(reviewCard()?.textContent).toContain(t.findings['allow-lan'].title);
+  });
+
+  it('downloads the config and the settings in a browser', async () => {
+    toEditing('configs/indentless.yaml');
+    for (let i = 0; i < 4; i++) click(t.edit.next);
+    toReview();
+    expect(reviewCard()?.textContent).toContain(t.review.noChanges);
+    click(t.review.saveConfig);
+    await new Promise((r) => setTimeout(r, 0));
+    flushSync();
+    expect(reviewCard()?.textContent).toContain('Downloaded config (edited).yaml.');
+    click(t.review.saveSettings);
+    await new Promise((r) => setTimeout(r, 0));
+    flushSync();
+    expect(reviewCard()?.textContent).toContain('Downloaded config.ccsettings.json.');
+  });
+
+  it('shows the whole config to copy', () => {
+    toEditing('configs/indentless.yaml');
+    for (let i = 0; i < 4; i++) click(t.edit.next);
+    toReview();
+    click(t.review.showWhole);
+    expect(reviewCard()?.querySelector<HTMLTextAreaElement>('.whole textarea')?.value).toBe(fixture('configs/indentless.yaml'));
+  });
+
+  it('tells Stash and Shadowrocket users their own files come later', () => {
+    click(t.apps.shadowrocket);
+    paste(fixture('configs/indentless.yaml'));
+    click(t.input.check);
+    click(t.report.continue);
+    for (let i = 0; i < 4; i++) click(t.edit.next);
+    toReview();
+    expect(reviewCard()?.textContent).toContain(t.review.appNote);
+  });
+});

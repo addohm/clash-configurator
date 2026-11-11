@@ -21,7 +21,9 @@ build order. The owner said go on 2026-11-11; build one step at a time.
     with fixes, `fixes.ts` applies them, `known.ts` lists known settings and
     dashboard sources
   - core/src/edit/: `changes.ts` (the change list and its checks),
-    `output.ts` (YAML out, keeping the original's layout), `references.ts`
+    `output.ts` (YAML out: splices unchanged entries from the original
+    text, rewrites only what changed), `compare.ts` (the review's line
+    comparison, a patience diff), `references.ts`
     (renames that update every reference), `session.ts` (original + changes
     -> built config), `settings.ts` (the saved settings file)
   - core/src/links/: share links (vless, trojan, ss, hysteria2, vmess) to
@@ -40,14 +42,17 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   the page shows; nothing user-facing is written inline
   - app/src/lib/: `store.svelte.ts` (the page's state: steps, intake result,
     session), `Info.svelte` (the ⓘ tooltip), `Step.svelte` (a numbered step)
-  - app/src/steps/: one component per Simple-mode step
+  - app/src/steps/: one component per Simple-mode step (`Review.svelte`
+    is step 5); `lib/save.ts` saves through the app's `save_file` command,
+    or downloads in a browser
   - app/src/edit/: the edit step (`EditStep.svelte`) and one card per part
     (`Basics.svelte`, `Servers.svelte`, `Groups.svelte`, `Rules.svelte`,
     `Dns.svelte`); `lib/StringList.svelte` is the editable list they share
   - `App.test.ts`: page tests in happy-dom; `frozen.test.ts` runs the main
     path with Object.prototype frozen, as the app does
 - src-tauri/: the Windows app shell (Tauri 2, Rust): `tauri.conf.json` (CSP,
-  window, installer), `capabilities/` (what the page may ask for), `icons/`
+  window, installer), `capabilities/` (what the page may ask for), `icons/`,
+  `src/main.rs` (the `save_file` command: Save dialog, then write)
 - tools/update.cmd + update.ps1: the owner's build script (menu: update,
   build, checks, dev mode)
 - tools/art/: the placeholder icon and the script that draws it
@@ -107,6 +112,9 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   `$state.raw`, replaced whole: deep proxies of big configs are slow.
 - Big lists in the page: page them, and don't render a dropdown per row
   (5,830 rules x every group was ~2,700 elements); open one at a time.
+- Output must keep unchanged parts byte for byte: real configs mix
+  indentation and spacing, and the review's comparison is only useful if it
+  shows real changes. Test new edits with "only these lines change".
 - Edits go through `store.edit(changes)`: it applies them to the open
   document in place (fast), adds them to the session, and bumps
   `store.version`; `store.data` is the plain view to read. Work out changes

@@ -85,7 +85,8 @@ So far, Simple mode covers these steps:
    - **Groups:** type and members, rename, remove, add one.
    - **Rules:** search, change where a rule goes, move, remove, add one;
      the rule lists they use.
-   - DNS comes next.
+   - **DNS:** on or off, fake or real addresses, the DNS servers, sites
+     that get their real address, and per-site DNS.
 
 Review and saving come after that. Advanced and Scratch modes come later.
 

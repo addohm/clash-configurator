@@ -32,6 +32,8 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   - core/src/edit/groups.ts, rules.ts: group type/members/add/remove (no
     empty groups, loops or `relay`) and rule read/add/retarget/move/remove,
     rule providers
+  - core/src/edit/dns.ts: checks for DNS servers and site patterns, and the
+    DNS list and per-site changes
 - tests/: tests that need Node, with their own `tsconfig.json` (Node types).
   `mihomo.test.ts` runs `mihomo -t` on every output
 - app/: the page (Svelte 5). `app/src/i18n/en.ts` holds every piece of text
@@ -40,7 +42,8 @@ build order. The owner said go on 2026-11-11; build one step at a time.
     session), `Info.svelte` (the ⓘ tooltip), `Step.svelte` (a numbered step)
   - app/src/steps/: one component per Simple-mode step
   - app/src/edit/: the edit step (`EditStep.svelte`) and one card per part
-    (`Basics.svelte`, `Servers.svelte`, ...)
+    (`Basics.svelte`, `Servers.svelte`, `Groups.svelte`, `Rules.svelte`,
+    `Dns.svelte`); `lib/StringList.svelte` is the editable list they share
   - `App.test.ts`: page tests in happy-dom; `frozen.test.ts` runs the main
     path with Object.prototype frozen, as the app does
 - src-tauri/: the Windows app shell (Tauri 2, Rust): `tauri.conf.json` (CSP,

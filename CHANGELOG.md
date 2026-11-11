@@ -115,3 +115,14 @@ All notable changes to clash-configurator. The format follows
     last rule, so it takes effect. Rule lists: shown with where they come
     from and which rules use them; unused ones can be removed.
   - One target dropdown at a time, so 5,830 rules stay quick.
+- Simple mode, step 4b-3 (2026-11-11): DNS.
+  - On or off, fake or real addresses, and the server lists the config has
+    (main, for finding proxy servers, plus default, backup and direct ones
+    when present): add, move, remove.
+  - Servers are checked: plain addresses, https://, tls://, quic://,
+    udp://, tcp://, dhcp://, system, and `#Name` to look up through a group
+    (which must exist; mihomo itself doesn't check). The list for finding
+    DNS servers takes plain addresses only.
+  - Sites that get their real address (fake-IP exceptions) and per-site
+    DNS: add, edit, remove. No ready-made entries (PLAN.md Q10).
+  - mihomo loads every test config after DNS edits.

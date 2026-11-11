@@ -23,7 +23,7 @@ The build order from PLAN.md:
   - 4a, done (2026-11-11): pick the app, bring a config, the safety report
   - 4b-1, done (2026-11-11): the edit step, Basics and Servers
   - 4b-2, done (2026-11-11): Groups and Rules
-  - 4b-3: DNS
+  - 4b-3, done (2026-11-11): DNS
   - 4c: review the changes, save the config and the settings file
 
 5. Subscription fetcher

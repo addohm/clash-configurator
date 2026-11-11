@@ -48,6 +48,22 @@ export {
   type RuleProviderView,
   type RuleView,
 } from './rules';
+export {
+  addToDnsList,
+  checkDnsServer,
+  checkDomainPattern,
+  checkPlainDnsServer,
+  checkPolicyPattern,
+  DNS_LISTS,
+  dnsOf,
+  moveInDnsList,
+  policiesOf,
+  removeFromDnsList,
+  removePolicyChanges,
+  setPolicyChanges,
+  type DnsList,
+  type PolicyView,
+} from './dns';
 export { build, buildDoc, fixToChanges, startSession, type Built, type BuiltDoc, type Session, type Source, type SourceKind } from './session';
 export {
   readSettings,

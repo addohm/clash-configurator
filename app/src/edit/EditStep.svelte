@@ -7,6 +7,7 @@
   import { format, strings as t } from '../i18n';
   import { SECTIONS, store } from '../lib/store.svelte';
   import Basics from './Basics.svelte';
+  import Dns from './Dns.svelte';
   import Groups from './Groups.svelte';
   import Rules from './Rules.svelte';
   import Servers from './Servers.svelte';
@@ -33,7 +34,11 @@
   <span>{store.edits.length > 0 || (store.session?.changes.length ?? 0) > 0 ? format(t.edit.changes, { count: store.session?.changes.length ?? 0 }) : t.edit.noChanges}</span>
   <button type="button" class="link" disabled={store.edits.length === 0} onclick={() => store.undo()}>{t.edit.undo}</button>
 </div>
-{#if store.editError}<p class="error" role="alert">{format(t.edit.failed, { reason: store.editError })}</p>{/if}
+{#if store.editError}
+  <p class="error" role="alert">
+    {format(t.edit.failed, { reason: t.editErrors[store.editError as keyof typeof t.editErrors] ?? store.editError })}
+  </p>
+{/if}
 
 <section class="card" aria-label={t.edit.sections[store.section]}>
   <h3>{t.edit.sections[store.section]} <span class="of">{format(t.edit.sectionOf, { n: index + 1, total: SECTIONS.length })}</span></h3>
@@ -46,7 +51,7 @@
   {:else if store.section === 'rules'}
     <Rules />
   {:else}
-    <p class="muted">{t.notBuiltYet}</p>
+    <Dns />
   {/if}
 </section>
 
@@ -113,10 +118,6 @@
 
   .error {
     color: var(--danger);
-  }
-
-  .muted {
-    color: var(--muted);
   }
 
   .actions {

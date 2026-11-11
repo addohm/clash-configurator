@@ -102,6 +102,8 @@ export const en = {
     'no such rule list': "There's no rule list with that name.",
     'group in use': 'It is still used.',
     'rule list in use': 'It is still used.',
+    'needs an address': 'This list needs a plain address (like 223.5.5.5), not a name.',
+    'no such member': 'That entry no longer exists.',
   },
 
   groups: {
@@ -204,6 +206,49 @@ export const en = {
     listUsed: 'Used by rules {rules}.',
     listUnused: 'Not used by any rule.',
     removeList: 'Remove',
+  },
+
+  dns: {
+    intro: 'How your app finds the address of each site. Wrong DNS settings are a common reason sites fail to load, especially in China.',
+    enable: "Use the config's own DNS",
+    enableInfo: 'When on, your app looks up site addresses itself with the servers below, instead of asking your network. Most proxy configs need this on.',
+    mode: 'Address mode',
+    modeInfo:
+      "Fake addresses: your app answers lookups instantly with stand-in addresses and works out the real one later. Faster, and the usual choice. Real addresses: every lookup waits for a real answer; some apps and games work better this way.",
+    modes: { 'fake-ip': 'Fake addresses (faster, the usual)', 'redir-host': 'Real addresses' },
+    lists: {
+      nameserver: 'Main DNS servers',
+      'proxy-server-nameserver': 'For finding your proxy servers',
+      'default-nameserver': 'For finding the DNS servers themselves',
+      fallback: 'Backup DNS servers',
+      'direct-nameserver': 'For sites that skip the proxy',
+      'fake-ip-filter': 'Sites that get their real address',
+    },
+    listInfo: {
+      nameserver: 'Where most lookups go. Encrypted ones (https://, tls://) stop your network from seeing or changing the answers.',
+      'proxy-server-nameserver':
+        "Used only to find your proxy servers' own addresses. If these fail, nothing connects, so use servers that work on the network you're on.",
+      'default-nameserver':
+        'Used only to find the addresses of DNS servers written as names (like dns.google). Plain addresses only, like 223.5.5.5.',
+      fallback: 'Asked as well, for sites the main servers might answer wrongly.',
+      'direct-nameserver': 'Used for sites your rules send direct, skipping the proxy.',
+      'fake-ip-filter':
+        'These sites always get their real address instead of a stand-in: local network names, connectivity checks, time servers, game and voice chat. *.lan means every name ending in .lan; +.example.com means example.com and everything under it.',
+    },
+    serverPlaceholder: 'https://dns.example/dns-query, tls://1.1.1.1, or 223.5.5.5',
+    patternPlaceholder: '+.example.com, *.lan or geosite:cn',
+    empty: 'None set.',
+    add: 'Add',
+    up: 'Move up',
+    down: 'Move down',
+    remove: 'Remove',
+    policies: 'Per-site DNS',
+    policiesInfo:
+      'Send lookups for some sites to particular DNS servers: Chinese sites to a Chinese server, work sites to your company server. Several patterns can share a line, separated by commas.',
+    policyPattern: 'Sites',
+    policyServers: 'DNS servers (separate with commas)',
+    edit: 'Edit',
+    addPolicy: 'Add per-site DNS',
   },
 
   servers: {

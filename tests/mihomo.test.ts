@@ -10,6 +10,8 @@ import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
 import {
   addGroupChanges,
+  addToDnsList,
+  setPolicyChanges,
   addRuleChanges,
   addServersChanges,
   build,
@@ -141,6 +143,17 @@ describe.skipIf(!mihomo)('mihomo loads every output', () => {
       ge = step(ge, (d) => (groupsOf(d).length > 0 ? setGroupTypeChanges(d, 0, 'fallback') : []));
       sessions.push([`${name}-groups-rules`, { ...s, changes: [...s.changes, ...ge] }]);
     }
+
+    // DNS: on, servers of each kind, an exception and per-site DNS. A
+    // server dialled through the first group checks the #Name form.
+    let de: Change[] = [{ op: 'set', path: ['dns', 'enable'], value: true }];
+    de = [...de, ...addToDnsList(data, 'nameserver', 'tls://1.1.1.1:853')];
+    de = [...de, ...addToDnsList(data, 'proxy-server-nameserver', '223.5.5.5')];
+    de = [...de, ...addToDnsList(data, 'default-nameserver', '119.29.29.29')];
+    de = [...de, ...addToDnsList(data, 'fake-ip-filter', '+.corp.example')];
+    const via = groupsOf(data)[0]?.name;
+    de = [...de, ...setPolicyChanges(data, '+.example.org,example.net', [via ? `https://dns.google/dns-query#${via}` : 'https://dns.google/dns-query', '8.8.8.8'])];
+    sessions.push([`${name}-dns`, { ...s, changes: [...s.changes, ...de] }]);
   }
 
   for (const [name, s] of sessions) {

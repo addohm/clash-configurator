@@ -40,6 +40,11 @@ several minutes, while Rust compiles everything; later ones are quicker.
 The app is unsigned, so Windows may show "Windows protected your PC". Click
 **More info**, then **Run anyway**.
 
+### Testing with your own configs
+
+Put real configs in `fixtures\private\` (git ignores them) and pick **3** in
+`tools\update`. The tests check that each one is accepted.
+
 ### Working without the app
 
 The page and the core also run without Rust, in any browser:

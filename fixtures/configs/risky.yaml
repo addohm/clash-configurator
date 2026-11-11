@@ -1,0 +1,58 @@
+# A made-up config with every risky setting the checks flag.
+mixed-port: 7890
+allow-lan: true
+external-controller: 0.0.0.0:9090
+secret: ''
+external-ui: ../../../etc
+external-ui-url: https://dash.example.net/ui.zip
+geox-url:
+  geoip: http://geo.example.net/geoip.dat
+dns:
+  enable: true
+  listen: 0.0.0.0:53
+listeners:
+  - name: open-socks
+    type: socks
+    port: 10808
+  - name: local-http
+    type: http
+    port: 10809
+    listen: 127.0.0.1
+tunnels:
+  - tcp/udp,127.0.0.1:6553,198.51.100.53:53,Proxy
+hosts:
+  bank.example.com: 203.0.113.66
+script:
+  shortcuts:
+    quic: network == 'udp' and dst_port == 443
+http:
+  mitm:
+    - "*.example.com"
+  script:
+    - match: ^https://example\.com
+      name: change-page
+  url-rewrite:
+    - ^https://example\.com https://example.net 302
+proxy-providers:
+  main:
+    type: http
+    url: http://sub.example.com/fake
+    path: /etc/passwd
+some-new-setting: true
+proxies:
+  - name: "Normal 01"
+    type: ss
+    server: 192.0.2.1
+    port: 8388
+    cipher: aes-128-gcm
+    password: fake-password-21
+  - name: "Hidden ‮10 lamroN"
+    type: ss
+    server: 192.0.2.2
+    port: 8388
+    cipher: aes-128-gcm
+    password: fake-password-22
+proxy-groups:
+  - {name: Proxy, type: select, proxies: ["Normal 01", "Hidden ‮10 lamroN"]}
+rules:
+  - MATCH,Proxy

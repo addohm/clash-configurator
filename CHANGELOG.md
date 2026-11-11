@@ -20,3 +20,17 @@ All notable changes to clash-configurator. The format follows
     runs the app on Windows
   - a placeholder icon
   - the MIT license
+- Safe intake, step 2 (2026-11-11), in `core/src/intake/`:
+  - It refuses hostile input before using it: too big, not text, web pages,
+    share-link lists, broken YAML, more than one document, YAML tags,
+    alias bombs, deep nesting, too many entries, duplicate keys, keys that
+    attack JavaScript objects, and configs with no servers.
+  - It flags risky settings, most serious first, each with a fix: an open or
+    passwordless controller, LAN sharing, open listeners and DNS, outside
+    dashboards, plain-http downloads, file paths outside the app's folder,
+    scripts, MITM, rewrites, tunnels, hosts, hidden characters, and settings
+    it doesn't know.
+  - Fixes edit the original document, so comments and order stay.
+  - Plain-English text for every refusal and finding, in `app/src/i18n/en.ts`.
+  - Made-up and booby-trapped test configs in `fixtures/`, plus a test that
+    runs any real configs in `fixtures/private/`.

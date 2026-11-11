@@ -1,0 +1,28 @@
+# A made-up config whose servers and rules come from providers.
+mixed-port: 7890
+mode: rule
+proxy-providers:
+  main:
+    type: http
+    url: https://sub.example.com/api/v1/client/subscribe?token=fake-token
+    interval: 3600
+    path: ./providers/main.yaml
+    health-check:
+      enable: true
+      url: https://www.gstatic.com/generate_204
+      interval: 300
+rule-providers:
+  ads:
+    type: http
+    behavior: domain
+    format: mrs
+    url: https://rules.example.org/ads.mrs
+    path: ./rules/ads.mrs
+    interval: 86400
+proxy-groups:
+  - name: Proxy
+    type: select
+    use: [main]
+rules:
+  - RULE-SET,ads,REJECT
+  - MATCH,Proxy

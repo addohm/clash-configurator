@@ -16,6 +16,12 @@ None yet. Never commit them (`.env`, keys, tokens).
 
 ## How the app is locked down
 
+- **Every input is treated as hostile** (`core/src/intake/`, PLAN.md Q4).
+  It's only read as data: no YAML tags, so nothing is built or run. Size,
+  nesting, entry count and alias expansion are capped before anything else
+  reads it. Keys like `__proto__` are refused. Risky settings are flagged
+  with a fix, and the dangerous ones start ticked.
+
 - **The page can't do anything but show itself.** The Tauri app loads no
   plugins: no file, shell or network access from the page
   (`src-tauri/capabilities/default.json`). Each feature that needs more adds

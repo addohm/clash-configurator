@@ -16,6 +16,10 @@ build order. The owner said go on 2026-11-11; build one step at a time.
 - PLAN.md: the design decisions log (Q1, Q2, ...); read it before building
 - core/src/: the config core in plain TypeScript, no UI; tests sit beside the
   code as `*.test.ts`
+  - core/src/intake/: what every input goes through. `parse.ts` refuses
+    hostile input (limits in `limits.ts`), `checks.ts` flags risky settings
+    with fixes, `fixes.ts` applies them, `known.ts` lists known settings and
+    dashboard sources
 - app/: the page (Svelte 5). `app/src/i18n/en.ts` holds every piece of text
   the page shows; nothing user-facing is written inline
 - src-tauri/: the Windows app shell (Tauri 2, Rust): `tauri.conf.json` (CSP,
@@ -23,8 +27,8 @@ build order. The owner said go on 2026-11-11; build one step at a time.
 - tools/update.cmd + update.ps1: the owner's build script (menu: update,
   build, checks, dev mode)
 - tools/art/: the placeholder icon and the script that draws it
-- fixtures/: made-up test configs; `fixtures/private/` is git-ignored, for
-  real ones
+- fixtures/: `configs/` (made-up, accepted), `hostile/` (must be refused);
+  `fixtures/private/` is git-ignored, for real ones
 - vite.config.ts (page builds to dist/), vitest.config.ts (core tests),
   tsconfig.json (strict)
 
@@ -71,6 +75,12 @@ build order. The owner said go on 2026-11-11; build one step at a time.
 - Heavy jobs (installs, builds) run under `nice -n 19`: the CPU is shared.
 - Svelte 5 runes (`$state`, `onclick=`), strict TypeScript. Comments say why,
   briefly.
+- The core must run in a browser: no Node APIs, and no `@types/node`. Tests
+  read fixtures with `import.meta.glob(..., { query: '?raw' })`.
+- Every refusal code and finding id has English text in `app/src/i18n/en.ts`;
+  `en.test.ts` fails if one is missing. Add both together.
+- Treat inputs as hostile: walk the YAML document (aliases count once), not
+  the plain-object view, when scanning a whole config.
 
 ## Don't
 

@@ -1,0 +1,8 @@
+# Tries to change JavaScript's object prototype. Must be refused.
+proxies:
+  - name: a
+    type: ss
+    server: 192.0.2.1
+    port: 1
+    __proto__:
+      polluted: true

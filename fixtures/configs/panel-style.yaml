@@ -1,0 +1,22 @@
+# A made-up config in the shape the common web panels (V2Board, Xboard,
+# SSPanel) send: separate ports, allow-lan on, Chinese group names.
+port: 7890
+socks-port: 7891
+allow-lan: true
+mode: Rule
+log-level: info
+external-controller: 127.0.0.1:9090
+proxies:
+  - {name: "香港 01 | IPLC", type: vmess, server: hk.example.net, port: 30001, uuid: 00000000-0000-4000-8000-000000000011, alterId: 0, cipher: auto, udp: true}
+  - {name: "日本 01", type: trojan, server: jp.example.net, port: 443, password: fake-password-12, udp: true, sni: jp.example.net, skip-cert-verify: true}
+  - {name: "美国 01", type: ss, server: 203.0.113.30, port: 10086, cipher: aes-256-gcm, password: fake-password-13, udp: true}
+proxy-groups:
+  - {name: "🚀 节点选择", type: select, proxies: ["♻️ 自动选择", "香港 01 | IPLC", "日本 01", "美国 01", DIRECT]}
+  - {name: "♻️ 自动选择", type: url-test, url: "http://www.gstatic.com/generate_204", interval: 86400, proxies: ["香港 01 | IPLC", "日本 01", "美国 01"]}
+  - {name: "🎯 全球直连", type: select, proxies: [DIRECT, "🚀 节点选择"]}
+  - {name: "🐟 漏网之鱼", type: select, proxies: ["🚀 节点选择", "🎯 全球直连"]}
+rules:
+  - DOMAIN-SUFFIX,cn,🎯 全球直连
+  - DOMAIN-KEYWORD,google,🚀 节点选择
+  - GEOIP,CN,🎯 全球直连
+  - MATCH,🐟 漏网之鱼

@@ -9,12 +9,13 @@ change.
 - Planning: Q1–Q27 in [PLAN.md](PLAN.md) (2026-11-11).
 - Step 1, skeleton: core, page, Tauri shell, Windows build script (2026-11-11).
   The Windows build is untested until the owner runs `tools\update`.
+- Step 2, safe intake: refusals, risky-setting checks and fixes, with tests
+  (2026-11-11).
 
 ## Next
 
 The build order from PLAN.md:
 
-2. Safe intake
 3. Editing and mihomo output
 4. Simple mode
 5. Subscription fetcher

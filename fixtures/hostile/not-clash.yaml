@@ -1,0 +1,4 @@
+# Valid YAML, but not a Clash config (no servers). Must be refused.
+services:
+  web:
+    image: nginx

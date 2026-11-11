@@ -1,0 +1,91 @@
+# A made-up provider config in the shape most mihomo providers send.
+# Every server, password and key here is fake (documentation addresses).
+mixed-port: 7897
+allow-lan: false
+mode: rule
+log-level: info
+ipv6: false
+unified-delay: true
+external-controller: 127.0.0.1:9097
+secret: fake-secret-123
+
+dns:
+  enable: true
+  ipv6: false
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - '*.lan'
+    - '+.msftconnecttest.com'
+  default-nameserver:
+    - 223.5.5.5
+  nameserver:
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
+  proxy-server-nameserver:
+    - https://doh.pub/dns-query
+  nameserver-policy:
+    'geosite:cn': [https://doh.pub/dns-query]
+
+proxies:
+  - name: "🇭🇰 Hong Kong 01"
+    type: vless
+    server: 192.0.2.10
+    port: 443
+    uuid: 00000000-0000-4000-8000-000000000001
+    network: tcp
+    tls: true
+    udp: true
+    flow: xtls-rprx-vision
+    servername: www.example.com
+    reality-opts:
+      public-key: FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAK
+      short-id: 0123abcd
+    client-fingerprint: chrome
+  - name: "🇯🇵 Tokyo 01"
+    type: hysteria2
+    server: 192.0.2.20
+    port: 443
+    ports: 20000-30000
+    password: fake-password-2
+    sni: tokyo.example.com
+    skip-cert-verify: false
+  - name: "🇸🇬 Singapore 01"
+    type: trojan
+    server: sg.example.com
+    port: 443
+    password: fake-password-3
+    sni: sg.example.com
+    udp: true
+  - name: "🇺🇸 Los Angeles 01"
+    type: ss
+    server: 198.51.100.40
+    port: 8388
+    cipher: 2022-blake3-aes-128-gcm
+    password: ZmFrZWZha2VmYWtlZmFrZQ==
+
+# Shared settings for the health-checked groups.
+auto: &auto
+  type: url-test
+  url: https://www.gstatic.com/generate_204
+  interval: 300
+  tolerance: 50
+
+proxy-groups:
+  - name: Proxy
+    type: select
+    proxies: [Auto, "🇭🇰 Hong Kong 01", "🇯🇵 Tokyo 01", "🇸🇬 Singapore 01", "🇺🇸 Los Angeles 01", DIRECT]
+  - name: Auto
+    <<: *auto
+    proxies: ["🇭🇰 Hong Kong 01", "🇯🇵 Tokyo 01", "🇸🇬 Singapore 01", "🇺🇸 Los Angeles 01"]
+  - name: Asia
+    <<: *auto
+    filter: "(?i)hong kong|tokyo|singapore"
+    proxies: ["🇭🇰 Hong Kong 01", "🇯🇵 Tokyo 01", "🇸🇬 Singapore 01"]
+
+rules:
+  - DOMAIN-SUFFIX,local,DIRECT
+  - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+  - GEOSITE,cn,DIRECT
+  - GEOIP,CN,DIRECT,no-resolve
+  - MATCH,Proxy

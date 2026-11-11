@@ -2,3 +2,4 @@
 // UI, so the page, the app and the tests all use the same code.
 export * from './modes';
 export * from './apps';
+export * from './intake';

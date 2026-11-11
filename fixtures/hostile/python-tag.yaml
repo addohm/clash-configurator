@@ -1,0 +1,3 @@
+# A PyYAML exploit: an unsafe loader would run `id`. Must be refused.
+proxies:
+  - !!python/object/apply:os.system ["id"]

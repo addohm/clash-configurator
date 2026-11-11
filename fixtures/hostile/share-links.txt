@@ -1,0 +1,2 @@
+vless://00000000-0000-4000-8000-000000000001@192.0.2.10:443?security=reality#HK
+hysteria2://fake-password@192.0.2.20:443#JP

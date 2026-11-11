@@ -32,6 +32,13 @@ trap {
 }
 
 $appExe = Join-Path $root 'src-tauri\target\release\clash-configurator.exe'
+# mihomo, for the tests that load every output with `mihomo -t` (PLAN.md Q14). Pinned: a new
+# version means a new hash, from the release's page on GitHub.
+$mihomoVersion = 'v1.19.33'
+$mihomoZip = "mihomo-windows-amd64-$mihomoVersion.zip"
+$mihomoSha256 = '6ab2180875f9f6fff8b19386d760daec257f66b45f72b3afc650634272fa837a'
+$mihomoExe = Join-Path $root 'tools\bin\mihomo.exe'
+$mihomoStamp = Join-Path $root 'tools\bin\mihomo.version'
 $bundleDir = Join-Path $root 'src-tauri\target\release\bundle\nsis'
 $LINE = '=' * 78
 
@@ -258,8 +265,40 @@ function Install-Packages {
     Ok 'Packages installed.'
 }
 
+# Downloads the pinned mihomo into tools\bin (git ignores it), checking its hash first.
+function Get-Mihomo {
+    if ((Test-Path $mihomoExe) -and (Test-Path $mihomoStamp) -and ((Get-Content $mihomoStamp -Raw).Trim() -eq $mihomoVersion)) {
+        Ok "mihomo $mihomoVersion (for the output checks)"
+        return
+    }
+    $bin = Split-Path -Parent $mihomoExe
+    New-Item -ItemType Directory -Force -Path $bin | Out-Null
+    $zip = Join-Path $bin $mihomoZip
+    $url = "https://github.com/MetaCubeX/mihomo/releases/download/$mihomoVersion/$mihomoZip"
+    Dim "Downloading $url"
+    $saved = $ProgressPreference
+    $ProgressPreference = 'SilentlyContinue'   # the progress bar makes downloads very slow in 5.1
+    try { Invoke-WebRequest -Uri $url -OutFile $zip -UseBasicParsing }
+    finally { $ProgressPreference = $saved }
+    $hash = (Get-FileHash -Path $zip -Algorithm SHA256).Hash.ToLower()
+    if ($hash -ne $mihomoSha256) {
+        Remove-Item $zip -Force
+        throw "The mihomo download doesn't match its pinned hash, so it wasn't used (got $hash)."
+    }
+    $unpack = Join-Path $bin 'unpack'
+    if (Test-Path $unpack) { Remove-Item $unpack -Recurse -Force }
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($zip, $unpack)
+    Move-Item -Force (Join-Path $unpack 'mihomo-windows-amd64.exe') $mihomoExe
+    Remove-Item $unpack -Recurse -Force
+    Remove-Item $zip -Force
+    Set-Content -Path $mihomoStamp -Value $mihomoVersion
+    Ok "mihomo $mihomoVersion downloaded (hash checked)"
+}
+
 function Invoke-Checks {
-    Step 'Run the checks' @('Type checks on the page and core, then the unit tests.')
+    Step 'Run the checks' @('Type checks, then the tests. mihomo loads every config the tests make.')
+    Get-Mihomo
     Invoke-Tool 'npm' @('run', 'check') 'The type checks failed (see above).'
     Invoke-Tool 'npm' @('test') 'Some tests failed (see above).'
     Ok 'All checks passed.'

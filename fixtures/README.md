@@ -4,7 +4,8 @@ Configs the core's tests read (PLAN.md Q26). Everything outside `private/` is
 made up: fake servers (documentation addresses), passwords and URLs.
 
 - `configs/`: shapes real configs come in, which intake must accept.
-  `risky.yaml` has every risky setting the checks flag.
+  `risky.yaml` has every risky setting the checks flag; `indentless.yaml`
+  has lists flush with their keys, as many apps write them.
 - `hostile/`: booby-trapped inputs intake must refuse (see its README).
 
 `private/` is for real configs (from your provider, Wannaflix, addohm.net).

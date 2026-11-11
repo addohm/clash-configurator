@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { FINDING_IDS, LIMITS, REFUSAL_CODES } from '../../../core/src';
+import { FINDING_IDS, LIMITS, REFUSAL_CODES, SETTINGS_ERRORS } from '../../../core/src';
 import { strings as t, format, refusalText } from '.';
 
 describe('English text', () => {
   it('explains every refusal', () => {
     for (const code of REFUSAL_CODES) expect(t.refusals[code]).toBeTruthy();
+  });
+
+  it('explains every settings-file error', () => {
+    for (const code of SETTINGS_ERRORS) expect(t.settingsErrors[code]).toBeTruthy();
   });
 
   it('explains every finding, with a fix label where there is a fix', () => {

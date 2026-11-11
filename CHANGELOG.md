@@ -40,3 +40,20 @@ All notable changes to clash-configurator. The format follows
   - Plain-English text for every refusal and finding, in `app/src/i18n/en.ts`.
   - Made-up and booby-trapped test configs in `fixtures/`, plus a test that
     runs any real configs in `fixtures/private/`.
+- Editing and mihomo output, step 3 (2026-11-11), in `core/src/edit/`:
+  - Changes (set, delete, insert, move) are kept as a list on top of the
+    original. Values are written by the YAML library, so a typed value can't
+    add settings.
+  - Output keeps the original's comments, order, quoting and list layout. An
+    unchanged config comes back byte for byte.
+  - Renaming a server or group updates every place that names it: groups,
+    rules, sub-rules, dialer-proxy, listeners, tunnels, providers and DNS.
+    Names with commas, built-in names and names already in use are refused.
+  - The saved settings file (JSON): the original plus the changes, app, mode
+    and source. Loading checks every field and runs the original through
+    intake again.
+  - Every edited result goes through intake, so the user's own changes get
+    the same checks.
+  - `tests/mihomo.test.ts` loads every output with `mihomo -t`.
+    `tools\update` downloads a pinned, hash-checked mihomo into `tools\bin\`
+    for it.

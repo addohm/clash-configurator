@@ -20,6 +20,12 @@ build order. The owner said go on 2026-11-11; build one step at a time.
     hostile input (limits in `limits.ts`), `checks.ts` flags risky settings
     with fixes, `fixes.ts` applies them, `known.ts` lists known settings and
     dashboard sources
+  - core/src/edit/: `changes.ts` (the change list and its checks),
+    `output.ts` (YAML out, keeping the original's layout), `references.ts`
+    (renames that update every reference), `session.ts` (original + changes
+    -> built config), `settings.ts` (the saved settings file)
+- tests/: tests that need Node, with their own `tsconfig.json` (Node types).
+  `mihomo.test.ts` runs `mihomo -t` on every output
 - app/: the page (Svelte 5). `app/src/i18n/en.ts` holds every piece of text
   the page shows; nothing user-facing is written inline
 - src-tauri/: the Windows app shell (Tauri 2, Rust): `tauri.conf.json` (CSP,
@@ -44,8 +50,8 @@ build order. The owner said go on 2026-11-11; build one step at a time.
    - SECURITY.md: when secrets, access or permissions change
    - ROADMAP.md: when something on it is done, or new plans are made
    - this file: when the layout, workflow or conventions change
-4. Run the checks, then commit: `npm run check` (svelte-check and
-   TypeScript, warnings fail) and `npm test` (vitest). `tools\update` runs
+4. Run the checks, then commit: `npm run check` (svelte-check, warnings
+   fail, then `tsc -p tests`) and `npm test` (vitest, including mihomo). `tools\update` runs
    the same ones on the owner's PC.
 
 ## Conventions
@@ -77,6 +83,12 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   briefly.
 - The core must run in a browser: no Node APIs, and no `@types/node`. Tests
   read fixtures with `import.meta.glob(..., { query: '?raw' })`.
+- mihomo for the tests is at `~/.local/opt/mihomo/mihomo` here (v1.19.33,
+  hash checked); its geo data is cached in `~/.cache/clash-configurator-mihomo`.
+  On the owner's PC, `tools\update` puts it in `tools\bin\` (pinned version
+  and hash at the top of `update.ps1`).
+- Changes that name list positions (rules[3]) are worked out against the
+  config as it is at that moment; add them in the order they were made.
 - Every refusal code and finding id has English text in `app/src/i18n/en.ts`;
   `en.test.ts` fails if one is missing. Add both together.
 - Treat inputs as hostile: walk the YAML document (aliases count once), not

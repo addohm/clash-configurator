@@ -14,7 +14,9 @@ run `tools\update`. Pick **1** from the menu.
    other).
 2. On the PC, run `tools\update` and pick **1**. It gets the latest
    (fast-forward only), installs the packages from `package-lock.json`, runs
-   the checks and builds the app. It stops on the first failure.
+   the checks and builds the app. It stops on the first failure. The first
+   time, the checks download mihomo into `tools\bin\` (hash checked) to
+   load every test config with.
 3. It offers to start the new build. The app is
    `src-tauri\target\release\clash-configurator.exe`, and the installer is in
    `src-tauri\target\release\bundle\nsis\`.

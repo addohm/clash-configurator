@@ -43,7 +43,9 @@ The app is unsigned, so Windows may show "Windows protected your PC". Click
 ### Testing with your own configs
 
 Put real configs in `fixtures\private\` (git ignores them) and pick **3** in
-`tools\update`. The tests check that each one is accepted.
+`tools\update`. The tests check that each one is accepted, and that mihomo
+loads it after the default fixes. The script downloads mihomo itself the
+first time, into `tools\bin\`, and checks its hash.
 
 ### Working without the app
 

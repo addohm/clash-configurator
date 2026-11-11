@@ -3,3 +3,4 @@
 export * from './modes';
 export * from './apps';
 export * from './intake';
+export * from './edit';

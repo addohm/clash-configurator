@@ -4,6 +4,9 @@ dist/
 .env
 .env.*
 
+# mihomo for the output checks, downloaded by tools\update
+tools/bin/
+
 # Rust build output and Tauri's generated files
 src-tauri/target/
 src-tauri/gen/

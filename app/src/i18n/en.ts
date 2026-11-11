@@ -39,6 +39,17 @@ export const en = {
     'not-clash': "This doesn't look like a Clash config: it has no servers.",
   },
 
+  // Why a saved settings file couldn't be loaded. {detail} names the part.
+  settingsErrors: {
+    'too-big': 'This file is too big to be a saved settings file.',
+    'not-json': "This isn't a saved settings file: it can't be read.",
+    'not-settings': "This isn't a Clash Configurator settings file.",
+    'newer-version': 'This was saved by a newer version of Clash Configurator. Update the app, then load it again.',
+    'bad-field': 'This settings file is damaged ({detail}).',
+    'bad-change': 'This settings file is damaged: change {detail} is invalid.',
+    'bad-original': "The config inside this settings file didn't pass the safety checks.",
+  },
+
   // What the safety report says about a risky setting, and what its fix does.
   findings: {
     'controller-open-no-secret': {

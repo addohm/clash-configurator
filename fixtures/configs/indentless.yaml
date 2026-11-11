@@ -1,0 +1,25 @@
+# Made up. Lists flush with their key, as Clash Verge Rev and many panels
+# write them; output must keep this layout.
+mixed-port: 7890
+mode: rule
+proxies:
+- name: Server A
+  type: trojan
+  server: a.example.com
+  port: 443
+  password: fake-password-31
+- name: Server B
+  type: ss
+  server: 192.0.2.32
+  port: 8388
+  cipher: aes-256-gcm
+  password: fake-password-32
+proxy-groups:
+- name: Proxy
+  type: select
+  proxies:
+  - Server A
+  - Server B
+rules:
+- DOMAIN-SUFFIX,example.org,DIRECT
+- MATCH,Proxy

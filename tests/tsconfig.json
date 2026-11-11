@@ -1,0 +1,9 @@
+{
+  // Tests that need Node (files, programs). The core and page never see
+  // Node's types, so they can't use its APIs by accident.
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["node", "vite/client"]
+  },
+  "include": ["**/*.ts"]
+}

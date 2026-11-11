@@ -5,17 +5,28 @@ Orientation for Claude working on clash-configurator. Read this first.
 ## What this is
 
 A one-page Clash config editor, planned as a Windows Tauri app first (Linux
-and a website later): config in, safety check, guided edits, config out. No
-code yet; every design decision is in PLAN.md, with a build order. Don't
-build until the owner says go.
+and a website later): config in, safety check, guided edits, config out.
+Every design decision is in PLAN.md (Q1, Q2, ...); ROADMAP.md tracks the
+build order. The owner said go on 2026-11-11; build one step at a time.
 
 ## Layout
 
 - README.md, CHANGELOG.md, DEPLOY.md, SECURITY.md, ROADMAP.md: the standard docs
 - CLAUDE.md: this file
 - PLAN.md: the design decisions log (Q1, Q2, ...); read it before building
-
-No source folders yet.
+- core/src/: the config core in plain TypeScript, no UI; tests sit beside the
+  code as `*.test.ts`
+- app/: the page (Svelte 5). `app/src/i18n/en.ts` holds every piece of text
+  the page shows; nothing user-facing is written inline
+- src-tauri/: the Windows app shell (Tauri 2, Rust): `tauri.conf.json` (CSP,
+  window, installer), `capabilities/` (what the page may ask for), `icons/`
+- tools/update.cmd + update.ps1: the owner's build script (menu: update,
+  build, checks, dev mode)
+- tools/art/: the placeholder icon and the script that draws it
+- fixtures/: made-up test configs; `fixtures/private/` is git-ignored, for
+  real ones
+- vite.config.ts (page builds to dist/), vitest.config.ts (core tests),
+  tsconfig.json (strict)
 
 ## Workflow
 
@@ -29,8 +40,9 @@ No source folders yet.
    - SECURITY.md: when secrets, access or permissions change
    - ROADMAP.md: when something on it is done, or new plans are made
    - this file: when the layout, workflow or conventions change
-4. Run the checks (none yet; TODO: the lint and test commands once there's
-   code), then commit.
+4. Run the checks, then commit: `npm run check` (svelte-check and
+   TypeScript, warnings fail) and `npm test` (vitest). `tools\update` runs
+   the same ones on the owner's PC.
 
 ## Conventions
 
@@ -44,7 +56,21 @@ No source folders yet.
   script; this sandbox can't build the Windows app (Q24).
 - Real provider configs hold credentials: git-ignored folder only (Q26).
 
-TODO: coding style and naming, once there's code.
+- This sandbox has no Node and no sudo: Node 26 is in `~/.local/opt/node`.
+  Run `. ~/.local/opt/env.sh` first in every shell call. It can't build the
+  Tauri app (no webkit2gtk), so Rust and Tauri changes are unbuilt until the
+  owner runs `tools\update`: review them closely by eye, and say so.
+- Check a Tauri config edit against
+  `node_modules/@tauri-apps/cli/config.schema.json` (python3 jsonschema).
+- The build script must run on Windows PowerShell 5.1: ASCII only, no `??` or
+  ternaries. Parse-check it with `~/.local/opt/pwsh-7.7.0/pwsh`
+  (`DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1`). It asks rather than taking
+  options, in revtunnel's style (say/ok/warn/bad/step/banner/ask).
+- Packages: exact versions (`.npmrc` save-exact), no install scripts
+  (ignore-scripts). TypeScript stays on 6.x until svelte-check supports 7.
+- Heavy jobs (installs, builds) run under `nice -n 19`: the CPU is shared.
+- Svelte 5 runes (`$state`, `onclick=`), strict TypeScript. Comments say why,
+  briefly.
 
 ## Don't
 

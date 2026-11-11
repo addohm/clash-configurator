@@ -6,13 +6,14 @@ change.
 ## Done
 
 - Standard docs (2026-11-10).
+- Planning: Q1–Q27 in [PLAN.md](PLAN.md) (2026-11-11).
+- Step 1, skeleton: core, page, Tauri shell, Windows build script (2026-11-11).
+  The Windows build is untested until the owner runs `tools\update`.
 
 ## Next
 
-Planning is done (Q1–Q27 in [PLAN.md](PLAN.md)). The build follows PLAN.md's
-build order, starting when the owner says go:
+The build order from PLAN.md:
 
-1. Skeleton (core, page, Tauri shell, Windows build script)
 2. Safe intake
 3. Editing and mihomo output
 4. Simple mode

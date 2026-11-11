@@ -1,0 +1,21 @@
+[package]
+name = "clash-configurator"
+version = "0.1.0"
+description = "Edit a Clash config safely: config in, guided changes, config out."
+license = "MIT"
+edition = "2021"
+publish = false
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+
+[profile.release]
+# A smaller app: one codegen unit, link-time optimisation, no unwinding tables.
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true

@@ -1,22 +1,43 @@
 # Deploying clash-configurator
 
-Not deployed: there's no code yet.
-
-TODO: will it run as a service (where?), as a library inside another
-system, or as a CLI people run themselves?
+There's nothing online: it's a Windows app, built and tested on the owner's
+PC (PLAN.md Q18, Q24). The website version comes later.
 
 ## First-time setup
 
-TODO: once it's deployed.
+On the Windows PC, install the tools listed in README.md, clone the repo and
+run `tools\update`. Pick **1** from the menu.
 
 ## Shipping a change
 
-TODO: once it's deployed.
+1. A change is committed and pushed to `main` (from this workspace or any
+   other).
+2. On the PC, run `tools\update` and pick **1**. It gets the latest
+   (fast-forward only), installs the packages from `package-lock.json`, runs
+   the checks and builds the app. It stops on the first failure.
+3. It offers to start the new build. The app is
+   `src-tauri\target\release\clash-configurator.exe`, and the installer is in
+   `src-tauri\target\release\bundle\nsis\`.
+
+To roll back, check out an older commit (`git checkout <commit>`), then pick
+**2** (build what's here). `git checkout main` goes back.
+
+Releases (signed checksums, the update file, the GitHub release) come with
+build step 9 in ROADMAP.md. TODO: write that up then.
 
 ## Configuration
 
-TODO: once it's deployed.
+None. The app has no settings files or environment variables yet.
 
 ## Troubleshooting
 
-TODO: once it's deployed.
+- **"... is not installed" or "too old":** run the `winget` line it prints,
+  open a new terminal, and run `tools\update` again.
+- **"uncommitted changes" or "diverged":** the script won't touch a checkout
+  with local edits. Commit or stash them (`git stash`), or ask for help with
+  the merge.
+- **The build fails in Rust:** the full error is above the red line. The first
+  build needs internet to download Rust packages and NSIS (the installer
+  maker).
+- **"Windows protected your PC":** expected, the app is unsigned. More info,
+  then Run anyway.

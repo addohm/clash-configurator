@@ -7,14 +7,36 @@ issue for a vulnerability.
 
 ## Secrets
 
-None yet: there's no code. Never commit them (`.env`, keys, tokens).
+None yet. Never commit them (`.env`, keys, tokens).
 
-TODO: list each secret, where it lives and how to rotate it, as they're added.
+- Real configs used for testing hold working credentials. They go in
+  `fixtures/private/`, which git ignores (PLAN.md Q26).
+- The release signing keys (build step 9) will live only on the owner's PC,
+  never on GitHub (PLAN.md Q17, Q24).
+
+## How the app is locked down
+
+- **The page can't do anything but show itself.** The Tauri app loads no
+  plugins: no file, shell or network access from the page
+  (`src-tauri/capabilities/default.json`). Each feature that needs more adds
+  one narrow permission, noted here.
+- **Strict Content Security Policy** (`src-tauri/tauri.conf.json`): scripts
+  and styles only from the app itself, no inline scripts, no frames, no
+  plugins, no outside connections.
+- **`freezePrototype`** is on, so a crafted config can't change how
+  JavaScript objects behave (PLAN.md Q4).
+- **Packages:** exact versions, locked with hashes in `package-lock.json` and
+  `src-tauri/Cargo.lock`. `.npmrc` stops npm packages running install
+  scripts.
+- **Known, accepted:** `npm audit` reports a low-severity issue in
+  `deepmerge`, used by the Svelte build plugin. It only runs while building,
+  on our own build settings, and isn't in the app.
 
 ## Access
 
 - The repo is `addohm/clash-configurator` on GitHub. This workspace pushes
   with a per-workspace deploy key (SSH alias `deploy-ws-clash-configurator`).
-- No production yet.
+- No GitHub Actions: nothing runs or is stored on GitHub (PLAN.md Q24).
+- No production: the app is built on the owner's PC.
 
 TODO: is the repo private? Who else has push access?

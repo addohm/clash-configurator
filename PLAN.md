@@ -242,10 +242,10 @@ Not reusable as it is for a public tool:
 - Where to report security problems (SECURITY.md).
 - Making the repo public: the owner's step, at the first release (Q15).
 
-## Build order (proposed, not started)
+## Build order
 
-Waiting for the owner's go-ahead. Each step is commit-sized; the owner builds
-and tests on Windows.
+The owner said go on 2026-11-11. Each step is commit-sized; the owner builds
+and tests on Windows. Progress is in ROADMAP.md.
 
 1. Skeleton: TypeScript core, Svelte page, Tauri shell, and `tools\update`
    (pull, checks, build, run), as in pebble.

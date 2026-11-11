@@ -1,0 +1,13 @@
+node_modules/
+dist/
+*.log
+.env
+.env.*
+
+# Rust build output and Tauri's generated files
+src-tauri/target/
+src-tauri/gen/
+
+# Real configs hold working credentials: never commit them (PLAN.md Q26)
+fixtures/private/*
+!fixtures/private/README.md

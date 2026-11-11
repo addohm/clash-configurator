@@ -75,6 +75,8 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   Run `. ~/.local/opt/env.sh` first in every shell call. It can't build the
   Tauri app (no webkit2gtk), so Rust and Tauri changes are unbuilt until the
   owner runs `tools\update`: review them closely by eye, and say so.
+- The window has `dragDropEnabled: false`: on Windows, Tauri otherwise takes
+  dropped files itself and the page never sees them.
 - Check a Tauri config edit against
   `node_modules/@tauri-apps/cli/config.schema.json` (python3 jsonschema).
 - The build script must run on Windows PowerShell 5.1: ASCII only, no `??` or

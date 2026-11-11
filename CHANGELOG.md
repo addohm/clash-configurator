@@ -73,4 +73,6 @@ All notable changes to clash-configurator. The format follows
   - The ⓘ tooltip: hover, tap or keyboard; tap elsewhere or Escape closes it.
   - Page tests in a simulated browser (happy-dom), including one with
     JavaScript's object prototype frozen, as the app runs it.
+  - Dropping a file on the page works in the Windows app: Tauri's own
+    drag-and-drop handling is off, so the page gets the file.
   - Editing, review and saving come in 4b and 4c.

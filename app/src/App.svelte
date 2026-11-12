@@ -6,10 +6,11 @@
 -->
 <script lang="ts">
   import { MODES, type Mode } from '../../core/src';
+  import AdvancedPage from './advanced/AdvancedPage.svelte';
   import EditStep from './edit/EditStep.svelte';
   import { format, strings as t } from './i18n';
   import Info from './lib/Info.svelte';
-  import { SECTIONS, STEPS, store } from './lib/store.svelte';
+  import { ADVANCED_PARTS, SECTIONS, STEPS, store } from './lib/store.svelte';
   import BringConfig from './steps/BringConfig.svelte';
   import PickApp from './steps/PickApp.svelte';
   import Review from './steps/Review.svelte';
@@ -59,6 +60,13 @@
   });
 
   const editReached = $derived(store.reached >= STEPS.indexOf('edit') && store.session !== null);
+
+  /** Advanced mode: jump to a part of the one long page. */
+  function jump(id: string) {
+    if (store.step === 'review') store.open('edit');
+    // After the page shows the parts again.
+    queueMicrotask(() => document.getElementById(`adv-${id}`)?.scrollIntoView?.({ block: 'start' }));
+  }
 </script>
 
 <div class="shell">
@@ -76,6 +84,22 @@
       {/each}
     </div>
     <p class="hint">{hints[store.mode]}</p>
+
+    {#if store.mode === 'advanced'}
+      <nav aria-label={t.advanced.jump}>
+        <ul class="parts adv-parts">
+          <li><button type="button" onclick={() => jump(store.session ? 'basics' : 'config')}>{t.steps.input}</button></li>
+          {#if store.session}
+            {#each ADVANCED_PARTS as p (p)}
+              <li><button type="button" onclick={() => jump(p)}>{t.edit.sections[p]}</button></li>
+            {/each}
+            <li>
+              <button type="button" class:active={store.step === 'review'} onclick={() => store.advance('review')}>{t.steps.review}</button>
+            </li>
+          {/if}
+        </ul>
+      </nav>
+    {/if}
 
     {#if store.mode === 'simple'}
       <nav aria-label={t.steps.label}>
@@ -137,7 +161,18 @@
   </aside>
 
   <main class="content">
-    {#if store.mode !== 'simple'}
+    {#if store.resumable && !store.session && store.mode === 'advanced'}
+      <section class="resume" aria-label={t.resume.title}>
+        <p><strong>{t.resume.title}</strong></p>
+        <div class="row">
+          <button type="button" class="primary" onclick={carryOn}>{t.resume.carryOn}</button>
+          <button type="button" onclick={() => store.startFresh()}>{t.resume.fresh}</button>
+        </div>
+      </section>
+    {/if}
+    {#if store.mode === 'advanced'}
+      <AdvancedPage />
+    {:else if store.mode === 'scratch'}
       <section class="view"><p>{t.notBuiltYet}</p></section>
     {:else}
       {#if store.resumable && !store.session}
@@ -333,6 +368,10 @@
   .parts {
     margin: 0 0 0.25rem 1.6rem;
     border-left: 1px solid var(--border);
+  }
+
+  .adv-parts {
+    margin: 0.5rem 0 0;
   }
 
   .parts button {

@@ -44,6 +44,9 @@ export type StepId = (typeof STEPS)[number];
 export const SECTIONS = ['basics', 'servers', 'groups', 'rules', 'dns'] as const;
 export type SectionId = (typeof SECTIONS)[number];
 
+/** The parts Advanced mode shows, all on one page (Q11, Q31). */
+export const ADVANCED_PARTS = [...SECTIONS] as const;
+
 class Store {
   mode: Mode = $state(DEFAULT_MODE);
   app: AppId | null = $state(null);
@@ -260,6 +263,8 @@ class Store {
 
   /** Starts the session with the ticked fixes and moves on to editing. */
   startEditing(): void {
+    // Advanced mode has no app step: mihomo unless the bar says otherwise.
+    if (!this.app && this.mode === 'advanced') this.app = 'mihomo';
     if (!this.checked?.ok || this.original === null || !this.source || !this.app) return;
     const fixes: Finding[] = this.checked.findings.filter((f, i) => f.fix && this.ticked[i]);
     this.load(startSession(this.original, this.source, this.app, this.mode, fixes));

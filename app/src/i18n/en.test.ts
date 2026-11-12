@@ -25,6 +25,9 @@ describe('English text', () => {
 
   it('fills placeholders', () => {
     expect(format('A {x} and {y}', { x: 1 })).toBe('A 1 and ');
+    expect(format('{n} {n|server|servers}', { n: 1 })).toBe('1 server');
+    expect(format('{n} {n|server|servers}', { n: 3 })).toBe('3 servers');
+    expect(format('{n} {n|entry|entries}', { n: 0 })).toBe('0 entries');
     expect(refusalText({ code: 'duplicate-keys', line: 4 })).toContain('(line 4)');
     expect(refusalText({ code: 'duplicate-keys' })).not.toContain('line');
   });

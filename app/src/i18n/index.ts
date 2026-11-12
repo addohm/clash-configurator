@@ -6,9 +6,14 @@ export type { Strings } from './en';
 // Only English for now; more locales plug in here later.
 export const strings = en;
 
-/** Fills {name} placeholders from `params`; unknown ones are left empty. */
+/**
+ * Fills {name} placeholders from `params` (unknown ones are left empty), and
+ * {name|one|other} with "one" when that param is 1, else "other".
+ */
 export function format(template: string, params: Record<string, string | number> = {}): string {
-  return template.replace(/\{(\w+)\}/g, (_, name: string) => String(params[name] ?? ''));
+  return template
+    .replace(/\{(\w+)\|([^|}]*)\|([^}]*)\}/g, (_, name: string, one: string, other: string) => (Number(params[name]) === 1 ? one : other))
+    .replace(/\{(\w+)\}/g, (_, name: string) => String(params[name] ?? ''));
 }
 
 /** The plain-words reason for a refusal. */

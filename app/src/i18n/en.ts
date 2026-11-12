@@ -9,6 +9,12 @@ export const en = {
   settingName: 'Setting:',
 
   // The numbered steps of Simple mode (PLAN.md Q11).
+  advanced: {
+    forApp: 'For',
+    backToEditing: 'Back to editing',
+    jump: 'Parts',
+  },
+
   resume: {
     title: 'Carry on where you left off?',
     what: 'You were working on {name}, last changed {when}.',
@@ -79,7 +85,7 @@ export const en = {
   },
 
   edit: {
-    ready: 'Your config is ready to edit: {servers} servers, {groups} groups and {rules} rules.',
+    ready: 'Your config is ready to edit: {servers} {servers|server|servers}, {groups} {groups|group|groups} and {rules} {rules|rule|rules}.',
     sections: {
       basics: 'Basics',
       servers: 'Servers',
@@ -92,7 +98,7 @@ export const en = {
     done: 'Done: review it',
     back: 'Back',
     undo: 'Undo last change',
-    changes: '{count} changes so far.',
+    changes: '{count} {count|change|changes} so far.',
     noChanges: 'No changes yet.',
     failed: "That change couldn't be made: {reason}",
     save: 'Save',
@@ -146,8 +152,8 @@ export const en = {
   groups: {
     intro:
       'Groups are the choices your app shows, like "Proxy" or "Auto". Each holds servers (or other groups), and rules send traffic to a group.',
-    count: '{count} groups',
-    members: '{count} members',
+    count: '{count} {count|group|groups}',
+    members: '{count} {count|member|members}',
     type: 'Type',
     typeInfo:
       'Pick by hand: you choose the server in your app. Fastest: your app tests them every few minutes and uses the quickest. First that works: the first in the list that answers. Spread out: shares traffic between the ones that work.',
@@ -183,7 +189,7 @@ export const en = {
 
   rules: {
     intro: 'Rules decide where each connection goes. They are checked from the top, and the first one that matches wins. The last rule catches everything else.',
-    count: '{count} rules',
+    count: '{count} {count|rule|rules}',
     matching: '{count} match',
     rule: 'Rule',
     kind: 'Kind',
@@ -298,7 +304,7 @@ export const en = {
 
   servers: {
     intro: 'The servers your traffic can go through. Renaming one updates every group and rule that uses it.',
-    count: '{count} servers',
+    count: '{count} {count|server|servers}',
     tickedCount: '{count} ticked',
     search: 'Search servers',
     tickAll: 'Tick all shown',
@@ -329,7 +335,7 @@ export const en = {
     addPlaceholder: 'vless://...\ntrojan://...',
     addTo: 'Add them to these groups:',
     addToInfo: "A server that's in no group can't be picked in your app. Groups that already list every server are ticked.",
-    addButton: 'Add {count} servers',
+    addButton: 'Add {count} {count|server|servers}',
     addRead: 'Read the links',
     linkErrors: {
       'not-a-link': "isn't a share link",
@@ -341,17 +347,17 @@ export const en = {
       'unsupported-option': 'uses an option this page cannot convert ({detail}), so it was left out',
     },
     lineError: 'Line {line} {reason}.',
-    added: 'Added {count} servers.',
+    added: 'Added {count} {count|server|servers}.',
   },
 
   review: {
     intro: 'Check what changed, then save your new config.',
-    changes: '{count} changes made.',
+    changes: '{count} {count|change|changes} made.',
     noChanges: 'No changes: the new config is the same as the original.',
     compare: 'What changed',
     compareInfo:
       'Your original on the left of each pair (−, red) and the new config (+, green), only where they differ, with a couple of lines around each change for context. Line numbers are from each file.',
-    lines: '{added} lines added, {removed} removed.',
+    lines: '{added} {added|line|lines} added, {removed} removed.',
     moreHidden: '{count} more changed parts not shown.',
     showMore: 'Show them',
     stillFlagged: 'Still flagged in the new config:',
@@ -396,8 +402,8 @@ export const en = {
     severities: { danger: 'Danger', warning: 'Warning', info: 'Note' },
     keepAsIs: 'Ticked fixes are made in your new config. Untick any you want to keep as they are.',
     converted:
-      'This was a list of {servers} servers, not a full Clash config, so a basic one was made around them: a "Proxy" group to pick a server by hand, an "Auto" group that picks the fastest, and one rule sending everything through Proxy. Change any of it in the next step.',
-    convertedSkipped: '{count} entries could not be read and were left out:',
+      'This was a list of {servers} {servers|server|servers}, not a full Clash config, so a basic one was made around them: a "Proxy" group to pick a server by hand, an "Auto" group that picks the fastest, and one rule sending everything through Proxy. Change any of it in the next step.',
+    convertedSkipped: '{count} {count|entry|entries} could not be read and {count|was|were} left out:',
     skippedLine: 'Entry {line}: {reason}',
     sip008: {
       'sip008-plugin': 'uses a Shadowsocks plugin, which this page cannot convert',

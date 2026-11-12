@@ -135,7 +135,7 @@ describe('different kinds of subscription', () => {
   it('SIP008 JSON is read, and saved with its servers in the file', async () => {
     invoke.mockResolvedValue(reply(JSON.stringify({ version: 1, servers: [{ server: '198.51.100.1', server_port: 8388, password: 'pw', method: 'aes-256-gcm', remarks: 'One' }] })));
     await fetchUrl('https://ss.example.com/sip008.json');
-    expect(target.textContent).toContain('This was a list of 1 servers');
+    expect(target.textContent).toContain('This was a list of 1 server,');
     go(t.report.continue);
     for (let i = 0; i < 4; i++) go(t.edit.next);
     go(t.edit.done);

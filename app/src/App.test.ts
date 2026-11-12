@@ -156,8 +156,8 @@ describe('Simple mode', () => {
     expect(store.data['mode']).toBe('global');
   });
 
-  it('shows Advanced and Scratch as not built yet', () => {
-    click(t.modes.advanced);
+  it('shows Scratch as not built yet', () => {
+    click(t.modes.scratch);
     expect(target.textContent).toContain(t.notBuiltYet);
     expect(target.querySelector('textarea')).toBeNull();
   });
@@ -308,7 +308,7 @@ describe('editing: Servers', () => {
     expect(card()?.textContent).toContain("Line 2 isn't a share link");
     const box = inputIn(card(), 'fieldset.groups input[type="checkbox"]');
     expect(box.checked).toBe(true); // Proxy lists every server
-    click('Add 1 servers');
+    click('Add 1 server');
     expect((store.data['proxies'] as { name: string }[]).map((p) => p.name)).toContain('New One');
     expect((store.data['proxy-groups'] as { proxies: string[] }[])[0]?.proxies).toContain('New One');
   });

@@ -50,6 +50,8 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   the page shows; nothing user-facing is written inline
   - `App.svelte`: the frame (PLAN.md Q30): the sidebar (modes, steps, edit
     parts, Forget) and the open step filling the window
+  - app/src/advanced/`AdvancedPage.svelte`: Advanced mode, every part on
+    one page (the same part cards; `Dns advanced`), with its top bar
   - app/src/lib/: `store.svelte.ts` (the page's state: steps, intake result,
     session), `Info.svelte` (the ⓘ tooltip)
   - app/src/steps/: one component per Simple-mode step (`Review.svelte`
@@ -155,6 +157,8 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   (split on `/\r?\n/`, or convert first); the output tests run both.
 - Changes that name list positions (rules[3]) are worked out against the
   config as it is at that moment; add them in the order they were made.
+- Counts in text use `{count|one|other}` ("{count} {count|server|servers}"):
+  `format()` picks the form.
 - Every refusal code and finding id has English text in `app/src/i18n/en.ts`;
   `en.test.ts` fails if one is missing. Add both together.
 - Treat inputs as hostile: walk the YAML document (aliases count once), not

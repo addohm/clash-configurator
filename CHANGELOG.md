@@ -6,6 +6,15 @@ All notable changes to clash-configurator. The format follows
 
 ## [Unreleased]
 
+- Advanced mode, part 1 (roadmap step 7, 2026-11-12): every part of the
+  config on one page (PLAN.md Q11), no step-by-step guidance. A bar at the
+  top holds which app the config is for, the change count, Undo and
+  Review and save; the sidebar jumps to each part. Lists keep their own
+  scrolling panels. DNS shows the expert settings (Q31). Bringing the
+  config and the safety report come first; with no app picked, it's for
+  mihomo apps. Reviewing and saving is its own view, with Back to editing.
+  TUN, sniffing, controller, dashboard and geo data come in part 2.
+
 ### Changed
 
 - The page is now an app with a sidebar (PLAN.md Q30, 2026-11-12): the steps
@@ -40,6 +49,8 @@ All notable changes to clash-configurator. The format follows
 
 ### Fixed
 
+- Counts read properly: "1 change", "1 server", "1 entry was" (a
+  `{count|one|other}` form in the page's text, 2026-11-12).
 - `tools\update`: when an update changes the build script itself, it starts
   the new version, which carries on from step 2. Before, the rest of that
   run used the old script (2026-11-11).

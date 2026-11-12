@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { FINDING_IDS, LIMITS, REFUSAL_CODES, SETTINGS_ERRORS } from '../../../core/src';
 import { FETCH_ERRORS } from '../lib/fetch';
+import { SHARE_ERRORS } from '../lib/share';
 import { strings as t, format, refusalText } from '.';
 
 describe('English text', () => {
   it('explains every refusal', () => {
     for (const code of REFUSAL_CODES) expect(t.refusals[code]).toBeTruthy();
+  });
+
+  it('explains every Send to phone error', () => {
+    for (const code of SHARE_ERRORS) expect(t.share.errors[code]).toBeTruthy();
   });
 
   it('explains every fetch error', () => {

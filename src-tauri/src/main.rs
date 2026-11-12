@@ -1,10 +1,12 @@
 // The Windows app: a window showing the page built into dist/. The page has
 // no plugins of its own (no file, shell or network access); see
-// capabilities/default.json. It can ask the app for two things only:
+// capabilities/default.json. It can ask the app for three things only:
 // `save_file`, which writes nothing until the user picks a place in a Save
-// dialog, and `fetch_subscription`, which fetches one URL the user gave,
+// dialog; `fetch_subscription`, which fetches one URL the user gave,
 // through the checks in ../fetcher (public addresses only, size and time
-// limits, text only).
+// limits, text only); and Send to phone (`share_start`, `share_status`,
+// `share_stop`), which offers the new files on the local Wi-Fi for a few
+// minutes behind a random link (../sharer).
 
 // Release builds on Windows open without a console window behind the app.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
@@ -77,10 +79,69 @@ async fn fetch_subscription(url: String) -> Result<cc_fetcher::Fetched, cc_fetch
     cc_fetcher::fetch(&url).await
 }
 
+/// The Send to phone that's running, if any: one at a time.
+#[derive(Default)]
+struct Sharing(std::sync::Mutex<Option<cc_sharer::Share>>);
+
+impl Sharing {
+    fn lock(&self) -> std::sync::MutexGuard<'_, Option<cc_sharer::Share>> {
+        self.0.lock().unwrap_or_else(|e| e.into_inner())
+    }
+}
+
+#[derive(serde::Serialize)]
+struct Started {
+    /// The phone's page, for the QR code.
+    url: String,
+    /// The PC address it's offered on, and the others to try.
+    address: String,
+    addresses: Vec<String>,
+}
+
+/// Offers `files` to a phone on the same Wi-Fi (see ../sharer). `address`
+/// picks one of the PC's local addresses; the likeliest by default. Errors
+/// are codes the page has text for.
+#[tauri::command]
+async fn share_start(
+    sharing: tauri::State<'_, Sharing>,
+    files: Vec<cc_sharer::File>,
+    page: cc_sharer::Page,
+    address: Option<String>,
+) -> Result<Started, String> {
+    let addresses = cc_sharer::lan_addresses();
+    let chosen = match address {
+        Some(a) => addresses.iter().copied().find(|x| x.to_string() == a).ok_or("not-local")?,
+        None => *addresses.first().ok_or("no-network")?,
+    };
+    // A new share ends the old one first (dropping a Share stops it).
+    sharing.lock().take();
+    let share = cc_sharer::start(std::net::IpAddr::V4(chosen), files, page, cc_sharer::TTL)
+        .await
+        .map_err(|e| match e {
+            cc_sharer::StartError::BadFiles => "bad-files".to_string(),
+            cc_sharer::StartError::Listen(_) => "listen".to_string(),
+        })?;
+    let url = share.url.clone();
+    *sharing.lock() = Some(share);
+    Ok(Started { url, address: chosen.to_string(), addresses: addresses.iter().map(|a| a.to_string()).collect() })
+}
+
+/// How the share is going: time left and files fetched, or how it ended.
+#[tauri::command]
+fn share_status(sharing: tauri::State<'_, Sharing>) -> Option<cc_sharer::Status> {
+    sharing.lock().as_ref().map(|s| s.status())
+}
+
+#[tauri::command]
+fn share_stop(sharing: tauri::State<'_, Sharing>) {
+    sharing.lock().take();
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![save_file, fetch_subscription])
+        .manage(Sharing::default())
+        .invoke_handler(tauri::generate_handler![save_file, fetch_subscription, share_start, share_status, share_stop])
         .run(tauri::generate_context!())
         .expect("Clash Configurator failed to start");
 }

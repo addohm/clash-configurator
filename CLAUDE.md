@@ -56,6 +56,9 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   `src/lib.rs`), its own crate so it builds and tests here without Tauri:
   `cd fetcher && CARGO_TARGET_DIR=$PWD/target nice -n 19 cargo test`
   (`-- --ignored` adds a live HTTPS fetch). src-tauri uses it by path
+- sharer/: Send to phone's little HTTP server (PLAN.md Q19, Q34), its own
+  crate in the same way (`cd sharer && CARGO_TARGET_DIR=$PWD/target nice
+  -n 19 cargo test`; the tests use 127.0.0.1)
 - tests/: tests that need Node, with their own `tsconfig.json` (Node types).
   `mihomo.test.ts` runs `mihomo -t` on every output
 - app/: the page (Svelte 5). `app/src/i18n/en.ts` holds every piece of text
@@ -70,7 +73,9 @@ build order. The owner said go on 2026-11-11; build one step at a time.
     `review`, which holds the chosen app's files),
     `Info.svelte` (the ⓘ tooltip), `UpdatePanel.svelte` (the update's
     questions and report), `Unused.svelte` ("Not used by Stash" on a
-    setting, or a note over a whole part)
+    setting, or a note over a whole part), `share.ts` +
+    `SendToPhone.svelte` + `Qr.svelte` (Send to phone: what each app
+    gets, the panel, the QR code)
   - app/src/steps/: one component per Simple-mode step (`Review.svelte`
     is step 5); `lib/save.ts` saves through the app's `save_file` command,
     or downloads in a browser; `lib/fetch.ts` asks the app's
@@ -86,8 +91,9 @@ build order. The owner said go on 2026-11-11; build one step at a time.
 - src-tauri/: the Windows app shell (Tauri 2, Rust): `tauri.conf.json` (CSP,
   window, installer), `capabilities/` (what the page may ask for), `icons/`,
   `src/main.rs` (the `save_file` command: Save dialog, then write, with a
-  file type per kind: config, settings, Shadowrocket's conf and servers; and
-  `fetch_subscription`, which calls ../fetcher)
+  file type per kind: config, settings, Shadowrocket's conf and servers;
+  `fetch_subscription`, which calls ../fetcher; `share_start`,
+  `share_status`, `share_stop`, which call ../sharer)
 - tools/update.cmd + update.ps1: the owner's build script (menu: update,
   build, checks, dev mode)
 - tools/art/: the placeholder icon and the script that draws it

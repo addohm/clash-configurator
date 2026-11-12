@@ -17,3 +17,6 @@ fixtures/private/*
 
 # The fetcher crate builds and tests on its own here
 fetcher/target/
+
+# The sharer crate (Send to phone) builds and tests on its own here too
+sharer/target/

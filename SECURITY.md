@@ -39,6 +39,19 @@ None yet. Never commit them (`.env`, keys, tokens).
   where the user chose, a file name with no folders in it, up to 64 MB.
   The dialog plugin is used from Rust only; the page gets none of its
   permissions.
+- **Send to phone** (`sharer/`, PLAN.md Q19, Q34) is the only thing that
+  listens on the network, and only when the user clicks it. It serves
+  plain HTTP on one of the PC's private addresses (never 0.0.0.0, never a
+  public address), on a random port, behind a 128-bit random path, for at
+  most 5 minutes; 30 s after every file has been fetched; or until 20
+  wrong requests (someone guessing), whichever comes first. It answers GET
+  and HEAD only, reads at most 8 KB of request, and serves only the page
+  and the files it was given (at most 4, 16 MB each, names checked). The
+  phone's page is escaped and has its own strict CSP. Plain HTTP because
+  phones' apps can't trust a certificate made on this PC: anyone watching
+  the same Wi-Fi could read the files (they hold server passwords), so the
+  panel says to use a network you trust. Windows asks once whether the app
+  may use the network.
 - **Strict Content Security Policy** (`src-tauri/tauri.conf.json`): scripts
   and styles only from the app itself, no inline scripts, no frames, no
   plugins, no outside connections.
@@ -63,7 +76,8 @@ None yet. Never commit them (`.env`, keys, tokens).
 - **mihomo for the tests** is downloaded by `tools\update` from its GitHub
   release, at a pinned version, and used only if its SHA-256 matches.
 - **Packages:** exact versions, locked with hashes in `package-lock.json` and
-  `src-tauri/Cargo.lock`. `.npmrc` stops npm packages running install
+  `src-tauri/Cargo.lock`. The QR code is drawn by `uqr` (no dependencies of
+  its own), on the page, as an SVG path. `.npmrc` stops npm packages running install
   scripts.
 - **Known, accepted:** `npm audit` reports a low-severity issue in
   `deepmerge`, used by the Svelte build plugin. It only runs while building,

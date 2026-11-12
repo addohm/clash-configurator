@@ -55,3 +55,10 @@ None. The app has no settings files or environment variables yet.
   maker).
 - **"Windows protected your PC":** expected, the app is unsigned. More info,
   then Run anyway.
+- **Windows Defender Firewall asks about Clash Configurator** the first time
+  you use Send to phone: allow it on **private** networks. If you said no,
+  allow it in Windows Security, Firewall, "Allow an app through firewall".
+- **The phone can't open the Send to phone page:** check both are on the
+  same Wi-Fi, and try the panel's other addresses (VPNs and virtual
+  adapters add some). Hotel and office Wi-Fi often keeps devices apart:
+  save the file and send it another way.

@@ -114,6 +114,12 @@ these steps:
      Shadowrocket needs both.
    - Anything your app's file had to leave out (rules it can't run, for
      example) is listed above the save buttons.
+   - **Send to phone** (in the Windows app) offers the file(s) on your Wi-Fi
+     for five minutes and shows a QR code. Scan it with the phone's camera;
+     the page that opens has a button for your app (Clash Meta for Android
+     or FlClash, Stash, Shadowrocket), which then fetches the file itself.
+     Use a Wi-Fi you trust: the files aren't encrypted on the local
+     network.
 
 The app remembers your last subscription URL and your last session on this
 PC, so when you open it again you can **Carry on** where you left off (or

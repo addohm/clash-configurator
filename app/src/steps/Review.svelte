@@ -8,6 +8,8 @@
   import { format, refusalText, strings as t } from '../i18n';
   import Info from '../lib/Info.svelte';
   import { saveFile, type SaveKind } from '../lib/save';
+  import SendToPhone from '../lib/SendToPhone.svelte';
+  import { sharePlan } from '../lib/share';
   import { store } from '../lib/store.svelte';
 
   /** How many changed parts to show before "Show them". */
@@ -35,6 +37,7 @@
   const changes = $derived(store.session?.changes.length ?? 0);
   const appName = $derived(store.app ? t.apps[store.app] : '');
   const shadowrocket = $derived(review?.shadowrocket ?? null);
+  const share = $derived(review ? sharePlan(store.app, review.output, shadowrocket, names) : null);
   /** What the chosen app's files leave out, by kind. */
   const dropped = $derived.by(() => {
     const all = review?.dropped ?? [];
@@ -178,6 +181,7 @@
       <Info text={t.review.saveSettingsInfo} />
     </span>
     <button type="button" class="link" onclick={() => (showWhole = !showWhole)}>{showWhole ? t.review.hideWhole : t.review.showWhole}</button>
+    {#if share}<SendToPhone files={share.files} page={share.page} />{/if}
   </div>
   {#if status}<p class={failed ? 'error' : 'ok'} role="status">{status}</p>{/if}
 

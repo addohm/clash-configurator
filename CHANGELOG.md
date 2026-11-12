@@ -6,6 +6,16 @@ All notable changes to clash-configurator. The format follows
 
 ## [Unreleased]
 
+- Send to phone (roadmap step 8, PLAN.md Q19, Q34, 2026-11-12): in the
+  Windows app, Review offers the new file(s) on the local Wi-Fi for five
+  minutes with a QR code. The phone's page has a button for its app
+  (Clash Meta or FlClash, Stash, Shadowrocket's servers then config), using
+  each app's own add-from-link, plus plain downloads. The panel counts
+  down, says what the phone fetched, offers the PC's other addresses, and
+  stops early once everything is fetched or if someone guesses at links.
+  New: the `sharer/` crate (tested on its own; the build script runs its
+  tests) and the `uqr` package for the QR code. Not yet tried with a phone.
+
 - Stash and Shadowrocket files (roadmap step 6, PLAN.md Q33, 2026-11-12):
   - **Stash** gets its own YAML: the mihomo file laid out the same, without
     the settings Stash sets itself (ports, LAN sharing, controller, TUN,

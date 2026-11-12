@@ -275,6 +275,21 @@ entry gives the question number and date. Nothing here is built yet.
     (Stash's provider fields; the provider's URL as Shadowrocket's
     subscription when names are unchanged) is for after the alpha.
 
+- **Q34 (2026-11-12, my pick, overrule freely): how Send to phone works.**
+  - The QR code opens a small page served by the app, not the file: phones'
+    cameras open links in the browser, so the page has a button per app
+    using its own add-from-link (`clash://install-config?url=`,
+    `stash://install-config?url=`, Shadowrocket's `shadowrocket://add/` for
+    the server list and `shadowrocket://config/add/` for the .conf, from
+    its manual), plus plain downloads.
+  - Plain HTTP on one private address of the PC, likeliest first (home
+    ranges before virtual adapters; the user can pick another), random
+    port, 128-bit random path. It ends after 5 minutes, 30 s after every
+    file has been fetched (an app may fetch twice), on Stop, on leaving
+    Review, or after 20 wrong requests. One share at a time.
+  - Apps keep the link as the profile's address, so their later updates
+    fail; the phone's page says that's expected.
+
 - **Q29 (2026-11-12): many kinds of subscription.** "There are a plethora
   of different subscription URL types, don't just focus on Wannaflix." So
   besides full Clash configs (as Wannaflix sends), an input may be a Clash

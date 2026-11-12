@@ -1,0 +1,16 @@
+[package]
+name = "cc-sharer"
+version = "0.1.0"
+description = "Sends files to a phone on the same Wi-Fi: a few minutes, one random link, only those files."
+license = "MIT"
+edition = "2021"
+publish = false
+
+[dependencies]
+tokio = { version = "1", features = ["net", "time", "io-util", "sync", "rt"] }
+getrandom = "0.2"
+if-addrs = "0.15"
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["net", "time", "io-util", "sync", "rt", "macros", "rt-multi-thread"] }

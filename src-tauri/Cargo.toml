@@ -17,6 +17,8 @@ tauri-plugin-dialog = "2"
 serde = { version = "1", features = ["derive"] }
 # Fetches subscription URLs safely (../fetcher, tested on its own).
 cc-fetcher = { path = "../fetcher" }
+# Send to phone: offers files on the local Wi-Fi for a few minutes (../sharer).
+cc-sharer = { path = "../sharer" }
 
 [profile.release]
 # A smaller app: one codegen unit, link-time optimisation, no unwinding tables.

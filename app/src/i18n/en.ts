@@ -539,6 +539,52 @@ export const en = {
     scratch: 'Scratch',
     scratchHint: 'Build a new config from nothing, and learn how one works.',
   },
+  // Send to phone (PLAN.md Q19): the panel in the app, and the page the
+  // phone opens (served by the app, so it's here too).
+  share: {
+    button: 'Send to phone',
+    info: 'Offers the new file on your Wi-Fi for five minutes, with a QR code to scan. Your phone opens a small page with a button for your app, which then fetches the file itself. Nothing goes over the internet.',
+    qrLabel: "QR code for your phone's camera",
+    scan: "Scan this with your phone's camera (the phone must be on the same Wi-Fi as this PC), then tap the button for your app on the page that opens.",
+    left: 'Open for {time} more.',
+    fetched: 'Your phone fetched: {names}.',
+    trouble: "Page won't open? If Windows asked about network access, allow it on private networks. Some hotel and office Wi-Fi keeps devices apart: save the file instead. The address:",
+    otherAddress: 'Or try another address of this PC:',
+    trust:
+      "Use a Wi-Fi you trust (home, not a café): the file holds your server passwords and isn't encrypted on the local network. The link is random and stops after five minutes.",
+    stop: 'Stop',
+    again: 'Send again',
+    close: 'Close',
+    ended: {
+      done: 'Sent: your phone has the files.',
+      expired: "Time's up: the link has stopped.",
+      stopped: 'Stopped.',
+      guessing: 'Stopped early: something on this network kept trying wrong links. Send again if you still need it.',
+    },
+    errors: {
+      'no-network': "This PC doesn't seem to be on a home or office network (no local address found). Save the file instead.",
+      'not-local': "That address isn't this PC's any more. Send again.",
+      'bad-files': "These files can't be sent (too big, or a mistake in this app). Save them instead.",
+      listen: "The app couldn't open a port for your phone. Save the file instead.",
+      failed: "Couldn't start sending. Save the file instead.",
+    },
+    // The phone's page.
+    phone: {
+      title: 'Clash Configurator',
+      introClash: 'Tap to add the config to Clash Meta for Android or FlClash, or download it.',
+      introStash: 'Tap to add the config to Stash, or download it.',
+      introShadowrocket: 'Shadowrocket needs both: tap 1 (the servers) and then 2 (the config, then Use Config). Set Global Routing to Config.',
+      clash: 'Open in Clash Meta or FlClash',
+      stash: 'Open in Stash',
+      shadowrocketServers: '1. Add the servers to Shadowrocket',
+      shadowrocketConfig: '2. Add the config to Shadowrocket',
+      download: 'Download the file',
+      downloadServers: 'Download the server list',
+      downloadConf: 'Download the .conf',
+      note: "This link works for a few minutes, on this Wi-Fi only. If your app later says it can't update from it, that's expected: the copy it got stays.",
+    },
+  },
+
   // Settings the chosen app's file leaves out (PLAN.md Q7).
   unused: {
     tag: 'Not used by {app}',

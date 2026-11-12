@@ -40,7 +40,10 @@ The build order from PLAN.md:
      dashboard and geo data. Advanced mode confirmed working on the
      owner's PC the same day.
    - Scratch mode (Q23)
-8. Send to phone
+- Step 8, Send to phone, built (2026-11-12, PLAN.md Q34): not yet tried
+  with a real phone. To check on the owner's PC: the firewall prompt, the
+  QR code from an iPhone and an Android phone, and each app's button
+  (Clash Meta or FlClash, Stash, Shadowrocket's two).
 9. Updates, release script and release kit
 
 - Update from my subscription (PLAN.md Q32), done (2026-11-12): the core,

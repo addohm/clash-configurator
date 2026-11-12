@@ -16,8 +16,9 @@ change.
   every output (2026-11-11).
 - Step 4, Simple mode (2026-11-11): pick the app, bring a config, the safety
   report (4a); Basics and Servers (4b-1); Groups and Rules (4b-2); DNS
-  (4b-3); review and save (4c). The Save dialog is untested until the
-  owner's next build.
+  (4b-3); review and save (4c). Saving through the Save dialog confirmed
+  on the owner's PC (2026-11-12): an edited WF config saved, kept every
+  untouched line, and loads in mihomo.
 
 ## Next
 

@@ -66,7 +66,8 @@ const paste = (text: string) => {
   area.dispatchEvent(new Event('input', { bubbles: true }));
   flushSync();
 };
-const openStep = () => target.querySelector('[aria-current="step"] h2')?.textContent;
+/** The open step's title (its heading holds the step number first). */
+const openStep = () => target.querySelector('#step-title')?.textContent?.replace(/^\s*\d+\s*/, '').trim();
 
 describe('Simple mode', () => {
   it('starts by asking for the app', () => {
@@ -121,8 +122,11 @@ describe('Simple mode', () => {
 
   it('lets finished steps be reopened, and keeps later ones closed', () => {
     click(t.apps.mihomo);
-    expect(buttons().some((b) => b.textContent?.trim() === t.steps.change)).toBe(true);
-    click(t.steps.change);
+    // Finished steps are buttons in the sidebar; later ones are disabled.
+    const stepButton = (name: string) => [...target.querySelectorAll<HTMLButtonElement>('.step-link')].find((b) => b.textContent?.includes(name));
+    expect(stepButton(t.steps.review)?.disabled).toBe(true);
+    stepButton(t.steps.app)?.click();
+    flushSync();
     expect(openStep()).toBe(t.steps.app);
     store.open('review');
     flushSync();
@@ -154,7 +158,7 @@ describe('Simple mode', () => {
 describe('the ⓘ tooltips', () => {
   it('open on click and close on Escape or a click elsewhere', () => {
     click(t.apps.mihomo);
-    const info = target.querySelector<HTMLButtonElement>(`button[aria-label="${t.info}"]`);
+    const info = target.querySelector<HTMLButtonElement>(`section.view button[aria-label="${t.info}"]`);
     if (!info) throw new Error('no info button');
     info.click();
     flushSync();
@@ -453,7 +457,7 @@ describe('review and save', () => {
     click(t.edit.done);
     expect(openStep()).toBe(t.steps.review);
   };
-  const reviewCard = () => target.querySelector('[aria-current="step"]');
+  const reviewCard = () => target.querySelector('section.view');
 
   it('compares the original and the new config', () => {
     toEditing('configs/panel-style.yaml');

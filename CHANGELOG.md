@@ -8,6 +8,13 @@ All notable changes to clash-configurator. The format follows
 
 ### Changed
 
+- The page is now an app with a sidebar (PLAN.md Q30, 2026-11-12): the steps
+  and the edit parts are in a sidebar on the left, with a line under each
+  finished step, and the open step fills the rest of the window. The edit
+  step keeps its title, Undo and the change count at the top and Back/Next
+  at the bottom, with the part in between filling the window. Narrow
+  windows stack the sidebar on top. Lists come next.
+
 - `tools\update` offers to install each new build (quietly, for your user,
   with a Start menu entry) and start it. A new menu option, **Start the
   app**, opens the installed app or else the last build. It offers to close

@@ -75,7 +75,7 @@
   {/if}
 
   {#if plan}
-    <div class="link">
+    <div class="link-servers">
       <label class="check">
         <input type="checkbox" checked={store.linkServers && plan.ok} disabled={!plan.ok} onchange={(e) => (store.linkServers = e.currentTarget.checked)} />
         {t.review.link}
@@ -214,7 +214,7 @@
     background: color-mix(in srgb, var(--danger) 15%, transparent);
   }
 
-  .link {
+  .link-servers {
     margin: 0.75rem 0;
     padding: 0.5rem 0.75rem;
     border: 1px solid var(--border);
@@ -222,7 +222,7 @@
     background: var(--bg);
   }
 
-  .link .check {
+  .link-servers .check {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -230,12 +230,12 @@
     font-weight: 600;
   }
 
-  .link p {
+  .link-servers p {
     margin: 0.4rem 0 0.2rem;
     font-size: 0.9rem;
   }
 
-  .link ul {
+  .link-servers ul {
     margin: 0;
     padding-left: 1.25rem;
     font-size: 0.9rem;

@@ -67,7 +67,7 @@ describe('subscription URLs', () => {
     expect(invoke).toHaveBeenCalledWith('fetch_subscription', { url: 'https://sub.example.com/x?token=fake' });
     expect(store.source).toEqual({ kind: 'url', url: 'https://sub.example.com/x?token=fake', name: 'My Sub' });
     expect(store.updateSeconds).toBe(86400);
-    expect(target.querySelector('[aria-current="step"] h2')?.textContent).toBe(t.steps.report);
+    expect(target.querySelector('#step-title')?.textContent).toContain(t.steps.report);
     expect(target.textContent).toContain('Your provider says: 4.0 GB of 100 GB used, ends');
   });
 
@@ -104,13 +104,13 @@ describe('different kinds of subscription', () => {
     go(t.report.continue);
     for (let i = 0; i < 4; i++) go(t.edit.next);
     go(t.edit.done);
-    const box = target.querySelector<HTMLInputElement>('.link input[type="checkbox"]');
+    const box = target.querySelector<HTMLInputElement>('.link-servers input[type="checkbox"]');
     expect(box?.checked).toBe(true);
     expect(store.review?.linked).toBe(true);
     expect(store.review?.output).toContain('url: https://panel.example.com/link/abc?sub=3');
     expect(store.review?.output).not.toContain('server: a.example.com');
     // The pick-by-hand group starts on Auto either way: nothing is lost.
-    expect(target.querySelector('.link')?.textContent).not.toContain("won't carry over");
+    expect(target.querySelector('.link-servers')?.textContent).not.toContain("won't carry over");
     box?.click();
     flushSync();
     expect(store.review?.linked).toBe(false);
@@ -126,7 +126,7 @@ describe('different kinds of subscription', () => {
     flushSync();
     for (let i = 0; i < 4; i++) go(t.edit.next);
     go(t.edit.done);
-    const link = target.querySelector('.link');
+    const link = target.querySelector('.link-servers');
     expect(link?.textContent).toContain('rule 1 sends traffic to the server 日本 01 directly');
     expect(link?.querySelector<HTMLInputElement>('input')?.disabled).toBe(true);
     expect(store.review?.linked).toBe(false);
@@ -139,7 +139,7 @@ describe('different kinds of subscription', () => {
     go(t.report.continue);
     for (let i = 0; i < 4; i++) go(t.edit.next);
     go(t.edit.done);
-    expect(target.querySelector('.link')?.textContent).toContain('SIP008');
+    expect(target.querySelector('.link-servers')?.textContent).toContain('SIP008');
     expect(store.review?.linked).toBe(false);
   });
 });

@@ -43,6 +43,26 @@ body {
   margin: 0;
 }
 
+/*
+ * A list that fills the space left in its part and scrolls inside, so a long
+ * list doesn't make the whole page scroll (PLAN.md Q30).
+ */
+.scroll-panel {
+  flex: 1 1 0;
+  min-height: 12rem;
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+}
+
+@media (max-width: 760px) {
+  .scroll-panel {
+    flex: none;
+    max-height: 60vh;
+  }
+}
+
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;

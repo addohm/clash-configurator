@@ -68,7 +68,9 @@ npm test          # unit tests
 
 ## Usage
 
-So far, Simple mode covers these steps:
+The steps are in a sidebar on the left (finished ones can be reopened by
+clicking them); the open step fills the window. So far, Simple mode covers
+these steps:
 
 1. **Pick your app:** mihomo apps (Clash Verge Rev, FlClash, Clash Meta for
    Android, Clash Party), Stash or Shadowrocket.

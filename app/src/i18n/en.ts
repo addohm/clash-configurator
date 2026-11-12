@@ -26,6 +26,7 @@ export const en = {
   },
 
   steps: {
+    label: 'Steps',
     progress: 'Step {n} of {total}',
     change: 'Change',
     app: 'Pick your app',

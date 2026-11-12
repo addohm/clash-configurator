@@ -48,8 +48,10 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   `mihomo.test.ts` runs `mihomo -t` on every output
 - app/: the page (Svelte 5). `app/src/i18n/en.ts` holds every piece of text
   the page shows; nothing user-facing is written inline
+  - `App.svelte`: the frame (PLAN.md Q30): the sidebar (modes, steps, edit
+    parts, Forget) and the open step filling the window
   - app/src/lib/: `store.svelte.ts` (the page's state: steps, intake result,
-    session), `Info.svelte` (the ⓘ tooltip), `Step.svelte` (a numbered step)
+    session), `Info.svelte` (the ⓘ tooltip)
   - app/src/steps/: one component per Simple-mode step (`Review.svelte`
     is step 5); `lib/save.ts` saves through the app's `save_file` command,
     or downloads in a browser; `lib/fetch.ts` asks the app's
@@ -127,6 +129,8 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   `$state.raw`, replaced whole: deep proxies of big configs are slow.
 - Big lists in the page: page them, and don't render a dropdown per row
   (5,830 rules x every group was ~2,700 elements); open one at a time.
+- Long lists go in a `.scroll-panel` (app.css): it fills the space left in
+  the edit part and scrolls inside, so the page doesn't (Q30).
 - Output must keep unchanged parts byte for byte: real configs mix
   indentation and spacing, and the review's comparison is only useful if it
   shows real changes. Test new edits with "only these lines change".

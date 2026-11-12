@@ -221,6 +221,14 @@ entry gives the question number and date. Nothing here is built yet.
   settings), the switch lists it first; switching off writes the servers
   into the file, keeping every edit, without updates. Linking isn't offered
   when a rule or setting names one of the subscription's servers directly.
+- **Q30 (2026-11-12): sidebar app layout.** The owner found the page "not
+  responsive", with long lists making for a lot of scrolling. Replaces Q11's
+  "numbered steps down one page": like Clash Verge Rev, the steps and the
+  edit parts sit in a sidebar on the left and the content fills the window;
+  long lists scroll inside their own panel, sized to the window, with a
+  search box; servers, rules and long lists can be ticked for bulk actions
+  (remove selected, keep only selected); groups show the list and the
+  chosen group's details side by side. Narrow windows stack it.
 
 - **Q29 (2026-11-12): many kinds of subscription.** "There are a plethora
   of different subscription URL types, don't just focus on Wannaflix." So

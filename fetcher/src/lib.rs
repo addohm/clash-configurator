@@ -65,6 +65,12 @@ pub struct Fetched {
     /// The provider's usage line (`subscription-userinfo`: upload, download,
     /// total, expire), if it sent one.
     pub userinfo: Option<String>,
+    /// The subscription's name (`profile-title`, plain or `base64:`), if sent.
+    pub profile_title: Option<String>,
+    /// `content-disposition`, which often names the subscription's file.
+    pub content_disposition: Option<String>,
+    /// How often, in hours, the provider suggests updating (`profile-update-interval`).
+    pub update_interval: Option<String>,
 }
 
 /// True for an address anyone on the internet could reach, false for this
@@ -236,12 +242,18 @@ pub async fn fetch_with(raw_url: &str, opts: &Options) -> Result<Fetched, FetchE
         return Err(FetchError::TooBig);
     }
     let final_url = res.url().to_string();
-    let userinfo = res
-        .headers()
-        .get("subscription-userinfo")
-        .and_then(|v| v.to_str().ok())
-        .filter(|v| v.len() < 512)
-        .map(str::to_string);
+    // Short, printable header values only.
+    let header = |name: &str| {
+        res.headers()
+            .get(name)
+            .and_then(|v| v.to_str().ok())
+            .filter(|v| v.len() < 512 && !v.chars().any(|c| c.is_control()))
+            .map(str::to_string)
+    };
+    let userinfo = header("subscription-userinfo");
+    let profile_title = header("profile-title");
+    let content_disposition = header("content-disposition");
+    let update_interval = header("profile-update-interval");
     // Read in chunks, counting decompressed bytes, so a small compressed
     // body can't grow into gigabytes.
     let mut body: Vec<u8> = Vec::new();
@@ -252,7 +264,7 @@ pub async fn fetch_with(raw_url: &str, opts: &Options) -> Result<Fetched, FetchE
         body.extend_from_slice(&chunk);
     }
     let body = String::from_utf8(body).map_err(|_| FetchError::NotText)?;
-    Ok(Fetched { body, final_url, userinfo })
+    Ok(Fetched { body, final_url, userinfo, profile_title, content_disposition, update_interval })
 }
 
 #[cfg(test)]
@@ -317,10 +329,17 @@ mod tests {
 
     #[tokio::test]
     async fn fetches_text_with_usage() {
-        let url = serve(response("subscription-userinfo: upload=1; download=2; total=3; expire=4\r\n", b"proxies: []\n"), 1).await;
+        let headers = "subscription-userinfo: upload=1; download=2; total=3; expire=4\r\n\
+                       profile-title: base64:TXkgU3Vi\r\n\
+                       content-disposition: attachment; filename*=UTF-8''My%20Sub.yaml\r\n\
+                       profile-update-interval: 24\r\n";
+        let url = serve(response(headers, b"proxies: []\n"), 1).await;
         let f = fetch_with(&url, &test_opts()).await.unwrap();
         assert_eq!(f.body, "proxies: []\n");
         assert_eq!(f.userinfo.as_deref(), Some("upload=1; download=2; total=3; expire=4"));
+        assert_eq!(f.profile_title.as_deref(), Some("base64:TXkgU3Vi"));
+        assert_eq!(f.content_disposition.as_deref(), Some("attachment; filename*=UTF-8''My%20Sub.yaml"));
+        assert_eq!(f.update_interval.as_deref(), Some("24"));
     }
 
     #[tokio::test]

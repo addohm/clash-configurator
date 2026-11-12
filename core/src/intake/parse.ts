@@ -34,7 +34,8 @@ const PARSE_OPTIONS = {
 const POISON_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 
 /** Share-link schemes a subscription lists instead of a Clash config. */
-const SHARE_LINK = /^(vless|vmess|trojan|ss|ssr|hysteria2|hy2|hysteria|tuic|wireguard|anytls|socks5?|https?):\/\/\S+$/i;
+// The name after # may hold raw spaces: some subscriptions don't encode them.
+const SHARE_LINK = /^(vless|vmess|trojan|ss|ssr|hysteria2|hy2|hysteria|tuic|wireguard|anytls|socks5?|https?):\/\/[^\s#]+(#.*)?$/i;
 
 function refuse(code: Refusal['code'], extra: Omit<Refusal, 'code'> = {}): ParseResult {
   return { ok: false, refusal: { code, ...extra } };

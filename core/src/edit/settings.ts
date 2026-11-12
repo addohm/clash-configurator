@@ -57,6 +57,11 @@ function readSource(v: unknown): Source | null {
   const kinds: SourceKind[] = ['paste', 'file', 'url'];
   if (!kinds.includes(s['kind'] as SourceKind)) return null;
   const source: Source = { kind: s['kind'] as SourceKind };
+  const format = s['format'];
+  if (format !== undefined) {
+    if (format !== 'links' && format !== 'sip008') return null;
+    source.format = format;
+  }
   const name = s['name'];
   if (name !== undefined) {
     if (typeof name !== 'string' || name.length > 255 || CONTROL.test(name)) return null;

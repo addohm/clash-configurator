@@ -25,7 +25,11 @@ import {
   defaultFixes,
   groupsWithAllServers,
   intake,
+  linkedCopy,
   parseLinks,
+  planLink,
+  readInput,
+  writeYaml,
   renameChanges,
   type Session,
   startSession,
@@ -156,6 +160,27 @@ describe.skipIf(!mihomo)('mihomo loads every output', () => {
     sessions.push([`${name}-dns`, { ...s, changes: [...s.changes, ...de] }]);
   }
 
+  // As if each had come from a subscription URL: servers linked (Q28).
+  for (const [name, s] of [...sessions]) {
+    const b = buildDoc(s);
+    const start = intake(s.original);
+    if (!b.ok || !start.ok) continue;
+    const plan = planLink(start.data, b.doc.toJS() as Record<string, unknown>, 'https://sub.example.com/api?token=fake');
+    if (!plan.ok) continue;
+    const text = writeYaml(linkedCopy(b.doc, plan), s.original);
+    it(`${name} (servers linked)`, () => {
+      expect(intake(text).ok).toBe(true);
+      expect(mihomoTest(`${name}-linked`, text)).toBeNull();
+    });
+  }
+
+  // A server list made into a basic config (Q29).
+  it('a basic config made from share links', () => {
+    const r = readInput(btoa(LINKS));
+    expect(r.format).toBe('links');
+    expect(mihomoTest('from-links', r.text)).toBeNull();
+  });
+
   for (const [name, s] of sessions) {
     it(name, () => {
       expect(mihomoTest(name, output(s))).toBeNull();
@@ -172,6 +197,16 @@ describe.skipIf(!mihomo || Object.keys(PRIVATE).length === 0)('mihomo loads real
       const s = startSession(text, { kind: 'paste' }, 'mihomo', 'simple', defaultFixes(r.findings));
       // Only mihomo's error lines are shown, never the config.
       expect(mihomoTest(`private-${name}`, output(s))).toBeNull();
+    });
+    it(`${name} (servers linked)`, () => {
+      const r = intake(text);
+      if (!r.ok) throw new Error(`refused: ${r.refusal.code}`);
+      const s = startSession(text, { kind: 'paste' }, 'mihomo', 'simple', defaultFixes(r.findings));
+      const b = buildDoc(s);
+      if (!b.ok) throw new Error('build failed');
+      const plan = planLink(r.data, b.doc.toJS() as Record<string, unknown>, 'https://sub.example.com/api?token=fake');
+      if (!plan.ok) return; // e.g. a rule names a server: linking isn't offered
+      expect(mihomoTest(`private-linked-${name}`, writeYaml(linkedCopy(b.doc, plan), text))).toBeNull();
     });
   }
 });

@@ -21,13 +21,21 @@ export const FETCH_ERRORS = [
 export type FetchErrorCode = (typeof FETCH_ERRORS)[number];
 
 export type FetchResult =
-  | { ok: true; body: string; finalUrl: string; userinfo: string | null }
+  | {
+      ok: true;
+      body: string;
+      finalUrl: string;
+      userinfo: string | null;
+      profileTitle: string | null;
+      contentDisposition: string | null;
+      updateInterval: string | null;
+    }
   | { ok: false; code: FetchErrorCode; detail: string };
 
 export async function fetchSubscription(url: string): Promise<FetchResult> {
   if (!inApp()) return { ok: false, code: 'not-in-app', detail: '' };
   try {
-    const r = await invoke<{ body: string; finalUrl: string; userinfo: string | null }>('fetch_subscription', { url });
+    const r = await invoke<Omit<Extract<FetchResult, { ok: true }>, 'ok'>>('fetch_subscription', { url });
     return { ok: true, ...r };
   } catch (e) {
     const err = e as { code?: string; detail?: unknown } | string;
@@ -70,4 +78,45 @@ export function size(bytes: number): string {
     i++;
   }
   return `${v >= 10 || i === 0 ? Math.round(v) : v.toFixed(1)} ${units[i]}`;
+}
+
+/**
+ * The subscription's name: `profile-title` (plain, or "base64:..."), else
+ * the file name in `content-disposition`. Tidied for use in a file name.
+ */
+export function readTitle(profileTitle: string | null, contentDisposition: string | null): string | null {
+  let title: string | null = null;
+  if (profileTitle) {
+    if (profileTitle.startsWith('base64:')) {
+      try {
+        const bin = atob(profileTitle.slice(7));
+        title = new TextDecoder('utf-8', { fatal: true }).decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+      } catch {
+        title = null;
+      }
+    } else title = profileTitle;
+  }
+  if (!title && contentDisposition) {
+    const star = /filename\*\s*=\s*(?:UTF-8|utf-8)?''([^;]+)/.exec(contentDisposition);
+    const plainName = /filename\s*=\s*"?([^";]+)"?/.exec(contentDisposition);
+    try {
+      title = star?.[1] ? decodeURIComponent(star[1]) : (plainName?.[1] ?? null);
+    } catch {
+      title = plainName?.[1] ?? null;
+    }
+  }
+  if (!title) return null;
+  const clean = title
+    .replace(/\.(ya?ml|txt|conf|json)$/i, '')
+    .replace(/[\u0000-\u001F\u007F<>:"/\\|?*]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 100);
+  return clean || null;
+}
+
+/** The provider's suggested update interval, in seconds (it sends hours). */
+export function readInterval(hours: string | null): number | undefined {
+  if (!hours || !/^\d{1,4}$/.test(hours.trim())) return undefined;
+  return Number(hours.trim()) * 3600;
 }

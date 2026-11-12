@@ -92,7 +92,15 @@ So far, Simple mode covers these steps:
    original; anything still flagged; then **Save the config** (a Save
    dialog) and **Save settings** (to carry on later with **Open saved
    settings**). Everything you didn't change stays exactly as it was in your
-   original file.
+   original file. If the config came from a subscription URL, **Keep
+   servers updating from my subscription** (on by default) makes the saved
+   config fetch its servers from the URL; it lists any edits that wouldn't
+   carry over, and switching it off writes the servers into the file.
+
+Subscriptions can be full Clash configs, Clash files with only servers,
+lists of share links (plain or base64) or SIP008 JSON. Server lists become a
+basic config to edit: your servers, a "Proxy" group, an "Auto" group and
+one rule.
 
 Stash and Shadowrocket files of their own come later; for now every app
 gets the Clash (mihomo) config. Advanced and Scratch modes come later.

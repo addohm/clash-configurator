@@ -26,6 +26,10 @@ build order. The owner said go on 2026-11-11; build one step at a time.
     comparison, a patience diff), `references.ts`
     (renames that update every reference), `session.ts` (original + changes
     -> built config), `settings.ts` (the saved settings file)
+  - core/src/edit/link.ts: linking servers to the subscription (a proxy
+    provider): the plan, what's lost, what blocks it (PLAN.md Q28)
+  - core/src/subscription/: server lists (share links, SIP008) made into a
+    basic config (Q29)
   - core/src/links/: share links (vless, trojan, ss, hysteria2, vmess) to
     mihomo server entries; refuses what it can't convert faithfully
   - core/src/edit/servers.ts: adding servers (into chosen groups) and

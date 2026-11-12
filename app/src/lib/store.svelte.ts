@@ -25,9 +25,14 @@ import {
   type Session,
   type Source,
   startSession,
+  type LinkPlan,
+  linkedCopy,
+  planLink,
+  type ReadInput,
+  readInput,
   writeYaml,
 } from '../../../core/src';
-import { type FetchResult, fetchSubscription, readUsage, type Usage } from './fetch';
+import { type FetchResult, fetchSubscription, readInterval, readTitle, readUsage, type Usage } from './fetch';
 
 export const STEPS = ['app', 'input', 'report', 'edit', 'review'] as const;
 export type StepId = (typeof STEPS)[number];
@@ -48,8 +53,14 @@ class Store {
   source: Source | null = $state.raw(null);
   original: string | null = $state.raw(null);
   checked: Intake | null = $state.raw(null);
+  /** Set when the input was a server list, made into a basic config. */
+  converted: ReadInput | null = $state.raw(null);
   /** What the provider said about the subscription's data and end date, if fetched. */
   usage: Usage | null = $state.raw(null);
+  /** How often the provider suggests updating, in seconds, if it said. */
+  updateSeconds: number | undefined = $state(undefined);
+  /** Q28: keep servers updating from the subscription when saving. */
+  linkServers = $state(true);
   /** Which findings' fixes are ticked, by position in checked.findings. */
   ticked: readonly boolean[] = $state.raw([]);
 
@@ -81,8 +92,23 @@ class Store {
   review = $derived.by(() => {
     void this.version;
     if (this.step !== 'review' || !this.doc || this.original === null) return null;
-    const output = writeYaml(this.doc, this.original);
-    return { output, result: intake(output) };
+    const plainOutput = writeYaml(this.doc, this.original);
+    // From a subscription URL: the linked version too (PLAN.md Q8, Q28).
+    const url = this.source?.kind === 'url' ? this.source.url : undefined;
+    let plan: LinkPlan | null = null;
+    let linkedOutput: string | null = null;
+    if (url) {
+      const start = intake(this.original);
+      if (start.ok) {
+        const opts: { intervalSeconds?: number; format?: string } = {};
+        if (this.updateSeconds !== undefined) opts.intervalSeconds = this.updateSeconds;
+        if (this.source?.format) opts.format = this.source.format;
+        plan = planLink(start.data, this.data, url, opts);
+        if (plan.ok) linkedOutput = writeYaml(linkedCopy(this.doc, plan), this.original);
+      }
+    }
+    const output = this.linkServers && linkedOutput !== null ? linkedOutput : plainOutput;
+    return { output, plainOutput, linkedOutput, plan, linked: output === linkedOutput, result: intake(output) };
   });
 
   open(step: StepId): void {
@@ -104,15 +130,30 @@ class Store {
 
   /** Runs intake on a pasted or opened config and opens the safety report. */
   check(input: string | Uint8Array, source: Source): void {
-    const result = intake(input);
-    this.source = source;
+    // A server list (share links, SIP008) becomes a basic config first.
+    let text: string | null = null;
+    if (typeof input === 'string') text = input;
+    else {
+      try {
+        text = new TextDecoder('utf-8', { fatal: true }).decode(input);
+      } catch {
+        text = null; // not text: intake says so
+      }
+    }
+    const read = text !== null && text.length <= LIMITS.maxBytes ? readInput(text) : null;
+    const converted = read && read.format !== 'clash' ? read : null;
+    const result = intake(converted ? converted.text : input);
+    this.converted = converted;
+    this.source = converted ? { ...source, format: converted.format as 'links' | 'sip008' } : source;
     this.checked = result;
-    this.original = result.ok ? (typeof input === 'string' ? input : new TextDecoder().decode(input)) : null;
+    this.original = result.ok ? (converted ? converted.text : (text ?? '')) : null;
     this.ticked = result.ok ? result.findings.map((f) => !!(f.fix && f.fixByDefault)) : [];
     this.session = null;
     this.doc = null;
     this.edits = [];
     this.usage = null;
+    this.updateSeconds = undefined;
+    this.linkServers = true;
     this.reached = STEPS.indexOf('report');
     this.step = 'report';
   }
@@ -121,8 +162,10 @@ class Store {
   async checkUrl(url: string): Promise<FetchResult> {
     const r = await fetchSubscription(url.trim());
     if (r.ok) {
-      this.check(r.body, { kind: 'url', url: url.trim() });
+      const name = readTitle(r.profileTitle, r.contentDisposition);
+      this.check(r.body, name ? { kind: 'url', url: url.trim(), name } : { kind: 'url', url: url.trim() });
       this.usage = readUsage(r.userinfo);
+      this.updateSeconds = readInterval(r.updateInterval);
     }
     return r;
   }
@@ -200,6 +243,7 @@ class Store {
     this.original = s.original;
     this.checked = intake(s.original);
     this.ticked = [];
+    this.converted = null;
     if (!this.load(s)) return { ok: false, error: 'bad-change' };
     this.reached = STEPS.indexOf('review');
     this.step = 'edit';
@@ -208,6 +252,7 @@ class Store {
 
   /** Back to bringing in a config, keeping the app. */
   restart(): void {
+    this.converted = null;
     this.checked = null;
     this.original = null;
     this.session = null;

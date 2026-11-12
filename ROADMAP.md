@@ -26,7 +26,8 @@ The build order from PLAN.md:
 
 - Step 5, subscription URLs:
   - 5a, done (2026-11-12): the Rust fetcher and the URL box
-  - 5b: keep servers linked to the subscription after saving (Q8)
+  - 5b, done (2026-11-12): servers linked to the subscription when saving,
+    chosen at save (Q28); other kinds of subscription (Q29)
 
 
 6. Stash and Shadowrocket output
@@ -39,9 +40,6 @@ use (PLAN.md Q7). That needs each app's own format, which step 6 builds.
 
 ## Ideas
 
-- Accept a list of share links (a Shadowrocket subscription) as the input,
-  by turning it into a basic Clash config. Asked 2026-11-11, not decided;
-  the link parser (`core/src/links/`) already reads them.
 - The Linux app (after Windows)
 - The website version (free hosting, its own fetcher)
 - More languages, starting with Simplified Chinese

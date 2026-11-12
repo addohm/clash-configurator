@@ -211,6 +211,30 @@ entry gives the question number and date. Nothing here is built yet.
     checks work.
 - **Q27 (2026-11-11): name.** Clash Configurator. Look (not objected to):
   light and dark follow the system, one accent colour, clean readable fonts.
+- **Q28 (2026-11-12): linked servers, chosen at save.** For a config from a
+  subscription URL, the review step has a "Keep servers updating from my
+  subscription" switch, on by default. Linked, the saved config takes its
+  servers from the subscription (a proxy provider) and keeps the user's
+  choices that can be kept: which servers they kept (a name filter),
+  renames, and servers they added themselves (left in the file). If an edit
+  can't carry over (the order of servers inside a group, one server's own
+  settings), the switch lists it first; switching off writes the servers
+  into the file, keeping every edit, without updates. Linking isn't offered
+  when a rule or setting names one of the subscription's servers directly.
+
+- **Q29 (2026-11-12): many kinds of subscription.** "There are a plethora
+  of different subscription URL types, don't just focus on Wannaflix." So
+  besides full Clash configs (as Wannaflix sends), an input may be a Clash
+  file with only servers, a list of share links (plain, or base64 as
+  v2rayN-style panels send it) or SIP008 JSON. Server lists become a basic
+  Clash config to edit: the servers, a "Proxy" group (pick by hand, "Auto"
+  first), an "Auto" group (fastest), and `MATCH,Proxy`; the safety report
+  says so and lists entries it couldn't read. This settles the open
+  "server lists as input" question. Linking works for share-link lists too
+  (mihomo reads them as a provider; checked by running mihomo), not for
+  SIP008. The provider's name (profile-title, content-disposition) names
+  the saved file, and its profile-update-interval sets the linked
+  servers' update interval.
 
 ## From addohm.net (addohmnet-modern), studied 2026-11-10
 
@@ -240,10 +264,6 @@ Not reusable as it is for a public tool:
   from "anything bad" and never objected to. Confirm when the safety report
   is built.
 - Where to report security problems (SECURITY.md).
-- A list of share links as input (e.g. Wannaflix's Shadowrocket
-  subscription, which isn't a Clash config): build a basic Clash config from
-  it, refuse it with a clearer message, or leave it to Scratch mode. Asked
-  2026-11-11; the owner moved on without choosing.
 - Making the repo public: the owner's step, at the first release (Q15).
 
 ## Build order

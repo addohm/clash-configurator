@@ -150,7 +150,27 @@ All notable changes to clash-configurator. The format follows
     backend, which needs no extra tools on Windows.
   - Its tests (10, including a gzip bomb and a real HTTPS fetch) run here
     and in `tools\update`.
-  - Keeping the servers linked to the URL after saving (Q8) is 5b.
+- Linked servers and more kinds of subscription, step 5b (2026-11-12):
+  - For a config from a subscription URL, the review has **Keep servers
+    updating from my subscription** (PLAN.md Q28), on by default. The saved
+    config then gets its servers from the URL (a mihomo proxy provider,
+    with the provider's update interval when it sends one), keeping which
+    servers you kept (a name filter), renames, and servers you added
+    yourself. Edits that can't carry over are listed first (a pick-by-hand
+    group that would start on another member, a first-that-works group's
+    order, one server's own settings, new servers hidden by your choice);
+    switch off to write the servers into the file. It isn't offered when a
+    rule or setting names a subscription server directly, or for SIP008.
+  - Inputs can be a full Clash config, a Clash file with only servers, a
+    list of share links (plain or base64, v2rayN style) or SIP008 JSON
+    (Q29). Server lists become a basic config: the servers, Proxy and Auto
+    groups, and one rule; the report says so and lists what couldn't be
+    read. Names with raw spaces in share links are read.
+  - The subscription's name (profile-title or content-disposition) names
+    the saved file.
+  - mihomo loads the linked version of every test config and of the real
+    WF configs, and a config built from share links; running mihomo
+    confirmed it reads a base64 share-link list as a provider.
 
 ### Fixed
 

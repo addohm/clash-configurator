@@ -14,6 +14,8 @@ export type SourceKind = 'paste' | 'file' | 'url';
 
 export interface Source {
   kind: SourceKind;
+  /** Set when the input was a server list, made into a basic config (PLAN.md Q29). */
+  format?: 'links' | 'sip008';
   /** The file's name, for 'file'. */
   name?: string;
   /** The subscription URL, for 'url'. */

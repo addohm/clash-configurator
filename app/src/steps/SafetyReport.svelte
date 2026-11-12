@@ -4,6 +4,12 @@
   import { size } from '../lib/fetch';
   import { store } from '../lib/store.svelte';
 
+  const converted = $derived(store.converted);
+  const skippedText = (code: string) =>
+    code === 'sip008-plugin' || code === 'sip008-entry'
+      ? t.report.sip008[code]
+      : format(t.servers.linkErrors[code as keyof typeof t.servers.linkErrors] ?? code, { detail: '' });
+
   const usage = $derived(store.usage);
   const usageText = $derived(
     usage
@@ -39,6 +45,19 @@
   </div>
 {:else if checked}
   {#if usageText}<p class="usage">{usageText}</p>{/if}
+  {#if converted}
+    <div class="converted">
+      <p>{format(t.report.converted, { servers: converted.servers ?? 0 })}</p>
+      {#if converted.skipped && converted.skipped.length > 0}
+        <p>{format(t.report.convertedSkipped, { count: converted.skipped.length })}</p>
+        <ul>
+          {#each converted.skipped.slice(0, 20) as s (s.line)}
+            <li>{format(t.report.skippedLine, { line: s.line, reason: skippedText(s.code) })}</li>
+          {/each}
+        </ul>
+      {/if}
+    </div>
+  {/if}
   {#if findings.length === 0}
     <p class="clean">{t.report.clean}</p>
   {:else}
@@ -88,6 +107,25 @@
 
   .clean {
     color: var(--ok);
+  }
+
+  .converted {
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-left: 4px solid var(--accent);
+    border-radius: 4px;
+    background: var(--bg);
+    font-size: 0.9rem;
+  }
+
+  .converted p {
+    margin: 0.25rem 0;
+  }
+
+  .converted ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    color: var(--muted);
   }
 
   .usage {

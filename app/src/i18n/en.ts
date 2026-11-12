@@ -325,6 +325,23 @@ export const en = {
     stillFlagged: 'Still flagged in the new config:',
     clean: 'The new config passes the safety checks.',
     refused: "The new config can't be used: {reason}",
+    link: 'Keep servers updating from my subscription',
+    linkInfo:
+      "Your saved config gets its servers from your subscription URL whenever your app updates it, so new and replaced servers arrive by themselves. Your groups, rules and other settings stay as you made them. Switch it off to write the servers into the file instead: every edit is kept, but the servers won't update.",
+    linkLosses: "These edits won't carry over while servers are linked. Switch it off to keep them:",
+    losses: {
+      first: '{group} would start on {now} instead of {was}',
+      order: "{group} would try its servers in your provider's order, not yours",
+      'server-settings': "your changes to {server} would be replaced by the provider's own settings",
+      'new-servers-hidden': "servers your provider adds later won't appear, since you chose which ones to keep",
+    },
+    linkBlocked: "Servers can't be linked to the subscription here, so they're written into the file:",
+    blockers: {
+      rule: 'rule {n} sends traffic to the server {server} directly',
+      setting: '{path} names the server {server}',
+      'no-servers': 'none of the servers come from the subscription',
+      format: "this kind of subscription (SIP008) can't be read by your app on its own",
+    },
     appNote: 'Stash and Shadowrocket files of their own come in a later build. For now you get the Clash (mihomo) config, which Stash can usually read.',
     saveConfig: 'Save the config',
     saveSettings: 'Save settings',
@@ -346,6 +363,14 @@ export const en = {
     summary: '{problems} to look at, {notes} to know about.',
     severities: { danger: 'Danger', warning: 'Warning', info: 'Note' },
     keepAsIs: 'Ticked fixes are made in your new config. Untick any you want to keep as they are.',
+    converted:
+      'This was a list of {servers} servers, not a full Clash config, so a basic one was made around them: a "Proxy" group to pick a server by hand, an "Auto" group that picks the fastest, and one rule sending everything through Proxy. Change any of it in the next step.',
+    convertedSkipped: '{count} entries could not be read and were left out:',
+    skippedLine: 'Entry {line}: {reason}',
+    sip008: {
+      'sip008-plugin': 'uses a Shadowsocks plugin, which this page cannot convert',
+      'sip008-entry': 'is missing its address, port, password or a supported cipher',
+    },
     continue: 'Continue',
   },
 

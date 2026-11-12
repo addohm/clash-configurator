@@ -177,6 +177,6 @@ export function compareConfigs(original: string, edited: string, context = 2): C
 
 /** File names for what's saved, from where the config came from. */
 export function outputNames(source: { kind: string; name?: string }): { config: string; settings: string } {
-  const base = source.kind === 'file' && source.name ? source.name.replace(/\.(ya?ml|txt|conf)$/i, '') : 'config';
+  const base = source.name ? source.name.replace(/\.(ya?ml|txt|conf|json)$/i, '') : 'config';
   return { config: `${base} (edited).yaml`, settings: `${base}.ccsettings.json` };
 }

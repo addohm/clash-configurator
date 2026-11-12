@@ -4,7 +4,7 @@
   settings file.
 -->
 <script lang="ts">
-  import { compareConfigs, outputNames, writeSettings } from '../../../core/src';
+  import { compareConfigs, type LinkBlocker, type LinkLoss, outputNames, writeSettings } from '../../../core/src';
   import { format, refusalText, strings as t } from '../i18n';
   import Info from '../lib/Info.svelte';
   import { saveFile, type SaveKind } from '../lib/save';
@@ -14,6 +14,21 @@
   const FIRST_HUNKS = 30;
 
   const review = $derived(store.review);
+  const plan = $derived(review?.plan ?? null);
+  const lossText = (l: LinkLoss) =>
+    l.kind === 'first'
+      ? format(t.review.losses.first, { group: l.group, now: l.now, was: l.was })
+      : l.kind === 'order'
+        ? format(t.review.losses.order, { group: l.group })
+        : l.kind === 'server-settings'
+          ? format(t.review.losses['server-settings'], { server: l.server })
+          : t.review.losses['new-servers-hidden'];
+  const blockerText = (b: LinkBlocker) =>
+    b.kind === 'rule'
+      ? format(t.review.blockers.rule, { n: b.index + 1, server: b.server })
+      : b.kind === 'setting'
+        ? format(t.review.blockers.setting, { path: b.path, server: b.server })
+        : t.review.blockers[b.kind];
   const comparison = $derived(review && store.original !== null ? compareConfigs(store.original, review.output) : null);
   const flagged = $derived(review?.result.ok ? review.result.findings.filter((f) => f.severity !== 'info') : []);
   const names = $derived(outputNames(store.source ?? { kind: 'paste' }));
@@ -59,7 +74,24 @@
     <p class="ok">{t.review.clean}</p>
   {/if}
 
-  {#if comparison && changes > 0}
+  {#if plan}
+    <div class="link">
+      <label class="check">
+        <input type="checkbox" checked={store.linkServers && plan.ok} disabled={!plan.ok} onchange={(e) => (store.linkServers = e.currentTarget.checked)} />
+        {t.review.link}
+        <Info text={t.review.linkInfo} name="proxy-providers" />
+      </label>
+      {#if !plan.ok}
+        <p class="muted">{t.review.linkBlocked}</p>
+        <ul>{#each plan.blockers as b, i (i)}<li>{blockerText(b)}</li>{/each}</ul>
+      {:else if store.linkServers && plan.losses.length > 0}
+        <p>{t.review.linkLosses}</p>
+        <ul>{#each plan.losses as l, i (i)}<li>{lossText(l)}</li>{/each}</ul>
+      {/if}
+    </div>
+  {/if}
+
+  {#if comparison && (changes > 0 || review.linked)}
     <h3>{t.review.compare} <Info text={t.review.compareInfo} /></h3>
     {#if comparison}
       <p class="muted">{format(t.review.lines, { added: comparison.added, removed: comparison.removed })}</p>
@@ -180,6 +212,33 @@
 
   tr.removed {
     background: color-mix(in srgb, var(--danger) 15%, transparent);
+  }
+
+  .link {
+    margin: 0.75rem 0;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+  }
+
+  .link .check {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 600;
+  }
+
+  .link p {
+    margin: 0.4rem 0 0.2rem;
+    font-size: 0.9rem;
+  }
+
+  .link ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    font-size: 0.9rem;
   }
 
   .note {

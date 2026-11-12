@@ -112,6 +112,15 @@ describe('linking servers to the subscription', () => {
     expect(writeYaml(doc, SUB)).toBe(SUB);
   });
 
+  it("warns when servers are found through the provider's own DNS", () => {
+    const sub = SUB.replace('mixed-port: 7890', "mixed-port: 7890\ndns:\n  nameserver-policy:\n    '+.example.net,geosite:cn': [https://dns.example/dns-query]")
+      .replace('server: 192.0.2.3', 'server: hk.example.net')
+      .replace('server: 192.0.2.4', 'server: jp.example.net');
+    const p = planLink(plain(parseDocument(sub)), plain(parseDocument(sub)), URL);
+    expect(p.warnings).toEqual([{ kind: 'provider-dns', count: 2, patterns: ['+.example.net'] }]);
+    expect(link([]).p.warnings).toEqual([]);
+  });
+
   it('escapes names for the filters', () => {
     expect(exactNames(['[RLT][CN] Daily (1)', 'a.b|c'])).toBe('^(?:\\[RLT\\]\\[CN\\] Daily \\(1\\)|a\\.b\\|c)$');
     expect(new RegExp(exactNames(['[RLT][CN] Daily (1)'])).test('[RLT][CN] Daily (1)')).toBe(true);

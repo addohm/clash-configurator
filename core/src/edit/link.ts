@@ -54,12 +54,21 @@ export type LinkBlocker =
   /** The subscription is in a form mihomo can't read as a provider (SIP008). */
   | { kind: 'format' };
 
+/** Worth knowing before linking, though nothing is lost now. */
+export type LinkWarning = {
+  /** Servers found through the provider's own DNS settings (per-site DNS or hosts), which don't update. */
+  kind: 'provider-dns';
+  count: number;
+  patterns: string[];
+};
+
 export interface LinkPlan {
   /** True when linking is possible. */
   ok: boolean;
   blockers: LinkBlocker[];
   /** Edits that won't carry over if linked. */
   losses: LinkLoss[];
+  warnings: LinkWarning[];
   /** The changes that link the servers, applied to a copy of the edited config. */
   changes: Change[];
 }
@@ -69,7 +78,7 @@ export interface LinkPlan {
  * given the subscription's own config `orig` (what was fetched).
  */
 export function planLink(orig: Config, cur: Config, url: string, opts: { intervalSeconds?: number; format?: string } = {}): LinkPlan {
-  if (opts.format === 'sip008') return { ok: false, blockers: [{ kind: 'format' }], losses: [], changes: [] };
+  if (opts.format === 'sip008') return { ok: false, blockers: [{ kind: 'format' }], losses: [], warnings: [], changes: [] };
   const origServers = servers(orig);
   const origByName = new Map(origServers.map((s) => [String(s['name']), s]));
   const origByContent = new Map<string, string>();
@@ -112,7 +121,7 @@ export function planLink(orig: Config, cur: Config, url: string, opts: { interva
   list(cur['listeners']).forEach((l) => {
     if (isObject(l) && typeof l['proxy'] === 'string' && fromSub.has(l['proxy'])) blockers.push({ kind: 'setting', path: 'listeners', server: l['proxy'] });
   });
-  if (blockers.length > 0) return { ok: false, blockers, losses: [], changes: [] };
+  if (blockers.length > 0) return { ok: false, blockers, losses: [], warnings: [], changes: [] };
 
   // Keep only the subscription servers the user kept (both names, for
   // renamed ones: the filter works whichever order mihomo applies it in).
@@ -178,7 +187,7 @@ export function planLink(orig: Config, cur: Config, url: string, opts: { interva
     const all = servers(cur).length;
     for (let i = all - 1; i >= 0; i--) if (!own.includes(i)) changes.push({ op: 'delete', path: ['proxies', i] });
   }
-  return { ok: true, blockers: [], losses, changes };
+  return { ok: true, blockers: [], losses, warnings: providerDns(orig, [...fromSub.values()]), changes };
 }
 
 /** The edited document with the servers linked: a copy, the original document untouched. */
@@ -192,4 +201,39 @@ export function linkedCopy(doc: Document, plan: LinkPlan): Document {
 export function plain(doc: Document): Config {
   const d = doc.toJS({ maxAliasCount: LIMITS.maxAliasCount }) as unknown;
   return isObject(d) ? d : {};
+}
+
+/** Does a per-site DNS pattern (+.x, *.x, x) cover this name? */
+function covers(pattern: string, host: string): boolean {
+  const p = pattern.toLowerCase();
+  const h = host.toLowerCase();
+  if (p.startsWith('+.')) return h === p.slice(2) || h.endsWith(p.slice(1));
+  if (p.startsWith('*.')) return h.endsWith(p.slice(1)) && h.split('.').length === p.split('.').length;
+  return h === p;
+}
+
+/**
+ * The subscription's servers whose names are looked up through its own DNS
+ * settings (per-site DNS or hosts). Linked, the servers update but those
+ * settings don't: if the provider moves servers to new names with new DNS
+ * settings, they won't connect until the config is saved again.
+ */
+function providerDns(orig: Config, names: string[]): LinkWarning[] {
+  const dns = isObject(orig['dns']) ? orig['dns'] : {};
+  const policy = isObject(dns['nameserver-policy']) ? Object.keys(dns['nameserver-policy']) : [];
+  const patterns = policy.flatMap((k) => k.split(',')).filter((p) => !p.includes(':'));
+  const hosts = isObject(orig['hosts']) ? Object.keys(orig['hosts']) : [];
+  const used = new Set<string>();
+  let count = 0;
+  for (const s of servers(orig)) {
+    if (!names.includes(String(s['name']))) continue;
+    const host = typeof s['server'] === 'string' ? s['server'] : '';
+    if (host === '' || /^[\d.]+$/.test(host) || host.includes(':')) continue;
+    const hit = [...patterns, ...hosts].filter((p) => covers(p, host));
+    if (hit.length > 0) {
+      count++;
+      hit.forEach((p) => used.add(p));
+    }
+  }
+  return count > 0 ? [{ kind: 'provider-dns', count, patterns: [...used] }] : [];
 }

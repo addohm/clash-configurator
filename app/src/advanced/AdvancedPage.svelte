@@ -16,6 +16,8 @@
   import Servers from '../edit/Servers.svelte';
   import Tun from '../edit/Tun.svelte';
   import { format, strings as t } from '../i18n';
+  import Info from '../lib/Info.svelte';
+  import { inApp } from '../lib/save';
   import { ADVANCED_PARTS, store } from '../lib/store.svelte';
   import BringConfig from '../steps/BringConfig.svelte';
   import Review from '../steps/Review.svelte';
@@ -35,6 +37,12 @@
     {#if store.session}
       <span class="status">{count > 0 ? format(t.edit.changes, { count }) : t.edit.noChanges}</span>
       <button type="button" class="small" disabled={store.edits.length === 0} onclick={() => store.undo()}>{t.edit.undo}</button>
+      {#if store.source?.kind === 'url' && inApp()}
+        <button type="button" class="small" disabled={store.fetchingUpdate} onclick={() => void store.startUpdate()}>
+          {store.fetchingUpdate ? t.update.fetching : t.update.button}
+        </button>
+        <Info text={t.update.buttonInfo} />
+      {/if}
       {#if store.step === 'review'}
         <button type="button" class="small" onclick={() => store.open('edit')}>{t.advanced.backToEditing}</button>
       {:else}

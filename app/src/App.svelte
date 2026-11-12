@@ -10,6 +10,7 @@
   import EditStep from './edit/EditStep.svelte';
   import { format, strings as t } from './i18n';
   import Info from './lib/Info.svelte';
+  import UpdatePanel from './lib/UpdatePanel.svelte';
   import { ADVANCED_PARTS, SECTIONS, STEPS, store } from './lib/store.svelte';
   import BringConfig from './steps/BringConfig.svelte';
   import PickApp from './steps/PickApp.svelte';
@@ -170,6 +171,7 @@
         </div>
       </section>
     {/if}
+    {#if store.session}<UpdatePanel />{/if}
     {#if store.mode === 'advanced'}
       <AdvancedPage />
     {:else if store.mode === 'scratch'}

@@ -44,9 +44,9 @@ The build order from PLAN.md:
 Moved from step 4 to step 6: greying out the settings the chosen app can't
 use (PLAN.md Q7). That needs each app's own format, which step 6 builds.
 
-- Update from my subscription (PLAN.md Q32): core done (2026-11-12); the
-  page side (button, questions, report, Undo update) and the save-time
-  warning about provider DNS are next.
+- Update from my subscription (PLAN.md Q32), done (2026-11-12): the core,
+  the button, the questions, the report with Undo update, and the
+  save-time warning about provider DNS.
 
 ## Ideas
 

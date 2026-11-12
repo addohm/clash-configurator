@@ -21,7 +21,7 @@ export {
 } from './expert';
 export { compareConfigs, outputNames, type Comparison, type DiffLine, type Hunk } from './compare';
 export { categoryOf, planRebase, type Category, type Choice, type Conflict, type Note, type RebasePlan, type RebaseResult } from './rebase';
-export { exactNames, linkedCopy, planLink, plain, PROVIDER_NAME, type LinkBlocker, type LinkLoss, type LinkPlan } from './link';
+export { exactNames, linkedCopy, planLink, plain, PROVIDER_NAME, type LinkBlocker, type LinkLoss, type LinkPlan, type LinkWarning } from './link';
 export { BUILT_IN_TARGETS, namesInUse, renameChanges, renameRuleTarget, ruleTargetOf, splitRule } from './references';
 export {
   addServersChanges,

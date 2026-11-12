@@ -9,6 +9,39 @@ export const en = {
   settingName: 'Setting:',
 
   // The numbered steps of Simple mode (PLAN.md Q11).
+  update: {
+    button: 'Update from my subscription',
+    buttonInfo:
+      "Gets your provider's latest config (servers, rules, DNS, everything) and makes your changes again on top of it. Where you and your provider both changed the same thing, it asks which to keep.",
+    fetching: 'Getting the latest…',
+    conflictsTitle: 'You and your provider both changed these',
+    conflictsIntro:
+      "Choose which to keep for each. Things your connection needs (server details, per-site DNS) start on the provider's version; your preferences start on yours.",
+    yours: 'Yours',
+    theirs: "Provider's",
+    original: 'was',
+    removed: '(removed)',
+    critical: 'needed to connect',
+    apply: 'Update',
+    cancel: 'Cancel',
+    done: "Updated to your provider's latest config. {applied} of your {applied|change was|changes were} made again.",
+    allKept: 'Everything you changed is still in place.',
+    notesTitle: "Some changes couldn't be made again:",
+    notes: {
+      'server-gone': 'the server {server} is gone from your subscription',
+      'group-gone': 'the group {group} is gone, or has no members left',
+      'rule-gone': 'your rule "{rule}" was for something your provider removed',
+      'name-taken': 'your provider now has its own "{name}", so yours was left out',
+      'cannot-remove': "{name} couldn't be removed: something still uses it",
+      'group-order': "your order inside {group} couldn't be kept, as your provider changed that group too",
+      'rule-order': "your rule order couldn't be kept where your provider changed rules too",
+    },
+    undo: 'Undo update',
+    dismiss: 'Close',
+    failed: "Couldn't update: {reason}",
+    refused: "your provider's latest config didn't pass the safety checks ({detail})",
+  },
+
   advanced: {
     forApp: 'For',
     backToEditing: 'Back to editing',
@@ -436,6 +469,10 @@ export const en = {
       order: "{group} would try its servers in your provider's order, not yours",
       'server-settings': "your changes to {server} would be replaced by the provider's own settings",
       'new-servers-hidden': "servers your provider adds later won't appear, since you chose which ones to keep",
+    },
+    warnings: {
+      'provider-dns':
+        "Worth knowing: {count} {count|server is|servers are} found through your provider's own DNS settings ({patterns}), which won't update. If your provider moves servers to new names, they won't connect until you save again (or use Update from my subscription).",
     },
     linkBlocked: "Servers can't be linked to the subscription here, so they're written into the file:",
     blockers: {

@@ -108,6 +108,12 @@ PC, so when you open it again you can **Carry on** where you left off (or
 **Start fresh**). **Forget what this app remembers**, at the bottom, clears
 it.
 
+**Update from my subscription** (in the edit step, for a config fetched by
+URL) gets your provider's latest config and makes your changes again on top
+of it, so you get their new servers, rules and DNS without losing your
+edits. Where you and your provider both changed the same thing, it asks
+which to keep; **Undo update** puts things back.
+
 Subscriptions can be full Clash configs, Clash files with only servers,
 lists of share links (plain or base64) or SIP008 JSON. Server lists become a
 basic config to edit: your servers, a "Proxy" group, an "Auto" group and

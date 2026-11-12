@@ -27,6 +27,12 @@ beforeEach(() => {
   store.session = null;
   store.doc = null;
   store.usage = null;
+  store.updating = null;
+  store.updateReport = null;
+  store.beforeUpdate = null;
+  store.updateError = '';
+  store.edits = [];
+  store.section = 'basics';
   target = document.createElement('div');
   document.body.appendChild(target);
   app = mount(App, { target });
@@ -164,5 +170,68 @@ describe('usage lines', () => {
     expect(size(512)).toBe('512 B');
     expect(size(1536)).toBe('1.5 KB');
     expect(size(107374182400)).toBe('100 GB');
+  });
+});
+
+describe('update from my subscription', () => {
+  const reply = (body: string) => ({ body, finalUrl: 'https://x', userinfo: null, profileTitle: null, contentDisposition: null, updateInterval: null });
+  const old = FIXTURES['../../fixtures/configs/provider-basic.yaml'] ?? '';
+  // The provider's next version: Tokyo moved port, the mixed port changed, a rule was added.
+  const newer = old
+    .replace(/(name: "🇯🇵 Tokyo 01"\n    type: hysteria2\n    server: 192.0.2.20\n    port: )443/, '$19443')
+    .replace('mixed-port: 7897', 'mixed-port: 7898')
+    .replace('  - MATCH,Proxy', '  - DOMAIN-SUFFIX,newer.example,Proxy\n  - MATCH,Proxy');
+
+  async function editThenUpdate() {
+    invoke.mockResolvedValueOnce(reply(old));
+    await fetchUrl('https://sub.example.com/x');
+    go(t.report.continue);
+    // The user moves Tokyo too, and switches the mode.
+    store.edit([{ op: 'set', path: ['proxies', 1, 'port'], value: 8443 }]);
+    store.edit([{ op: 'set', path: ['mode'], value: 'global' }]);
+    flushSync();
+    invoke.mockResolvedValueOnce(reply(newer));
+    go(t.update.button);
+    await vi.waitFor(() => expect(store.fetchingUpdate).toBe(false));
+    flushSync();
+  }
+
+  it('asks about what both changed, suggesting the provider for server details', async () => {
+    await editThenUpdate();
+    const panel = target.querySelector(`section[aria-label="${t.update.conflictsTitle}"]`);
+    expect(panel?.textContent).toContain('🇯🇵 Tokyo 01: port');
+    expect(panel?.textContent).toContain(t.update.critical);
+    const radios = [...(panel?.querySelectorAll<HTMLInputElement>('input[type="radio"]') ?? [])];
+    expect(radios.map((r) => r.checked)).toEqual([false, true]); // the provider's port is suggested
+    go(t.update.apply);
+    expect((store.data['proxies'] as { port: number }[])[1]?.port).toBe(9443);
+    expect(store.data['mode']).toBe('global'); // the user's other edit, made again
+    expect(store.data['mixed-port']).toBe(7898); // the provider's change, taken
+    expect(store.data['rules']).toContain('DOMAIN-SUFFIX,newer.example,Proxy');
+    expect(target.textContent).toContain("Updated to your provider's latest config.");
+  });
+
+  it('keeps yours when asked to, and can undo the whole update', async () => {
+    await editThenUpdate();
+    const panel = target.querySelector(`section[aria-label="${t.update.conflictsTitle}"]`);
+    panel?.querySelectorAll<HTMLInputElement>('input[type="radio"]')[0]?.click();
+    flushSync();
+    go(t.update.apply);
+    expect((store.data['proxies'] as { port: number }[])[1]?.port).toBe(8443);
+    go(t.update.undo);
+    expect(store.data['mixed-port']).toBe(7897);
+    expect(store.data['rules']).not.toContain('DOMAIN-SUFFIX,newer.example,Proxy');
+    expect(store.data['mode']).toBe('global');
+  });
+
+  it('says why an update failed', async () => {
+    invoke.mockResolvedValueOnce(reply(old));
+    await fetchUrl('https://sub.example.com/x');
+    go(t.report.continue);
+    invoke.mockRejectedValueOnce({ code: 'status', detail: '403' });
+    go(t.update.button);
+    await vi.waitFor(() => expect(store.fetchingUpdate).toBe(false));
+    flushSync();
+    expect(target.textContent).toContain("Couldn't update: The provider refused (error 403)");
   });
 });

@@ -88,6 +88,11 @@
         <p>{t.review.linkLosses}</p>
         <ul>{#each plan.losses as l, i (i)}<li>{lossText(l)}</li>{/each}</ul>
       {/if}
+      {#if plan.ok && store.linkServers}
+        {#each plan.warnings as w, i (i)}
+          <p class="warning">{format(t.review.warnings[w.kind], { count: w.count, patterns: w.patterns.join(', ') })}</p>
+        {/each}
+      {/if}
     </div>
   {/if}
 
@@ -233,6 +238,10 @@
   .link-servers p {
     margin: 0.4rem 0 0.2rem;
     font-size: 0.9rem;
+  }
+
+  .link-servers .warning {
+    color: var(--warn);
   }
 
   .link-servers ul {

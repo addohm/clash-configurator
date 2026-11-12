@@ -28,6 +28,22 @@ All notable changes to clash-configurator. The format follows
     with the other settings, not after the rules.
   - mihomo loads every test config with all of these changed.
 
+- **Update from my subscription** (PLAN.md Q32, 2026-11-12): for a config
+  from a subscription URL, a button in the edit step (and Advanced's bar)
+  gets the provider's latest full config and makes the user's changes
+  again on top of it, worked out by meaning: servers and groups by name
+  (renames spotted), rules by kind and value, settings by name, lists by
+  what was added and removed. Where only one side changed something, it's
+  taken. Where both did, it asks, with the provider's version suggested for
+  what the connection needs (server details, per-site DNS, DNS for finding
+  servers, hosts) and the user's for preferences. A short report says how
+  many changes were made again and which couldn't be (a server the
+  provider dropped, say); **Undo update** puts everything back. Checked on
+  the real WF configs with mihomo.
+- The review warns, when servers are kept updating from the subscription,
+  if some are found through the provider's own DNS settings (22 of WF's 43,
+  under +.teacher2060.com): those settings don't update with them.
+
 ### Changed
 
 - The page is now an app with a sidebar (PLAN.md Q30, 2026-11-12): the steps

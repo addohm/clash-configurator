@@ -6,6 +6,8 @@
 -->
 <script lang="ts">
   import { format, strings as t } from '../i18n';
+  import Info from '../lib/Info.svelte';
+  import { inApp } from '../lib/save';
   import { SECTIONS, store } from '../lib/store.svelte';
   import Basics from './Basics.svelte';
   import Dns from './Dns.svelte';
@@ -32,6 +34,14 @@
     </h3>
     <span class="status">{count > 0 ? format(t.edit.changes, { count }) : t.edit.noChanges}</span>
     <button type="button" class="small" disabled={store.edits.length === 0} onclick={() => store.undo()}>{t.edit.undo}</button>
+    {#if store.source?.kind === 'url' && inApp()}
+      <span class="update">
+        <button type="button" class="small" disabled={store.fetchingUpdate} onclick={() => void store.startUpdate()}>
+          {store.fetchingUpdate ? t.update.fetching : t.update.button}
+        </button>
+        <Info text={t.update.buttonInfo} />
+      </span>
+    {/if}
   </header>
 
   <!-- Narrow windows hide the sidebar's parts list; these take its place. -->
@@ -108,6 +118,11 @@
   .small {
     padding: 0.25rem 0.6rem;
     font-size: 0.85rem;
+  }
+
+  .update {
+    display: inline-flex;
+    align-items: center;
   }
 
   .parts {

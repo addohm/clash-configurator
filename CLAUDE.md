@@ -61,7 +61,9 @@ build order. The owner said go on 2026-11-11; build one step at a time.
     one page (the same part cards; `Dns advanced`, plus `Tun.svelte` and
     `Controller.svelte`, Advanced only), with its top bar
   - app/src/lib/: `store.svelte.ts` (the page's state: steps, intake result,
-    session), `Info.svelte` (the ⓘ tooltip)
+    session, and the update flow: startUpdate/finishUpdate/undoUpdate),
+    `Info.svelte` (the ⓘ tooltip), `UpdatePanel.svelte` (the update's
+    questions and report)
   - app/src/steps/: one component per Simple-mode step (`Review.svelte`
     is step 5); `lib/save.ts` saves through the app's `save_file` command,
     or downloads in a browser; `lib/fetch.ts` asks the app's

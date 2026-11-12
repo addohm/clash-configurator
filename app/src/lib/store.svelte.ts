@@ -27,9 +27,14 @@ import {
   startSession,
   TARGET_APPS,
   writeSettings,
+  type Choice,
+  type Conflict,
   type LinkPlan,
   linkedCopy,
+  type Note,
   planLink,
+  planRebase,
+  type RebasePlan,
   type ReadInput,
   readInput,
   writeYaml,
@@ -66,6 +71,13 @@ class Store {
   usage: Usage | null = $state.raw(null);
   /** How often the provider suggests updating, in seconds, if it said. */
   updateSeconds: number | undefined = $state(undefined);
+  /** Q32: an update from the subscription waiting for answers, its result, and the session before it. */
+  updating: { plan: RebasePlan; text: string; conflicts: Conflict[]; format: 'clash' | 'links' | 'sip008' } | null = $state.raw(null);
+  updateReport: { applied: number; notes: Note[] } | null = $state.raw(null);
+  beforeUpdate: Session | null = $state.raw(null);
+  updateError = $state('');
+  fetchingUpdate = $state(false);
+
   /** Q28: keep servers updating from the subscription when saving. */
   linkServers = $state(true);
 
@@ -256,6 +268,89 @@ class Store {
       this.updateSeconds = readInterval(r.updateInterval);
     }
     return r;
+  }
+
+  /**
+   * Update from my subscription (PLAN.md Q32): fetches the latest config
+   * and re-applies the user's edits to it. With no conflicts it's done at
+   * once; otherwise it waits for answers (finishUpdate).
+   */
+  async startUpdate(): Promise<void> {
+    const url = this.source?.kind === 'url' ? this.source.url : undefined;
+    if (!url || !this.session || !this.doc) return;
+    this.updateError = '';
+    this.updateReport = null;
+    this.fetchingUpdate = true;
+    try {
+      const r = await fetchSubscription(url);
+      if (!r.ok) {
+        this.updateError = r.code + (r.detail ? `|${r.detail}` : '');
+        return;
+      }
+      const read = readInput(r.body);
+      const start = intake(this.session.original);
+      if (!start.ok) return;
+      const plan = planRebase(start.data, this.data, read.text);
+      if ('ok' in plan) {
+        this.updateError = `refused|${plan.refusal.code}`;
+        return;
+      }
+      this.usage = readUsage(r.userinfo) ?? this.usage;
+      this.updateSeconds = readInterval(r.updateInterval) ?? this.updateSeconds;
+      this.updating = { plan, text: read.text, conflicts: plan.conflicts, format: read.format };
+      if (plan.conflicts.length === 0) this.finishUpdate({});
+    } finally {
+      this.fetchingUpdate = false;
+    }
+  }
+
+  /** Applies a waiting update with the user's answers (unanswered: the suggested one). */
+  finishUpdate(choices: Readonly<Record<string, Choice>>): void {
+    const u = this.updating;
+    if (!u || !this.session) return;
+    const r = u.plan.apply(choices);
+    this.updating = null;
+    if (!r.ok) {
+      this.updateError = `refused|${r.refusal.code}`;
+      return;
+    }
+    const before = this.session;
+    const section = this.section;
+    const { format: _old, ...plainSource } = before.source;
+    void _old;
+    const source: Source = u.format === 'clash' ? plainSource : { ...plainSource, format: u.format };
+    const next: Session = { ...before, source, original: u.text, changes: r.changes };
+    this.source = source;
+    if (!this.load(next)) {
+      this.updateError = 'refused|not-yaml';
+      return;
+    }
+    this.original = u.text;
+    this.checked = intake(u.text);
+    this.beforeUpdate = before;
+    this.updateReport = { applied: r.applied, notes: r.notes };
+    // Stay where the user was.
+    this.section = section;
+    this.reached = Math.max(this.reached, STEPS.indexOf('edit'));
+  }
+
+  cancelUpdate(): void {
+    this.updating = null;
+  }
+
+  /** Puts back the session from before the last update. */
+  undoUpdate(): void {
+    const before = this.beforeUpdate;
+    if (!before) return;
+    const section = this.section;
+    if (this.load(before)) {
+      this.original = before.original;
+      this.source = before.source;
+      this.checked = intake(before.original);
+      this.section = section;
+    }
+    this.beforeUpdate = null;
+    this.updateReport = null;
   }
 
   toggleFix(index: number): void {

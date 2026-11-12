@@ -25,6 +25,8 @@ import {
   type Session,
   type Source,
   startSession,
+  TARGET_APPS,
+  writeSettings,
   type LinkPlan,
   linkedCopy,
   planLink,
@@ -33,6 +35,7 @@ import {
   writeYaml,
 } from '../../../core/src';
 import { type FetchResult, fetchSubscription, readInterval, readTitle, readUsage, type Usage } from './fetch';
+import { forget, recall, recallUrl, remember } from './memory';
 
 export const STEPS = ['app', 'input', 'report', 'edit', 'review'] as const;
 export type StepId = (typeof STEPS)[number];
@@ -61,6 +64,13 @@ class Store {
   updateSeconds: number | undefined = $state(undefined);
   /** Q28: keep servers updating from the subscription when saving. */
   linkServers = $state(true);
+
+  /** The last subscription URL, remembered on this PC, to fill in step 2. */
+  rememberedUrl = $state('');
+  /** A remembered session from last time, offered as "carry on". */
+  resumable: { name: string; when: Date | null } | null = $state(null);
+  /** Set when the session is too big for the app's storage to remember. */
+  memoryFull = $state(false);
   /** Which findings' fixes are ticked, by position in checked.findings. */
   ticked: readonly boolean[] = $state.raw([]);
 
@@ -110,6 +120,80 @@ class Store {
     const output = this.linkServers && linkedOutput !== null ? linkedOutput : plainOutput;
     return { output, plainOutput, linkedOutput, plan, linked: output === linkedOutput, result: intake(output) };
   });
+
+  /**
+   * Reads what was remembered last time and keeps remembering from now on.
+   * Called once when the page starts (not in tests, which start clean).
+   */
+  startMemory(): () => void {
+    this.rememberedUrl = recallUrl();
+    const app = recall('app');
+    if (app && TARGET_APPS.some((a) => a.id === app)) this.app = app as AppId;
+    if (recall('link') === 'false') this.linkServers = false;
+    const saved = recall('session');
+    if (saved) {
+      // Only the name is read now; the whole thing is checked on Carry on.
+      let name = '';
+      try {
+        const source = (JSON.parse(saved) as { source?: { name?: unknown } }).source;
+        if (typeof source?.name === 'string') name = source.name.slice(0, 100);
+      } catch {
+        forget('session', 'savedAt');
+      }
+      const at = Date.parse(recall('savedAt') ?? '');
+      if (recall('session')) this.resumable = { name, when: Number.isNaN(at) ? null : new Date(at) };
+    }
+
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    // Returns a function that stops remembering (for tests).
+    return $effect.root(() => {
+      $effect(() => {
+        const url = this.source?.kind === 'url' ? this.source.url : undefined;
+        if (url) {
+          remember('url', url);
+          this.rememberedUrl = url;
+        }
+      });
+      $effect(() => {
+        if (this.app) remember('app', this.app);
+      });
+      $effect(() => {
+        remember('link', String(this.linkServers));
+      });
+      $effect(() => {
+        void this.version;
+        const session = this.session;
+        if (!session) return;
+        // Written a moment after the last edit, not on every keystroke.
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          this.memoryFull = !(remember('session', writeSettings(session)) && remember('savedAt', new Date().toISOString()));
+          if (this.memoryFull) forget('session', 'savedAt');
+        }, 400);
+      });
+    });
+  }
+
+  /** Brings back the remembered session (checked like a settings file). */
+  resume(): ReadSettings {
+    const saved = recall('session') ?? '';
+    const r = this.restore(saved);
+    if (!r.ok) forget('session', 'savedAt');
+    this.resumable = null;
+    return r;
+  }
+
+  startFresh(): void {
+    forget('session', 'savedAt');
+    this.resumable = null;
+  }
+
+  /** Clears everything remembered on this PC. */
+  forgetAll(): void {
+    forget();
+    this.rememberedUrl = '';
+    this.resumable = null;
+  }
 
   open(step: StepId): void {
     const i = STEPS.indexOf(step);

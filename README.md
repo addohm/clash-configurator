@@ -97,6 +97,11 @@ So far, Simple mode covers these steps:
    config fetch its servers from the URL; it lists any edits that wouldn't
    carry over, and switching it off writes the servers into the file.
 
+The app remembers your last subscription URL and your last session on this
+PC, so when you open it again you can **Carry on** where you left off (or
+**Start fresh**). **Forget what this app remembers**, at the bottom, clears
+it.
+
 Subscriptions can be full Clash configs, Clash files with only servers,
 lists of share links (plain or base64) or SIP008 JSON. Server lists become a
 basic config to edit: your servers, a "Proxy" group, an "Auto" group and

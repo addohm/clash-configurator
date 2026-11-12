@@ -49,6 +49,14 @@ None yet. Never commit them (`.env`, keys, tokens).
   characters are refused, and newlines in names become spaces.
 - **Opened files are size-checked before they're read:** a config over 8 MB
   is refused without loading it.
+- **What the app remembers** (the last subscription URL, which holds the
+  user's token, the app picked, and the last session) stays in the app's
+  own storage on this PC, for the Windows user (WebView2's local storage).
+  It's read back as untrusted: the URL must still look like one, and the
+  session goes through the same checks as a settings file. **Forget what
+  this app remembers** clears it. In a browser (the website, later) this
+  would be the browser's storage for the site, so on a shared computer
+  people should use Forget.
 - **Saved settings files are treated as hostile too:** every field is
   checked, every change is validated (no poison keys, control characters or
   huge values), and the original goes through intake again.

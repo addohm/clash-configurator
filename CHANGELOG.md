@@ -172,6 +172,17 @@ All notable changes to clash-configurator. The format follows
     WF configs, and a config built from share links; running mihomo
     confirmed it reads a base64 share-link list as a provider.
 
+- The app remembers between runs (PLAN.md Q9), on this PC only, in its own
+  storage for the Windows user (2026-11-12):
+  - the last subscription URL (filled into step 2), the app picked, and the
+    "Keep servers updating" choice;
+  - the last session (the config and every change, in the same form as a
+    saved settings file), offered as **Carry on** or **Start fresh** when
+    the app opens. It's checked like any input when brought back; a bad one
+    is cleared.
+  - **Forget what this app remembers** at the bottom clears it all. A
+    config too big for the storage isn't remembered, and the page says so.
+
 ### Fixed
 
 - Output now keeps everything that didn't change exactly as it was. Before,

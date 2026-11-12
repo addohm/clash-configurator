@@ -5,7 +5,7 @@
   import Info from '../lib/Info.svelte';
   import { store } from '../lib/store.svelte';
 
-  let url = $state('');
+  let url = $state(store.rememberedUrl);
   let fetching = $state(false);
   const canFetch = inApp();
 

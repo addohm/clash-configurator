@@ -9,6 +9,22 @@ export const en = {
   settingName: 'Setting:',
 
   // The numbered steps of Simple mode (PLAN.md Q11).
+  resume: {
+    title: 'Carry on where you left off?',
+    what: 'You were working on {name}, last changed {when}.',
+    unnamed: 'a config',
+    carryOn: 'Carry on',
+    fresh: 'Start fresh',
+    failed: "Your last session couldn't be brought back ({reason}), so it was cleared.",
+  },
+  memory: {
+    forget: 'Forget what this app remembers',
+    forgetInfo:
+      'So you can carry on later, this app remembers your last subscription URL, the app you picked and your last session (your config and changes). It keeps them on this PC only, for your Windows user. This clears them.',
+    forgotten: 'Cleared: nothing is remembered now.',
+    tooBig: "This config is too big to remember between runs. Use Save settings to keep your work.",
+  },
+
   steps: {
     progress: 'Step {n} of {total}',
     change: 'Change',

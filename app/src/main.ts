@@ -1,6 +1,9 @@
 import { mount } from 'svelte';
 import App from './App.svelte';
+import { store } from './lib/store.svelte';
 import './app.css';
+
+store.startMemory();
 
 const target = document.getElementById('app');
 if (!target) throw new Error('missing #app');

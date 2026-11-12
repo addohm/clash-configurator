@@ -53,7 +53,8 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   - app/src/steps/: one component per Simple-mode step (`Review.svelte`
     is step 5); `lib/save.ts` saves through the app's `save_file` command,
     or downloads in a browser; `lib/fetch.ts` asks the app's
-    `fetch_subscription` (only in the app)
+    `fetch_subscription` (only in the app); `lib/memory.ts` is what's
+    remembered between runs (localStorage, keys `clash-configurator:*`)
   - app/src/edit/: the edit step (`EditStep.svelte`) and one card per part
     (`Basics.svelte`, `Servers.svelte`, `Groups.svelte`, `Rules.svelte`,
     `Dns.svelte`); `lib/StringList.svelte` is the editable list they share
@@ -129,6 +130,9 @@ build order. The owner said go on 2026-11-11; build one step at a time.
 - Output must keep unchanged parts byte for byte: real configs mix
   indentation and spacing, and the review's comparison is only useful if it
   shows real changes. Test new edits with "only these lines change".
+- `store.startMemory()` runs once from main.ts: it reads what was remembered
+  and keeps remembering (effects). Page tests don't call it, so they start
+  clean; `memory.test.ts` does, and clears localStorage first.
 - Edits go through `store.edit(changes)`: it applies them to the open
   document in place (fast), adds them to the session, and bumps
   `store.version`; `store.data` is the plain view to read. Work out changes

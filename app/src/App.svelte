@@ -1,6 +1,7 @@
 <script lang="ts">
   import { MODES, type Mode } from '../../core/src';
   import { format, strings as t } from './i18n';
+  import Info from './lib/Info.svelte';
   import Step from './lib/Step.svelte';
   import { STEPS, type StepId, store } from './lib/store.svelte';
   import EditStep from './edit/EditStep.svelte';
@@ -21,6 +22,14 @@
   };
 
   const current = $derived(STEPS.indexOf(store.step) + 1);
+
+  let resumeError = $state('');
+  let forgotten = $state(false);
+
+  function carryOn() {
+    const r = store.resume();
+    resumeError = r.ok ? '' : format(t.resume.failed, { reason: format(t.settingsErrors[r.error], { detail: r.detail ?? '' }) });
+  }
 
   const counts = $derived.by(() => {
     const data = store.data;
@@ -77,6 +86,24 @@
       <span>{format(t.steps.progress, { n: current, total: STEPS.length })}</span>
     </div>
 
+    {#if store.resumable && !store.session}
+      <section class="resume" aria-label={t.resume.title}>
+        <p>
+          <strong>{t.resume.title}</strong>
+          {format(t.resume.what, {
+            name: store.resumable.name || t.resume.unnamed,
+            when: store.resumable.when ? store.resumable.when.toLocaleString() : '',
+          })}
+        </p>
+        <div class="resume-actions">
+          <button type="button" class="primary" onclick={carryOn}>{t.resume.carryOn}</button>
+          <button type="button" onclick={() => store.startFresh()}>{t.resume.fresh}</button>
+        </div>
+      </section>
+    {/if}
+    {#if resumeError}<p class="error" role="alert">{resumeError}</p>{/if}
+    {#if store.memoryFull}<p class="hint">{t.memory.tooBig}</p>{/if}
+
     <ol class="steps">
       {#each STEPS as id, i (id)}
         <li>
@@ -98,6 +125,19 @@
       {/each}
     </ol>
   {/if}
+
+  <footer>
+    <button
+      type="button"
+      class="link"
+      onclick={() => {
+        store.forgetAll();
+        forgotten = true;
+      }}>{t.memory.forget}</button
+    >
+    <Info text={t.memory.forgetInfo} />
+    {#if forgotten}<span class="hint" role="status">{t.memory.forgotten}</span>{/if}
+  </footer>
 </main>
 
 <style>
@@ -201,5 +241,43 @@
 
   .muted {
     color: var(--muted);
+  }
+
+  .resume {
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+
+  .resume p {
+    margin: 0 0 0.5rem;
+  }
+
+  .resume-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .error {
+    color: var(--danger);
+  }
+
+  footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 2rem;
+    font-size: 0.85rem;
+  }
+
+  .link {
+    border: 0;
+    padding: 0;
+    color: var(--muted);
+    background: none;
+    text-decoration: underline;
   }
 </style>

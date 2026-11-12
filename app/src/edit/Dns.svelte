@@ -74,6 +74,7 @@
 
 <p class="intro">{t.dns.intro}</p>
 
+<div class="top">
 <label class="check">
   <input type="checkbox" checked={dns['enable'] === true} onchange={(e) => attempt(() => [{ op: 'set', path: ['dns', 'enable'], value: e.currentTarget.checked }])} />
   {t.dns.enable}
@@ -89,7 +90,9 @@
     <option value="redir-host">{t.dns.modes['redir-host']}</option>
   </select>
 </div>
+</div>
 
+<div class="lists">
 {#each shownLists as key (key)}
   <StringList
     label={t.dns.lists[key]}
@@ -114,6 +117,7 @@
     onremove={(i) => attempt(() => removeFromDnsList(data, 'fake-ip-filter', i))}
   />
 {/if}
+</div>
 
 <div class="policies">
   <p class="label">{t.dns.policies} <Info text={t.dns.policiesInfo} name="dns.nameserver-policy" /></p>
@@ -164,6 +168,13 @@
     color: var(--muted);
   }
 
+  .top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.5rem 2rem;
+  }
+
   .check {
     display: flex;
     flex-wrap: wrap;
@@ -191,6 +202,13 @@
     font: inherit;
     color: var(--text);
     background: var(--surface);
+  }
+
+  /* The lists side by side on wide windows. */
+  .lists {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    gap: 0 1rem;
   }
 
   .policies ul {

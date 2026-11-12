@@ -1,8 +1,9 @@
 <!--
   Rules: where each connection goes, checked from the top. Provider configs
-  can hold thousands, so the list is searched and paged. Each rule's target
-  can be changed, and rules moved or removed; new ones go above the final
-  MATCH. Below: the rule lists (providers) the rules use.
+  can hold thousands, so the table is searched and paged, and scrolls in its
+  own panel (PLAN.md Q30). A rule's target can be changed, rules moved or
+  removed (ticked ones together); new ones go above the final MATCH. Folded
+  away below: adding a rule, and the rule lists (providers) the rules use.
 -->
 <script lang="ts">
   import {
@@ -15,6 +16,7 @@
     insertPosition,
     IP_RULES,
     moveRuleChanges,
+    removeManyRulesChanges,
     removeRuleChanges,
     removeRuleProviderChanges,
     ruleProvidersOf,
@@ -27,7 +29,8 @@
   import Info from '../lib/Info.svelte';
   import { store } from '../lib/store.svelte';
 
-  const PAGE = 50;
+  // Enough to fill a big window; the panel scrolls within a page.
+  const PAGE = 200;
 
   const data = $derived(store.data);
   const rules = $derived(rulesOf(data));
@@ -46,6 +49,14 @@
   let message = $state('');
   /** The rule whose target dropdown is open. */
   let retargeting: number | null = $state(null);
+
+  // Ticked rules, by position; cleared after any edit, since positions shift.
+  let ticked: number[] = $state([]);
+  $effect(() => {
+    void store.version;
+    ticked = [];
+  });
+  const allShownTicked = $derived(shown.length > 0 && shown.every((r) => ticked.includes(r.index)));
 
   function attempt(make: () => Change[]): boolean {
     error = '';
@@ -88,130 +99,176 @@
 
 <p class="intro">{t.rules.intro}</p>
 
-<div class="search">
-  <label for="rule-search">{t.rules.search} <Info text={t.rules.searchInfo} /></label>
-  <input id="rule-search" type="search" bind:value={query} oninput={() => (page = 0)} />
+<div class="toolbar">
+  <input type="search" bind:value={query} oninput={() => (page = 0)} placeholder={t.rules.search} aria-label={t.rules.search} />
+  <Info text={t.rules.searchInfo} />
+  <span class="count">
+    {format(t.rules.count, { count: rules.length })}
+    {#if matching.length > 0 && matching.length !== rules.length} · {format(t.rules.matching, { count: matching.length })}{/if}
+    {#if ticked.length > 0} · {format(t.servers.tickedCount, { count: ticked.length })}{/if}
+  </span>
+  <button type="button" class="small" disabled={ticked.length === 0} onclick={() => attempt(() => removeManyRulesChanges(data, ticked))}>{t.rules.removeTicked}</button>
 </div>
-<p class="count">
-  {format(t.rules.count, { count: rules.length })}
-  {#if matching.length > 0}
-    · {format(t.rules.showing, { from: page * PAGE + 1, to: Math.min(matching.length, (page + 1) * PAGE), total: matching.length })}
-  {/if}
-</p>
 {#if error}<p class="error" role="alert">{error}</p>{/if}
 {#if message}<p class="ok" role="status">{message}</p>{/if}
 
-{#if shown.length === 0}
-  <p class="muted">{t.rules.none}</p>
-{:else}
-  <ol class="rules">
-    {#each shown as r (r.index)}
-      <li class:match={r.type === 'MATCH'}>
-        <span class="n">{r.index + 1}</span>
-        <span class="what">
-          <span class="type">{typeLabel(r.type)}</span>
-          {#if r.payload}<code>{r.payload}</code>{/if}
-          {#if r.options.length > 0}<span class="muted">{r.options.join(', ')}</span>{/if}
-        </span>
-        <span class="target">
-          <span class="muted">{t.rules.goesTo}</span>
-          {#if retargeting === r.index}
-            <!-- svelte-ignore a11y_autofocus -->
-            <select
-              autofocus
-              aria-label={t.rules.goesTo}
-              value={r.target}
+<div class="scroll-panel">
+  {#if shown.length === 0}
+    <p class="muted empty">{t.rules.none}</p>
+  {:else}
+    <table>
+      <thead>
+        <tr>
+          <th class="tick">
+            <input
+              type="checkbox"
+              aria-label={t.servers.tickAll}
+              checked={allShownTicked}
               onchange={(e) => {
-                attempt(() => setRuleTargetChanges(data, r.index, e.currentTarget.value));
-                retargeting = null;
+                const on = e.currentTarget.checked;
+                const idx = shown.map((r) => r.index);
+                ticked = on ? [...new Set([...ticked, ...idx])] : ticked.filter((i) => !idx.includes(i));
               }}
-              onblur={() => (retargeting = null)}
-            >
-              {#if !targets.includes(r.target)}<option value={r.target}>{r.target}</option>{/if}
-              {#each targets as name (name)}<option value={name}>{name}</option>{/each}
-            </select>
-          {:else}
-            <!-- One dropdown at a time: thousands of rules times every group would be slow. -->
-            <button type="button" class="small target-name" title={t.rules.changeTarget} onclick={() => (retargeting = r.index)}>{r.target}</button>
-          {/if}
-        </span>
-        <span class="buttons">
-          <button type="button" class="small" aria-label={t.rules.up} disabled={r.index === 0} onclick={() => attempt(() => moveRuleChanges(data, r.index, r.index - 1))}>↑</button>
-          <button type="button" class="small" aria-label={t.rules.down} disabled={r.index === rules.length - 1} onclick={() => attempt(() => moveRuleChanges(data, r.index, r.index + 1))}>↓</button>
-          <button type="button" class="small" aria-label={t.rules.remove} onclick={() => attempt(() => removeRuleChanges(data, r.index))}>✕</button>
-        </span>
-      </li>
-    {/each}
-  </ol>
-  {#if pages > 1}
-    <div class="pager">
-      <button type="button" disabled={page === 0} onclick={() => page--}>{t.rules.previous}</button>
-      <span>{page + 1} / {pages}</span>
-      <button type="button" disabled={page >= pages - 1} onclick={() => page++}>{t.rules.next}</button>
-    </div>
+            />
+          </th>
+          <th class="n">#</th>
+          <th>{t.rules.kind}</th>
+          <th>{t.rules.addValue}</th>
+          <th>{t.rules.goesTo}</th>
+          <th class="actions"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {#each shown as r (r.index)}
+          <tr class:match={r.type === 'MATCH'} class:ticked={ticked.includes(r.index)}>
+            <td class="tick">
+              <input
+                type="checkbox"
+                aria-label={`${t.rules.rule} ${r.index + 1}`}
+                checked={ticked.includes(r.index)}
+                onchange={(e) => (ticked = e.currentTarget.checked ? [...ticked, r.index] : ticked.filter((i) => i !== r.index))}
+              />
+            </td>
+            <td class="n">{r.index + 1}</td>
+            <td class="type">{typeLabel(r.type)}</td>
+            <td class="what">
+              {#if r.payload}<code>{r.payload}</code>{/if}
+              {#if r.options.length > 0}<span class="muted">{r.options.join(', ')}</span>{/if}
+            </td>
+            <td class="target">
+              {#if retargeting === r.index}
+                <!-- svelte-ignore a11y_autofocus -->
+                <select
+                  autofocus
+                  aria-label={t.rules.goesTo}
+                  value={r.target}
+                  onchange={(e) => {
+                    attempt(() => setRuleTargetChanges(data, r.index, e.currentTarget.value));
+                    retargeting = null;
+                  }}
+                  onblur={() => (retargeting = null)}
+                >
+                  {#if !targets.includes(r.target)}<option value={r.target}>{r.target}</option>{/if}
+                  {#each targets as name (name)}<option value={name}>{name}</option>{/each}
+                </select>
+              {:else}
+                <!-- One dropdown at a time: thousands of rules times every group would be slow. -->
+                <button type="button" class="small target-name" title={t.rules.changeTarget} onclick={() => (retargeting = r.index)}>{r.target}</button>
+              {/if}
+            </td>
+            <td class="actions">
+              <button type="button" class="small" aria-label={t.rules.up} disabled={r.index === 0} onclick={() => attempt(() => moveRuleChanges(data, r.index, r.index - 1))}>↑</button>
+              <button type="button" class="small" aria-label={t.rules.down} disabled={r.index === rules.length - 1} onclick={() => attempt(() => moveRuleChanges(data, r.index, r.index + 1))}>↓</button>
+              <button type="button" class="small" aria-label={t.rules.remove} onclick={() => attempt(() => removeRuleChanges(data, r.index))}>✕</button>
+            </td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
   {/if}
+</div>
+{#if pages > 1}
+  <div class="pager">
+    <button type="button" class="small" disabled={page === 0} onclick={() => page--}>{t.rules.previous}</button>
+    <span>{format(t.rules.showing, { from: page * PAGE + 1, to: Math.min(matching.length, (page + 1) * PAGE), total: matching.length })}</span>
+    <button type="button" class="small" disabled={page >= pages - 1} onclick={() => page++}>{t.rules.next}</button>
+  </div>
 {/if}
 
-<fieldset class="add">
-  <legend>{t.rules.add} <Info text={t.rules.addInfo} /></legend>
-  <div class="inline">
-    <label>
-      <span>{t.rules.addType}</span>
-      <select bind:value={addType}>
-        {#each ADDABLE_RULES as type (type)}<option value={type}>{typeLabel(type)}</option>{/each}
-      </select>
-    </label>
-    <label class="grow">
-      <span>{t.rules.addValue}</span>
-      <input type="text" bind:value={addValue} placeholder={t.rules.placeholders[addType]} spellcheck="false" autocomplete="off" />
-    </label>
-    <label>
-      <span>{t.rules.addTarget}</span>
-      <select bind:value={addTarget}>
-        {#each targets as name (name)}<option value={name}>{name}</option>{/each}
-      </select>
-    </label>
-  </div>
-  {#if IP_RULES.has(addType)}
-    <label class="check">
-      <input type="checkbox" bind:checked={noResolve} />
-      {t.rules.noResolve}
-      <Info text={t.rules.noResolveInfo} name="no-resolve" />
-    </label>
-  {/if}
-  <button type="button" class="primary" disabled={addValue.trim() === ''} onclick={add}>{t.rules.add}</button>
-</fieldset>
+<details class="fold">
+  <summary>{t.rules.add}</summary>
+  <p class="intro">{t.rules.addInfo}</p>
+  <fieldset class="add">
+    <legend class="sr">{t.rules.add}</legend>
+    <div class="inline">
+      <label>
+        <span>{t.rules.addType}</span>
+        <select bind:value={addType}>
+          {#each ADDABLE_RULES as type (type)}<option value={type}>{typeLabel(type)}</option>{/each}
+        </select>
+      </label>
+      <label class="grow">
+        <span>{t.rules.addValue}</span>
+        <input type="text" bind:value={addValue} placeholder={t.rules.placeholders[addType]} spellcheck="false" autocomplete="off" />
+      </label>
+      <label>
+        <span>{t.rules.addTarget}</span>
+        <select bind:value={addTarget}>
+          {#each targets as name (name)}<option value={name}>{name}</option>{/each}
+        </select>
+      </label>
+    </div>
+    {#if IP_RULES.has(addType)}
+      <label class="check">
+        <input type="checkbox" bind:checked={noResolve} />
+        {t.rules.noResolve}
+        <Info text={t.rules.noResolveInfo} name="no-resolve" />
+      </label>
+    {/if}
+    <button type="button" class="primary" disabled={addValue.trim() === ''} onclick={add}>{t.rules.add}</button>
+  </fieldset>
+</details>
 
 {#if lists.length > 0}
-  <h4>{t.rules.lists} <Info text={t.rules.listsInfo} name="rule-providers" /></h4>
-  <ul class="lists">
-    {#each lists as l (l.name)}
-      {@const uses = ruleSetUses(data, l.name)}
-      <li>
-        <span class="name">{l.name}</span>
-        <span class="muted">{l.behavior} · {l.format} · {hostOf(l.source)}</span>
-        <span class="muted">{uses.length > 0 ? format(t.rules.listUsed, { rules: uses.map((i) => i + 1).join(', ') }) : t.rules.listUnused}</span>
-        <button type="button" class="small push" disabled={uses.length > 0} onclick={() => attempt(() => removeRuleProviderChanges(data, l.name))}>{t.rules.removeList}</button>
-      </li>
-    {/each}
-  </ul>
+  <details class="fold">
+    <summary>{t.rules.lists} ({lists.length})</summary>
+    <p class="intro">{t.rules.listsInfo}</p>
+    <ul class="lists">
+      {#each lists as l (l.name)}
+        {@const uses = ruleSetUses(data, l.name)}
+        <li>
+          <span class="name">{l.name}</span>
+          <span class="muted">{l.behavior} · {l.format} · {hostOf(l.source)}</span>
+          <span class="muted">{uses.length > 0 ? format(t.rules.listUsed, { rules: uses.map((i) => i + 1).join(', ') }) : t.rules.listUnused}</span>
+          <button type="button" class="small push" disabled={uses.length > 0} onclick={() => attempt(() => removeRuleProviderChanges(data, l.name))}>{t.rules.removeList}</button>
+        </li>
+      {/each}
+    </ul>
+  </details>
 {/if}
 
 <style>
   .intro {
-    margin: 0 0 0.75rem;
+    margin: 0 0 0.5rem;
+    font-size: 0.9rem;
     color: var(--muted);
   }
 
-  .search label {
-    display: block;
-    margin-bottom: 0.25rem;
-    font-weight: 600;
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.6rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .toolbar input[type='search'] {
+    flex: 1 1 14rem;
   }
 
   .count {
-    margin: 0.5rem 0;
-    font-size: 0.875rem;
+    font-size: 0.85rem;
+    color: var(--muted);
   }
 
   input[type='search'],
@@ -225,57 +282,56 @@
     background: var(--surface);
   }
 
-  input[type='search'] {
+  table {
     width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
   }
 
-  .rules,
-  .lists {
-    margin: 0 0 1rem;
-    padding: 0;
-    list-style: none;
-    border: 1px solid var(--border);
-    border-radius: 6px;
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 0.4rem 0.5rem;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--muted);
     background: var(--surface);
   }
 
-  .rules li,
-  .lists li {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.25rem 0.6rem;
-    padding: 0.4rem 0.6rem;
+  td {
+    padding: 0.25rem 0.5rem;
     border-bottom: 1px solid var(--border);
+    vertical-align: middle;
   }
 
-  .rules li:last-child,
-  .lists li:last-child {
-    border-bottom: 0;
-  }
-
-  .rules li.match {
+  tr.match td {
     background: var(--bg);
   }
 
+  tr.ticked td {
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+  }
+
+  .tick {
+    width: 2rem;
+  }
+
   .n {
-    min-width: 2.5rem;
+    width: 3rem;
     font-size: 0.75rem;
     color: var(--muted);
   }
 
-  .what {
-    display: inline-flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.35rem;
-    flex: 1 1 14rem;
-    overflow-wrap: anywhere;
+  .type {
+    white-space: nowrap;
+    font-weight: 600;
   }
 
-  .type {
-    font-size: 0.85rem;
-    font-weight: 600;
+  .what {
+    overflow-wrap: anywhere;
   }
 
   code {
@@ -283,31 +339,25 @@
     font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
   }
 
-  .target {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-  }
-
-  .target select {
+  .target select,
+  .target-name {
     max-width: 14rem;
   }
 
   .target-name {
-    max-width: 14rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .buttons,
-  .push {
-    margin-left: auto;
+  .actions {
+    width: 1%;
+    white-space: nowrap;
+    text-align: right;
   }
 
-  .buttons {
-    display: inline-flex;
-    gap: 0.25rem;
+  .actions button + button {
+    margin-left: 0.2rem;
   }
 
   .small {
@@ -315,23 +365,40 @@
     font-size: 0.8rem;
   }
 
+  .empty {
+    padding: 0.75rem;
+  }
+
   .pager {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    margin: -0.5rem 0 1rem;
-    font-size: 0.875rem;
+    margin-top: 0.4rem;
+    font-size: 0.85rem;
+  }
+
+  .fold {
+    margin-top: 0.75rem;
+  }
+
+  .fold summary {
+    font-weight: 600;
+    cursor: pointer;
   }
 
   .add {
-    margin: 0 0 1rem;
-    padding: 0.75rem;
+    margin: 0;
+    padding: 0.6rem 0.75rem;
     border: 1px solid var(--border);
     border-radius: 6px;
   }
 
-  .add legend {
-    font-weight: 600;
+  .sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
   }
 
   .inline {
@@ -361,13 +428,27 @@
     font-size: 0.9rem;
   }
 
-  h4 {
-    margin: 0 0 0.5rem;
-    font-size: 0.95rem;
+  .lists {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lists li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.6rem;
+    padding: 0.35rem 0;
+    border-bottom: 1px solid var(--border);
   }
 
   .name {
     font-weight: 600;
+  }
+
+  .push {
+    margin-left: auto;
   }
 
   .muted {
@@ -376,10 +457,12 @@
   }
 
   .error {
+    margin: 0.25rem 0 0.5rem;
     color: var(--danger);
   }
 
   .ok {
+    margin: 0.25rem 0 0.5rem;
     color: var(--ok);
   }
 </style>

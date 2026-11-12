@@ -60,6 +60,8 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   - app/src/edit/: the edit step (`EditStep.svelte`) and one card per part
     (`Basics.svelte`, `Servers.svelte`, `Groups.svelte`, `Rules.svelte`,
     `Dns.svelte`); `lib/StringList.svelte` is the editable list they share
+    (with a search box when long). Servers and Rules have tick boxes for
+    bulk edits (`removeManyChanges`, `removeManyRulesChanges`)
   - `App.test.ts`: page tests in happy-dom; `frozen.test.ts` runs the main
     path with Object.prototype frozen, as the app does
 - src-tauri/: the Windows app shell (Tauri 2, Rust): `tauri.conf.json` (CSP,

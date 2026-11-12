@@ -169,3 +169,11 @@ export function removeRuleProviderChanges(config: Config, name: string): Change[
   if (ruleSetUses(config, name).length > 0) throw new ChangeError('rule list in use');
   return [{ op: 'delete', path: ['rule-providers', name] }];
 }
+
+/** Changes that remove these rules (by position), highest first so the others stay put. */
+export function removeManyRulesChanges(config: Config, indices: readonly number[]): Change[] {
+  const rules = list(config['rules']);
+  const unique = [...new Set(indices)].sort((a, b) => b - a);
+  for (const i of unique) if (typeof rules[i] !== 'string') throw new ChangeError('no such rule');
+  return unique.map((i) => ({ op: 'delete', path: ['rules', i] }));
+}

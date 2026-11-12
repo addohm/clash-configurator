@@ -31,6 +31,14 @@
   let error = $state('');
   const id = $props.id();
 
+  // Long lists (130 fake-IP exceptions, say) get a search box.
+  const LONG = 12;
+  let filter = $state('');
+  const shown = $derived(
+    items.map((item, index) => ({ item, index })).filter(({ item }) => filter.trim() === '' || item.toLowerCase().includes(filter.trim().toLowerCase())),
+  );
+  const filtering = $derived(filter.trim() !== '');
+
   function add() {
     const why = onadd(value);
     error = why ?? '';
@@ -40,15 +48,18 @@
 
 <div class="list">
   <label class="label" for={id}>{label} <Info text={info} {name} /></label>
+  {#if items.length > LONG}
+    <input class="filter" type="search" bind:value={filter} placeholder={`${t.dns.search} (${items.length})`} aria-label={`${t.dns.search}: ${label}`} />
+  {/if}
   {#if items.length === 0}
     <p class="muted">{t.dns.empty}</p>
   {:else}
     <ol>
-      {#each items as item, i (`${i}-${item}`)}
+      {#each shown as { item, index: i } (`${i}-${item}`)}
         <li>
           <code>{item}</code>
           <span class="buttons">
-            {#if onmove}
+            {#if onmove && !filtering}
               <button type="button" class="small" aria-label={t.dns.up} disabled={i === 0} onclick={() => (error = onmove(i, i - 1) ?? '')}>↑</button>
               <button type="button" class="small" aria-label={t.dns.down} disabled={i === items.length - 1} onclick={() => (error = onmove(i, i + 1) ?? '')}>↓</button>
             {/if}
@@ -89,7 +100,7 @@
     border: 1px solid var(--border);
     border-radius: 6px;
     background: var(--surface);
-    max-height: 16rem;
+    max-height: 14rem;
     overflow-y: auto;
   }
 
@@ -126,6 +137,11 @@
   .add {
     display: flex;
     gap: 0.35rem;
+  }
+
+  .filter {
+    width: 100%;
+    margin-bottom: 0.35rem;
   }
 
   input {

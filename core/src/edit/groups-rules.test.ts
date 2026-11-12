@@ -14,6 +14,7 @@ import {
   moveRuleChanges,
   readRule,
   removeGroupChanges,
+  removeManyRulesChanges,
   removeMemberChanges,
   removeRuleChanges,
   removeRuleProviderChanges,
@@ -141,6 +142,11 @@ describe('rules', () => {
     expect(run(setRuleTargetChanges(data(), 1, 'Proxy')).rules[1]).toBe('IP-CIDR,10.0.0.0/8,Proxy,no-resolve');
     expect(run(setRuleTargetChanges(data(), 3, 'Auto')).rules[3]).toBe('MATCH,Auto');
     expect(setRuleTargetChanges(data(), 3, 'Proxy')).toEqual([]);
+  });
+
+  it('removes many rules at once', () => {
+    expect(run(removeManyRulesChanges(data(), [0, 2, 0])).rules).toEqual(['IP-CIDR,10.0.0.0/8,DIRECT,no-resolve', 'MATCH,Proxy']);
+    expect(() => removeManyRulesChanges(data(), [9])).toThrow('no such rule');
   });
 
   it('moves and removes rules', () => {

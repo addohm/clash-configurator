@@ -82,11 +82,13 @@ these steps:
 
 4. **Make your changes:** the config's parts one at a time, with **Undo**.
    - **Basics:** mode, ports, sharing with your network, IPv6.
-   - **Servers:** rename (groups and rules follow), remove, or add servers
-     by pasting share links (vless, trojan, ss, hysteria2, vmess).
-   - **Groups:** type and members, rename, remove, add one.
-   - **Rules:** search, change where a rule goes, move, remove, add one;
-     the rule lists they use.
+   - **Servers:** search; tick servers to remove them or keep only them;
+     rename (groups and rules follow); add servers by pasting share links
+     (vless, trojan, ss, hysteria2, vmess).
+   - **Groups:** the list on the left, the chosen group on the right: type
+     and members, rename, remove; or add one.
+   - **Rules:** search, tick and remove, change where a rule goes, move,
+     add one; the rule lists they use.
    - **DNS:** on or off, fake or real addresses, the DNS servers, sites
      that get their real address, and per-site DNS.
 

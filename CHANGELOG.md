@@ -13,7 +13,20 @@ All notable changes to clash-configurator. The format follows
   finished step, and the open step fills the rest of the window. The edit
   step keeps its title, Undo and the change count at the top and Back/Next
   at the bottom, with the part in between filling the window. Narrow
-  windows stack the sidebar on top. Lists come next.
+  windows stack the sidebar on top.
+- The lists (Q30, part 2, 2026-11-12):
+  - Servers: a table that fills the window and scrolls inside, with a
+    search box and tick boxes: **Remove ticked** and **Keep only ticked**
+    remove many servers in one edit (one Undo), refused with the reason if
+    a rule uses one or a group would be left empty. Adding servers is
+    folded away below.
+  - Groups: the list on the left, the chosen group on the right (type,
+    members, rename, remove), or the new-group form with a member search.
+  - Rules: a table (200 per page) in its own scrolling panel, with tick
+    boxes and **Remove ticked**; adding a rule and the rule lists are
+    folded away below.
+  - DNS: the lists side by side on wide windows; any list longer than 12
+    gets its own search box.
 
 - `tools\update` offers to install each new build (quietly, for your user,
   with a Start menu entry) and start it. A new menu option, **Start the

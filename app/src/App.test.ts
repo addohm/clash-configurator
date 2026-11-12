@@ -59,6 +59,13 @@ const click = (label: string) => {
   button(label).click();
   flushSync();
 };
+/** Clicks the first button whose whole label is exactly this. */
+const clickExact = (label: string, scope: ParentNode = target) => {
+  const b = [...scope.querySelectorAll('button')].find((x) => x.textContent?.trim() === label);
+  if (!b) throw new Error(`no button exactly "${label}"`);
+  b.click();
+  flushSync();
+};
 const paste = (text: string) => {
   const area = target.querySelector('textarea');
   if (!area) throw new Error('no textarea');
@@ -261,16 +268,39 @@ describe('editing: Servers', () => {
 
   it('removes a server, or says why it cannot', () => {
     toServers();
-    click(t.servers.remove);
+    clickExact(t.servers.remove, card() ?? target);
     expect((store.data['proxies'] as unknown[]).length).toBe(1);
     // Server B is now the only member of Proxy.
-    click(t.servers.remove);
+    clickExact(t.servers.remove, card() ?? target);
     expect(card()?.textContent).toContain('only member of the group Proxy');
+  });
+
+  it('removes ticked servers together, or keeps only them', () => {
+    toEditing('configs/provider-basic.yaml');
+    click(t.edit.next);
+    const box = (name: string) => inputIn(card(), `input[aria-label="${name}"]`);
+    box('🇯🇵 Tokyo 01').click();
+    box('🇸🇬 Singapore 01').click();
+    flushSync();
+    expect(card()?.textContent).toContain('2 ticked');
+    click(t.servers.keepTicked);
+    expect((store.data['proxies'] as { name: string }[]).map((p) => p.name)).toEqual(['🇯🇵 Tokyo 01', '🇸🇬 Singapore 01']);
+    // One edit: one undo brings them all back.
+    click(t.edit.undo);
+    expect((store.data['proxies'] as unknown[]).length).toBe(4);
+  });
+
+  it('searches servers', () => {
+    toEditing('configs/provider-basic.yaml');
+    click(t.edit.next);
+    const search = inputIn(card(), 'input[type="search"]');
+    change(search, 'tokyo');
+    expect(card()?.querySelectorAll('tbody tr')).toHaveLength(1);
   });
 
   it('adds servers from share links to the suggested groups', () => {
     toServers();
-    const area = card()?.querySelector('textarea');
+    const area = card()?.querySelector<HTMLTextAreaElement>('details.add textarea');
     if (!area) throw new Error('no textarea');
     change(area, 'trojan://pw@new.example.com:443#New One\nnonsense');
     click(t.servers.addRead);
@@ -294,8 +324,8 @@ describe('editing: Groups', () => {
 
   it('changes a group type and its members', () => {
     toGroups();
-    click(t.groups.open); // the first group, Proxy
-    const select = card()?.querySelector<HTMLSelectElement>('.detail select');
+    // The first group, Proxy, is shown to start with.
+    const select = card()?.querySelector<HTMLSelectElement>('.detail .field select');
     if (!select) throw new Error('no type select');
     change(select, 'fallback');
     expect(groupsData()[0]?.type).toBe('fallback');
@@ -307,9 +337,8 @@ describe('editing: Groups', () => {
 
   it("doesn't offer a group that would contain itself", () => {
     toGroups();
-    // Open Auto (the second group) and try adding Proxy, which contains Auto.
-    const openButtons = buttons().filter((b) => b.textContent?.trim() === t.groups.open);
-    openButtons[1]?.click();
+    // Choose Auto (the second group) and try adding Proxy, which contains Auto.
+    [...(card()?.querySelectorAll<HTMLButtonElement>('.item') ?? [])][1]?.click();
     flushSync();
     const picker = card()?.querySelector<HTMLSelectElement>(`select[aria-label="${t.groups.addMember}"]`);
     expect([...(picker?.options ?? [])].map((o) => o.value)).not.toContain('Proxy');
@@ -317,17 +346,17 @@ describe('editing: Groups', () => {
 
   it('will not remove a group that is used, and says where', () => {
     toGroups();
-    click(t.groups.open);
     click(t.groups.remove);
     expect(card()?.textContent).toContain("Can't remove it while it's used by: rule 5");
   });
 
   it('adds a group', () => {
     toGroups();
-    const name = card()?.querySelector<HTMLInputElement>(`fieldset.new input[type="text"]`);
+    click(`+ ${t.groups.new}`);
+    const name = card()?.querySelector<HTMLInputElement>(`.detail input[type="text"]`);
     if (!name) throw new Error('no name input');
     change(name, 'Video');
-    const boxes = [...(card()?.querySelectorAll<HTMLInputElement>('fieldset.new input[type="checkbox"]') ?? [])];
+    const boxes = [...(card()?.querySelectorAll<HTMLInputElement>('.choices input[type="checkbox"]') ?? [])];
     boxes[0]?.click();
     flushSync();
     click(t.groups.create);
@@ -350,17 +379,27 @@ describe('editing: Rules', () => {
     const search = card()?.querySelector<HTMLInputElement>('input[type="search"]');
     if (!search) throw new Error('no search');
     change(search, 'GEOIP');
-    expect(card()?.querySelectorAll('ol.rules li')).toHaveLength(1);
+    expect(card()?.querySelectorAll('tbody tr')).toHaveLength(1);
+  });
+
+  it('removes ticked rules together', () => {
+    toRules();
+    const boxes = [...(card()?.querySelectorAll<HTMLInputElement>('tbody input[type="checkbox"]') ?? [])];
+    boxes[0]?.click();
+    boxes[2]?.click();
+    flushSync();
+    click(t.rules.removeTicked);
+    expect(rules()).toEqual(['IP-CIDR,192.168.0.0/16,DIRECT,no-resolve', 'GEOIP,CN,DIRECT,no-resolve', 'MATCH,Proxy']);
   });
 
   it('retargets, moves and removes a rule', () => {
     toRules();
-    card()?.querySelector<HTMLButtonElement>('ol.rules li .target-name')?.click();
+    card()?.querySelector<HTMLButtonElement>('tbody tr .target-name')?.click();
     flushSync();
-    const target = card()?.querySelector<HTMLSelectElement>('ol.rules li .target select');
+    const target = card()?.querySelector<HTMLSelectElement>('tbody tr .target select');
     if (!target) throw new Error('no target');
     change(target, 'Proxy');
-    expect(card()?.querySelectorAll('ol.rules li .target select')).toHaveLength(0);
+    expect(card()?.querySelectorAll('tbody tr .target select')).toHaveLength(0);
     expect(rules()[0]).toBe('DOMAIN-SUFFIX,local,Proxy');
     card()?.querySelectorAll<HTMLButtonElement>(`button[aria-label="${t.rules.down}"]`)[0]?.click();
     flushSync();
@@ -385,12 +424,12 @@ describe('editing: Rules', () => {
 
   it('pages through long rule lists', () => {
     toEditing('configs/indentless.yaml');
-    for (let i = 0; i < 60; i++) store.edit([{ op: 'insert', path: ['rules'], index: 0, value: `DOMAIN,r${i}.example.com,DIRECT` }]);
+    store.edit(Array.from({ length: 250 }, (_, i) => ({ op: 'insert' as const, path: ['rules'], index: 0, value: `DOMAIN,r${i}.example.com,DIRECT` })));
     flushSync();
     for (let i = 0; i < 3; i++) click(t.edit.next);
-    expect(card()?.querySelectorAll('ol.rules li')).toHaveLength(50);
-    click(t.rules.next);
-    expect(card()?.querySelectorAll('ol.rules li')).toHaveLength(12);
+    expect(card()?.querySelectorAll('tbody tr')).toHaveLength(200);
+    clickExact(t.rules.next, card() ?? target);
+    expect(card()?.querySelectorAll('tbody tr')).toHaveLength(52);
   });
 });
 

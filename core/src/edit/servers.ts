@@ -123,3 +123,43 @@ export function removeServerChanges(config: Config, name: string): Change[] {
   changes.push({ op: 'delete', path: ['proxies', index] });
   return changes;
 }
+
+/**
+ * What stops these servers from being removed together: a rule that sends
+ * traffic to one of them, a server that stays and connects through one, or
+ * a group left with no members at all.
+ */
+export function removeManyBlockers(config: Config, names: readonly string[]): RemoveBlocker[] {
+  const gone = new Set(names);
+  const out: RemoveBlocker[] = [];
+  list(config['rules']).forEach((r, index) => {
+    const target = typeof r === 'string' ? ruleTargetOf(r) : undefined;
+    if (target !== undefined && gone.has(target)) out.push({ kind: 'rule', index });
+  });
+  for (const p of list(config['proxies'])) {
+    const via = isObject(p) ? p['dialer-proxy'] : undefined;
+    if (typeof via === 'string' && gone.has(via) && !gone.has(nameOf(p) ?? '')) out.push({ kind: 'dialer', server: nameOf(p) ?? '' });
+  }
+  for (const g of groupsOf(config)) {
+    const raw = list(config['proxy-groups'])[g.index];
+    const usesProviders = isObject(raw) && list(raw['use']).length > 0;
+    if (!usesProviders && g.members.length > 0 && g.members.every((m) => gone.has(m))) out.push({ kind: 'last-member', group: g.name });
+  }
+  return out;
+}
+
+/** Changes that remove these servers and take them out of every group. */
+export function removeManyChanges(config: Config, names: readonly string[]): Change[] {
+  if (removeManyBlockers(config, names).length > 0) throw new ChangeError('server in use');
+  const gone = new Set(names);
+  const changes: Change[] = [];
+  list(config['proxy-groups']).forEach((g, gi) => {
+    if (!isObject(g)) return;
+    const positions = list(g['proxies']).flatMap((m, i) => (typeof m === 'string' && gone.has(m) ? [i] : [])).reverse();
+    for (const i of positions) changes.push({ op: 'delete', path: ['proxy-groups', gi, 'proxies', i] });
+  });
+  const positions = list(config['proxies']).flatMap((p, i) => (gone.has(nameOf(p) ?? '') ? [i] : [])).reverse();
+  if (positions.length !== gone.size) throw new ChangeError('no such server');
+  for (const i of positions) changes.push({ op: 'delete', path: ['proxies', i] });
+  return changes;
+}

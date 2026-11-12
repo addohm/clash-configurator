@@ -7,6 +7,8 @@ import {
   groupsWithAllServers,
   parseLink,
   removeBlockers,
+  removeManyBlockers,
+  removeManyChanges,
   removeServerChanges,
   uniqueName,
 } from '..';
@@ -57,6 +59,33 @@ describe('adding servers', () => {
   it('makes names unique', () => {
     expect(uniqueName('A', new Set(['A', 'A 2']))).toBe('A 3');
     expect(uniqueName('B', new Set(['A']))).toBe('B');
+  });
+});
+
+describe('removing many servers at once', () => {
+  const data = parseDocument(CONFIG).toJS();
+
+  it('takes them all out of every group, in one edit', () => {
+    // A copy without the group that only holds US.
+    const config = { ...data, 'proxy-groups': data['proxy-groups'].slice(0, 3) };
+    const doc = parseDocument(CONFIG);
+    doc.deleteIn(['proxy-groups', 3]);
+    for (const c of removeManyChanges(config, ['HK', 'US'])) applyChange(doc, c);
+    const d = doc.toJS();
+    expect(d.proxies.map((p: { name: string }) => p.name)).toEqual(['JP']);
+    expect(d['proxy-groups'][0].proxies).toEqual(['Auto', 'JP', 'DIRECT']);
+    expect(d['proxy-groups'][1].proxies).toEqual(['JP']);
+    expect(d['proxy-groups'][2].proxies).toEqual(['JP']);
+  });
+
+  it('refuses when a rule uses one, or a group would be left empty', () => {
+    expect(removeManyBlockers(data, ['HK', 'JP'])).toEqual([
+      { kind: 'rule', index: 0 },
+      { kind: 'last-member', group: 'Asia' },
+    ]);
+    expect(() => removeManyChanges(data, ['HK', 'JP'])).toThrow('server in use');
+    // US alone empties OnlyUS; HK and US together still do.
+    expect(removeManyBlockers(data, ['HK', 'US'])).toEqual([{ kind: 'last-member', group: 'OnlyUS' }]);
   });
 });
 

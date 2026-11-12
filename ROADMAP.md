@@ -39,7 +39,8 @@ The build order from PLAN.md:
    - Advanced, part 2, done (2026-11-12): TUN and sniffing; controller,
      dashboard and geo data. Advanced mode confirmed working on the
      owner's PC the same day.
-   - Scratch mode (Q23)
+   - Scratch mode, done (2026-11-12, PLAN.md Q23, Q35): six explained
+     steps, then the config opens in Review, Simple or Advanced
 - Step 8, Send to phone, built (2026-11-12, PLAN.md Q34): not yet tried
   with a real phone. To check on the owner's PC: the firewall prompt, the
   QR code from an iPhone and an Android phone, and each app's button

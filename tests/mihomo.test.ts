@@ -26,8 +26,10 @@ import {
   defaultFixes,
   groupsWithAllServers,
   intake,
+  LIST_IDS,
   linkedCopy,
   parseLinks,
+  scratchConfig,
   planLink,
   planRebase,
   removeManyChanges,
@@ -201,6 +203,15 @@ describe.skipIf(!mihomo)('mihomo loads every output', () => {
     const r = readInput(btoa(LINKS));
     expect(r.format).toBe('links');
     expect(mihomoTest('from-links', r.text)).toBeNull();
+  });
+
+  // Scratch mode with everything ticked: country groups, every list, the DNS (Q23).
+  it('a config built from scratch', () => {
+    // Named so that country groups are made too.
+    const names = ['🇭🇰 Hong Kong 1', '香港 2', 'JP Tokyo', 'JP Osaka', 'US 1', 'Somewhere'];
+    const servers = parseLinks(LINKS).servers.map((s, i) => ({ ...s, name: names[i] ?? `Server ${i}` }));
+    const text = scratchConfig({ app: 'mihomo', servers, auto: true, countries: true, lists: LIST_IDS, dns: true });
+    expect(mihomoTest('scratch', text)).toBeNull();
   });
 
   for (const [name, s] of sessions) {

@@ -141,8 +141,14 @@ one rule.
 one page with no step-by-step guidance, and shows the expert settings: per-site
 DNS, TUN and sniffing, the remote control and its password, the dashboard,
 and geo data. A bar at the top has the app the config is for, Undo and
-**Review and save**; the sidebar jumps to each part. Scratch mode comes
-later.
+**Review and save**; the sidebar jumps to each part.
+
+**Scratch mode** builds a new config from nothing, explaining each part as
+you go: your app, your servers (share links, or a subscription URL), the
+groups to choose them (by hand, fastest, per country), ready-made rule lists
+to tick (ads, AI, streaming, Telegram, Chinese sites direct), and DNS that
+works from inside China. Then review and save it, or keep editing it in
+Simple or Advanced mode.
 
 ## Docs
 

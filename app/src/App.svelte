@@ -11,6 +11,8 @@
   import { format, strings as t } from './i18n';
   import Info from './lib/Info.svelte';
   import UpdatePanel from './lib/UpdatePanel.svelte';
+  import { SCRATCH_STEPS, scratch } from './scratch/scratch.svelte';
+  import ScratchPage from './scratch/ScratchPage.svelte';
   import { ADVANCED_PARTS, SECTIONS, STEPS, store } from './lib/store.svelte';
   import BringConfig from './steps/BringConfig.svelte';
   import PickApp from './steps/PickApp.svelte';
@@ -102,6 +104,29 @@
       </nav>
     {/if}
 
+    {#if store.mode === 'scratch'}
+      <nav aria-label={t.steps.label}>
+        <ol class="steps">
+          {#each SCRATCH_STEPS as id, i (id)}
+            <li>
+              <button
+                type="button"
+                class="step-link"
+                class:active={scratch.step === id}
+                class:done={i < scratch.reached || (i <= scratch.reached && scratch.step !== id)}
+                disabled={i > scratch.reached}
+                aria-current={scratch.step === id ? 'step' : undefined}
+                onclick={() => scratch.open(id)}
+              >
+                <span class="n" aria-hidden="true">{i + 1}</span>
+                <span class="name">{t.scratch.steps[id]}</span>
+              </button>
+            </li>
+          {/each}
+        </ol>
+      </nav>
+    {/if}
+
     {#if store.mode === 'simple'}
       <nav aria-label={t.steps.label}>
         <div class="progress" aria-hidden="true">
@@ -171,11 +196,17 @@
         </div>
       </section>
     {/if}
-    {#if store.session}<UpdatePanel />{/if}
+    {#if store.session && store.mode !== 'scratch'}<UpdatePanel />{/if}
     {#if store.mode === 'advanced'}
       <AdvancedPage />
     {:else if store.mode === 'scratch'}
-      <section class="view"><p>{t.notBuiltYet}</p></section>
+      <section class="view" aria-labelledby="scratch-title">
+        <h2 id="scratch-title">
+          <span class="n" aria-hidden="true">{SCRATCH_STEPS.indexOf(scratch.step) + 1}</span>
+          {t.scratch.steps[scratch.step]}
+        </h2>
+        <ScratchPage />
+      </section>
     {:else}
       {#if store.resumable && !store.session}
         <section class="resume" aria-label={t.resume.title}>

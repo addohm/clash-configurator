@@ -6,6 +6,16 @@ All notable changes to clash-configurator. The format follows
 
 ## [Unreleased]
 
+- Scratch mode (roadmap step 7, PLAN.md Q23, Q35, 2026-11-12): build a
+  config from nothing, each step opening with what that part is for:
+  pick the app; servers (share links, a server list or a config, pasted or
+  from a subscription URL); groups (pick by hand, fastest, one per
+  country from the server names); ticked rule lists (ads, AI, streaming,
+  Telegram, Chinese sites direct) with their own groups; DNS that works
+  from inside China. The built file has a comment on each part. It then
+  opens in Review, or for editing in Simple or Advanced mode. mihomo loads
+  it with everything ticked.
+
 - Send to phone (roadmap step 8, PLAN.md Q19, Q34, 2026-11-12): in the
   Windows app, Review offers the new file(s) on the local Wi-Fi for five
   minutes with a QR code. The phone's page has a button for its app

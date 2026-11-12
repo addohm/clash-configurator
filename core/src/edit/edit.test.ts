@@ -275,7 +275,13 @@ describe('the saved settings file', () => {
       error: 'bad-field',
       detail: 'source',
     });
+    expect(tamper((f) => (f['source'] = { kind: 'paste', scratch: 'yes' }))).toMatchObject({ error: 'bad-field', detail: 'source' });
     expect(tamper((f) => (f['changes'] = 'x'))).toMatchObject({ error: 'bad-field', detail: 'changes' });
+  });
+
+  it('keeps that a session was built in Scratch mode', () => {
+    const r = tamper((f) => (f['source'] = { kind: 'url', url: 'https://sub.example.com/x', scratch: true }));
+    expect(r.ok && r.session.source).toEqual({ kind: 'url', url: 'https://sub.example.com/x', scratch: true });
   });
 
   it('refuses a bad change, saying which', () => {

@@ -4,7 +4,6 @@ export const en = {
   title: 'Clash Configurator',
   tagline: 'Bring your Clash config, change what you need, take it back to your app.',
   local: 'Everything stays on this device.',
-  notBuiltYet: 'This part comes in a later build.',
   info: 'What is this?',
   settingName: 'Setting:',
 
@@ -582,6 +581,70 @@ export const en = {
       downloadServers: 'Download the server list',
       downloadConf: 'Download the .conf',
       note: "This link works for a few minutes, on this Wi-Fi only. If your app later says it can't update from it, that's expected: the copy it got stays.",
+    },
+  },
+
+  // Scratch mode (PLAN.md Q23, Q35): building a config from nothing.
+  scratch: {
+    steps: { app: 'Pick your app', servers: 'Your servers', groups: 'Groups', rules: 'Rules', dns: 'DNS', done: 'Make it' },
+    intros: {
+      app: "A Clash config is a text file your proxy app reads: which servers you have, how to choose between them, and which traffic goes where. Each app reads it a little differently, so first: which app is it for?",
+      servers:
+        'Servers (in the config: "proxies") are the machines your traffic travels through. Paste the share links your provider gave you (vless://, trojan://, ss://, hysteria2://, vmess://), or a whole config or server list; only its servers are used.',
+      groups:
+        'Groups ("proxy-groups") are how you choose a server. A pick-by-hand group lets you choose in your app; a fastest-server group tests its servers every few minutes and uses the quickest one that works.',
+      rules:
+        'Rules decide where each connection goes, checked top to bottom: the first that matches wins. Ready-made lists keep them short. Anything no rule catches goes through your proxy.',
+      dns: 'DNS turns names like example.com into addresses. Inside China, ordinary DNS answers for blocked sites are often wrong, so the config needs to look names up carefully.',
+      done: 'That is everything a config needs. Make it, then check it and save it, or keep shaping it in Simple or Advanced mode.',
+    },
+    pasteLabel: 'Your share links (one per line), or a server list',
+    pastePlaceholder: 'vless://…\ntrojan://…',
+    read: 'Read them',
+    urlLabel: 'Or your subscription URL',
+    urlInfo:
+      "The servers are read from your provider's subscription. When you save for a mihomo app, you can keep them updating from it.",
+    found: 'Found {count} {count|server|servers}:',
+    skipped: '{count} {count|line|lines} could not be read and {count|was|were} left out.',
+    noServers: 'No servers found in that. Check that it holds share links or a config with servers.',
+    refused: "That can't be used: {reason}",
+    groupsAlways: 'You always get "Proxy", a pick-by-hand group with every server, which everything goes through unless a rule says otherwise.',
+    auto: 'A fastest-server group ("Auto")',
+    autoInfo: 'Tests every server every 5 minutes and uses the quickest. "Proxy" offers it first, so picking Auto there means you never choose by hand.',
+    countries: 'A fastest-server group per country',
+    countriesInfo:
+      'Worked out from the server names (flags, country and city names, codes like HK or JP), for countries with two or more servers. Useful when a site works only from one country.',
+    countryGroup: '{name}: {count} {count|server|servers}',
+    noCountries: 'No country has two or more servers here (by their names), so no country groups.',
+    lists: {
+      ads: { name: 'Block ads', what: 'Known ad and tracking sites are refused.' },
+      ai: { name: 'AI services', what: 'ChatGPT, Claude, Gemini and others, through their own group ({group}), so you can send them through a country they serve.' },
+      streaming: { name: 'Streaming', what: 'YouTube, Netflix, Disney+ and Spotify, through their own group ({group}).' },
+      telegram: { name: 'Telegram', what: 'Through its own group ({group}).' },
+      china: { name: 'Chinese sites direct', what: "Chinese sites and addresses skip the proxy: faster, and they often refuse foreign addresses." },
+    },
+    rulesRest: 'Your local network always goes direct. The lists come from MetaCubeX (for mihomo apps) or blackmatrix7 (for Stash and Shadowrocket), through a mirror that works from inside China, and your app keeps them updated.',
+    dnsUse: 'Use DNS that works from inside China',
+    dnsInfo: "Sets the config's own DNS. Untick it to leave DNS to your app's settings.",
+    dnsWhat: [
+      'Fake addresses (fake-ip): sites through the proxy are looked up at the far end, where the answers are right.',
+      'Chinese encrypted DNS (DNSPod, AliDNS) for everything looked up here, and for finding your servers.',
+      'Local names, connection checks, clocks and calls get their real addresses.',
+    ],
+    summary: '{servers} {servers|server|servers}, {groups} {groups|group|groups}, {lists} rule {lists|list|lists}.',
+    toReview: 'Make it and review',
+    toSimple: 'Make it and keep editing',
+    toAdvanced: 'Make it, open in Advanced',
+    failed: "The config couldn't be made. Please report this.",
+    // The comments written into the config, one per part.
+    notes: {
+      header: 'Made from scratch by Clash Configurator. Lines starting with # are notes; your app ignores them.',
+      'mixed-port': 'The basics: the port other programs use to reach the proxy, whether other devices may use it, and rule mode.',
+      dns: 'DNS: how names are turned into addresses. fake-ip hands out stand-in addresses, so sites going through the proxy are looked up at the far end.',
+      proxies: 'Your servers.',
+      'proxy-groups': 'Groups choose a server: "select" is picked by hand in your app, "url-test" picks the fastest by itself.',
+      'rule-providers': 'Ready-made lists of sites, downloaded and kept updated by your app.',
+      rules: 'Rules, checked top to bottom; the first match decides. MATCH catches everything else.',
     },
   },
 

@@ -37,7 +37,7 @@
     {#if store.session}
       <span class="status">{count > 0 ? format(t.edit.changes, { count }) : t.edit.noChanges}</span>
       <button type="button" class="small" disabled={store.edits.length === 0} onclick={() => store.undo()}>{t.edit.undo}</button>
-      {#if store.source?.kind === 'url' && inApp()}
+      {#if store.source?.kind === 'url' && !store.source.scratch && inApp()}
         <button type="button" class="small" disabled={store.fetchingUpdate} onclick={() => void store.startUpdate()}>
           {store.fetchingUpdate ? t.update.fetching : t.update.button}
         </button>

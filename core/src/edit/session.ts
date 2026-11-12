@@ -20,6 +20,11 @@ export interface Source {
   name?: string;
   /** The subscription URL, for 'url'. */
   url?: string;
+  /**
+   * Built in Scratch mode (PLAN.md Q35): the original is our config, not the
+   * provider's, so Update from my subscription doesn't apply.
+   */
+  scratch?: true;
 }
 
 export interface Session {

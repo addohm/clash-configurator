@@ -72,6 +72,11 @@ function readSource(v: unknown): Source | null {
     if (typeof url !== 'string' || url.length > 4096 || CONTROL.test(url) || !/^https?:\/\//i.test(url)) return null;
     source.url = url;
   }
+  const scratch = s['scratch'];
+  if (scratch !== undefined) {
+    if (scratch !== true) return null;
+    source.scratch = true;
+  }
   return source;
 }
 

@@ -7,3 +7,4 @@ export * from './edit';
 export * from './links';
 export * from './subscription';
 export * from './export';
+export * from './scratch';

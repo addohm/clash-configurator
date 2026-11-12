@@ -382,6 +382,21 @@ class Store {
     this.advance('edit');
   }
 
+  /**
+   * Scratch mode's last step (PLAN.md Q23): the built config becomes an
+   * ordinary session, opened at Review and save, or for editing in Simple or
+   * Advanced mode. False if it somehow fails the safety checks.
+   */
+  finishScratch(text: string, source: Source, then: 'review' | 'simple' | 'advanced'): boolean {
+    this.check(text, source);
+    if (!this.checked?.ok) return false;
+    this.ticked = this.checked.findings.map(() => false);
+    this.mode = then === 'advanced' ? 'advanced' : 'simple';
+    this.startEditing();
+    if (then === 'review') this.advance('review');
+    return this.session !== null;
+  }
+
   /** Builds the document for a session (its changes so far can't be undone). */
   private load(session: Session): boolean {
     const r = buildDoc(session);

@@ -6,6 +6,7 @@ import App from './App.svelte';
 import Dns from './edit/Dns.svelte';
 import { format, strings as t } from './i18n';
 import { store } from './lib/store.svelte';
+import { scratch } from './scratch/scratch.svelte';
 
 const FIXTURES = import.meta.glob<string>('../../fixtures/{configs,hostile}/*', {
   query: '?raw',
@@ -22,6 +23,7 @@ let app: ReturnType<typeof mount>;
 let target: HTMLElement;
 
 function reset() {
+  scratch.reset();
   store.mode = 'simple';
   store.app = null;
   store.step = 'app';
@@ -156,10 +158,39 @@ describe('Simple mode', () => {
     expect(store.data['mode']).toBe('global');
   });
 
-  it('shows Scratch as not built yet', () => {
+  it('builds a config from scratch, step by step, and opens it in Review', () => {
     click(t.modes.scratch);
-    expect(target.textContent).toContain(t.notBuiltYet);
-    expect(target.querySelector('textarea')).toBeNull();
+    expect(target.textContent).toContain(t.scratch.intros.app);
+    expect(button(t.edit.next).disabled).toBe(true);
+    const radio = [...target.querySelectorAll('label')].find((l) => l.textContent?.includes(t.apps.mihomo))?.querySelector('input');
+    radio?.click();
+    flushSync();
+    click(t.edit.next);
+
+    expect(target.textContent).toContain(t.scratch.intros.servers);
+    expect(button(t.edit.next).disabled).toBe(true);
+    paste(['🇭🇰 HK 1', '🇭🇰 HK 2', 'JP 1'].map((n, i) => `trojan://pw@192.0.2.${i + 1}:443#${encodeURIComponent(n)}`).join('\n'));
+    click(t.scratch.read);
+    expect(target.textContent).toContain(format(t.scratch.found, { count: 3 }));
+    click(t.edit.next);
+
+    expect(target.textContent).toContain(format(t.scratch.countryGroup, { name: '🇭🇰 Hong Kong', count: 2 }));
+    click(t.edit.next);
+    const streaming = [...target.querySelectorAll('label')].find((l) => l.textContent?.includes(t.scratch.lists.streaming.name))?.querySelector('input');
+    streaming?.click();
+    flushSync();
+    click(t.edit.next);
+    click(t.edit.next);
+    expect(target.textContent).toContain(format(t.scratch.summary, { servers: 3, groups: 5, lists: 4 }));
+    click(t.scratch.toReview);
+
+    expect(store.mode).toBe('simple');
+    expect(openStep()).toBe(t.steps.review);
+    const out = store.review?.output ?? '';
+    expect(out).toContain('# Made from scratch by Clash Configurator.');
+    expect(out).toContain('RULE-SET,category-ads-all,REJECT');
+    expect(out).not.toContain('youtube');
+    expect(store.source).toEqual({ kind: 'paste', scratch: true, format: 'links' });
   });
 });
 

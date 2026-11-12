@@ -290,6 +290,32 @@ entry gives the question number and date. Nothing here is built yet.
   - Apps keep the link as the profile's address, so their later updates
     fail; the phone's page says that's expected.
 
+- **Q35 (2026-11-12, my pick, overrule freely): Scratch mode's details.**
+  - Servers: share links, a server list, or a whole config (its servers
+    only), pasted or from a subscription URL. From a URL, saving for a
+    mihomo app can keep them linked (Q8); "Update from my subscription"
+    is hidden, since the original is our config, not the provider's.
+  - Groups: "Proxy" (pick by hand, always), "Auto" (fastest, ticked), and
+    a fastest group per country with two or more servers (ticked), worked
+    out from flags, names in English and Chinese, cities and codes. Each
+    ticked service list gets its own pick-by-hand group (🤖 AI,
+    📺 Streaming, ✈️ Telegram) offering Proxy, Auto and the countries, so
+    AI can go through a country it serves.
+  - Rules: local network direct; then ads (blocked), AI, streaming
+    (YouTube, Netflix, Disney+, Spotify), Telegram; Chinese sites and
+    addresses direct last, then `MATCH,Proxy`. All ticked by default. mihomo
+    apps get MetaCubeX's .mrs lists; Stash and Shadowrocket blackmatrix7's
+    (its big lists come in a domain part and a rest part), all through
+    jsDelivr's testingcf mirror. Lists with IP ranges get `no-resolve`,
+    except China's.
+  - DNS: fake-ip, DNSPod and AliDNS over HTTPS (also for finding servers),
+    and addohm.net's fake-IP exceptions without its Meta/Quest block: in
+    China a real lookup of Facebook's names gets a poisoned answer.
+  - Basics: mixed-port 7890, LAN sharing off, rule mode, IPv6 off.
+  - Each section of the file has a one-line comment saying what it's for.
+  - The end: "Make it and review", "Make it and keep editing" (Simple) or
+    "Make it, open in Advanced": the config becomes an ordinary session.
+
 - **Q29 (2026-11-12): many kinds of subscription.** "There are a plethora
   of different subscription URL types, don't just focus on Wannaflix." So
   besides full Clash configs (as Wannaflix sends), an input may be a Clash

@@ -37,6 +37,9 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   - core/src/links/: share links (vless, trojan, ss, hysteria2, vmess) to
     mihomo server entries; refuses what it can't convert faithfully.
     `write.ts` is the reverse (server entries to links)
+  - core/src/scratch/: Scratch mode's config built from nothing (PLAN.md
+    Q35): `countries.ts` (country from a server name), `lists.ts` (the
+    rule lists and each app's sources), `build.ts` (`scratchConfig`)
   - core/src/export/: each app's own files (PLAN.md Q33): `stash.ts` (the
     mihomo file minus what Stash lacks), `shadowrocket.ts` (`.conf` plus a
     base64 server list), `uses.ts` (which settings each app leaves out).
@@ -81,6 +84,9 @@ build order. The owner said go on 2026-11-11; build one step at a time.
     or downloads in a browser; `lib/fetch.ts` asks the app's
     `fetch_subscription` (only in the app); `lib/memory.ts` is what's
     remembered between runs (localStorage, keys `clash-configurator:*`)
+  - app/src/scratch/: Scratch mode: `scratch.svelte.ts` (its steps and
+    choices, kept across mode switches) and `ScratchPage.svelte`; the
+    finished config goes through `store.finishScratch`
   - app/src/edit/: the edit step (`EditStep.svelte`) and one card per part
     (`Basics.svelte`, `Servers.svelte`, `Groups.svelte`, `Rules.svelte`,
     `Dns.svelte`); `lib/StringList.svelte` is the editable list they share

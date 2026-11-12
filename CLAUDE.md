@@ -12,6 +12,7 @@ build order. The owner said go on 2026-11-11; build one step at a time.
 ## Layout
 
 - README.md, CHANGELOG.md, DEPLOY.md, SECURITY.md, ROADMAP.md: the standard docs
+- LISTING.md: the release kit's pitch (GitHub About, description, FAQ)
 - CLAUDE.md: this file
 - PLAN.md: the design decisions log (Q1, Q2, ...); read it before building
 - core/src/: the config core in plain TypeScript, no UI; tests sit beside the
@@ -74,7 +75,8 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   - app/src/lib/: `store.svelte.ts` (the page's state: steps, intake result,
     session, the update flow: startUpdate/finishUpdate/undoUpdate, and
     `review`, which holds the chosen app's files),
-    `Info.svelte` (the ⓘ tooltip), `UpdatePanel.svelte` (the update's
+    `Info.svelte` (the ⓘ tooltip), `UpdateBanner.svelte` + `updates.ts`
+    (a new version of the app), `UpdatePanel.svelte` (the subscription update's
     questions and report), `Unused.svelte` ("Not used by Stash" on a
     setting, or a note over a whole part), `share.ts` +
     `SendToPhone.svelte` + `Qr.svelte` (Send to phone: what each app
@@ -99,10 +101,14 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   `src/main.rs` (the `save_file` command: Save dialog, then write, with a
   file type per kind: config, settings, Shadowrocket's conf and servers;
   `fetch_subscription`, which calls ../fetcher; `share_start`,
-  `share_status`, `share_stop`, which call ../sharer)
+  `share_status`, `share_stop`, which call ../sharer; `update_check` and
+  `update_install`, through tauri-plugin-updater from Rust only)
 - tools/update.cmd + update.ps1: the owner's build script (menu: update,
   build, checks, dev mode)
-- tools/art/: the placeholder icon and the script that draws it
+- tools/release.cmd + release.ps1: the owner's release script (signing key,
+  version, checks, signed build, release files, tag and GitHub release);
+  `src-tauri/tauri.release.conf.json` turns on the updater files for it
+- tools/art/: `make_art.py` draws the icon and the banner (release kit)
 - fixtures/: `configs/` (made-up, accepted), `hostile/` (must be refused);
   `fixtures/private/` is git-ignored, for real ones
 - vite.config.ts (page builds to dist/), vitest.config.ts (core tests),

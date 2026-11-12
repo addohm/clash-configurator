@@ -14,6 +14,9 @@ tauri = { version = "2", features = [] }
 # Only for the native Save dialog (src/main.rs save_file); the page gets no
 # dialog or file permissions of its own.
 tauri-plugin-dialog = "2"
+# The update check and signed install (PLAN.md Q20), used from Rust only
+# (update_check, update_install); its TLS is rustls with ring, like ours.
+tauri-plugin-updater = "2"
 serde = { version = "1", features = ["derive"] }
 # Fetches subscription URLs safely (../fetcher, tested on its own).
 cc-fetcher = { path = "../fetcher" }

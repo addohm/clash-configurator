@@ -10,6 +10,8 @@
   import EditStep from './edit/EditStep.svelte';
   import { format, strings as t } from './i18n';
   import Info from './lib/Info.svelte';
+  import UpdateBanner from './lib/UpdateBanner.svelte';
+  import { appVersion } from './lib/updates';
   import UpdatePanel from './lib/UpdatePanel.svelte';
   import { SCRATCH_STEPS, scratch } from './scratch/scratch.svelte';
   import ScratchPage from './scratch/ScratchPage.svelte';
@@ -26,6 +28,9 @@
   };
 
   const current = $derived(STEPS.indexOf(store.step) + 1);
+
+  let version = $state('');
+  void appVersion().then((v) => (version = v));
 
   let resumeError = $state('');
   let forgotten = $state(false);
@@ -183,10 +188,12 @@
       >
       <Info text={t.memory.forgetInfo} />
       {#if forgotten}<p class="hint" role="status">{t.memory.forgotten}</p>{/if}
+      {#if version}<p class="hint">{format(t.updates.version, { version })}</p>{/if}
     </footer>
   </aside>
 
   <main class="content">
+    <UpdateBanner />
     {#if store.resumable && !store.session && store.mode === 'advanced'}
       <section class="resume" aria-label={t.resume.title}>
         <p><strong>{t.resume.title}</strong></p>

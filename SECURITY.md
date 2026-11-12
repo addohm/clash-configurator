@@ -11,8 +11,12 @@ None yet. Never commit them (`.env`, keys, tokens).
 
 - Real configs used for testing hold working credentials. They go in
   `fixtures/private/`, which git ignores (PLAN.md Q26).
-- The release signing keys (build step 9) will live only on the owner's PC,
-  never on GitHub (PLAN.md Q17, Q24).
+- The release signing key (for updates and `SHA256SUMS.txt`) lives only on
+  the owner's PC, in `%USERPROFILE%\.clash-configurator\`, protected by a
+  password, never on GitHub (PLAN.md Q17, Q20, Q24). Its public half is in
+  `src-tauri/tauri.conf.json`. `tools\release` asks for the password and
+  keeps it and the key in two environment variables only while it builds
+  and signs.
 
 ## How the app is locked down
 
@@ -52,6 +56,16 @@ None yet. Never commit them (`.env`, keys, tokens).
   the same Wi-Fi could read the files (they hold server passwords), so the
   panel says to use a network you trust. Windows asks once whether the app
   may use the network.
+- **Updates** (PLAN.md Q20): at start the app asks
+  `github.com/addohm/clash-configurator/releases/latest/download/latest.json`
+  whether there's a newer version; nothing else is sent. It downloads and
+  installs only when the user clicks, and Tauri's updater installs it only
+  if its signature matches the public key built into the app, and the
+  version inside the signature matches the one announced
+  (`requireSignedVersion`), so an old signed release can't be passed off as
+  new. The check and install are the app's own commands (`update_check`,
+  `update_install`): the page gets none of the updater plugin's
+  permissions.
 - **Strict Content Security Policy** (`src-tauri/tauri.conf.json`): scripts
   and styles only from the app itself, no inline scripts, no frames, no
   plugins, no outside connections.

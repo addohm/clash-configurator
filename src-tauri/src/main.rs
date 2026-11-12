@@ -6,7 +6,10 @@
 // through the checks in ../fetcher (public addresses only, size and time
 // limits, text only); and Send to phone (`share_start`, `share_status`,
 // `share_stop`), which offers the new files on the local Wi-Fi for a few
-// minutes behind a random link (../sharer).
+// minutes behind a random link (../sharer). Besides those, the app goes
+// online only to check its GitHub releases for a newer version
+// (`update_check`), and installs one only when asked (`update_install`),
+// after checking its signature against the key built into this app.
 
 // Release builds on Windows open without a console window behind the app.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
@@ -137,11 +140,40 @@ fn share_stop(sharing: tauri::State<'_, Sharing>) {
     sharing.lock().take();
 }
 
+#[derive(serde::Serialize)]
+struct UpdateInfo {
+    version: String,
+    notes: Option<String>,
+}
+
+/// Asks the project's GitHub releases whether there's a newer version
+/// (PLAN.md Q20). Nothing is downloaded.
+#[tauri::command]
+async fn update_check(app: tauri::AppHandle) -> Result<Option<UpdateInfo>, String> {
+    use tauri_plugin_updater::UpdaterExt;
+    let update = app.updater().map_err(|e| e.to_string())?.check().await.map_err(|e| e.to_string())?;
+    Ok(update.map(|u| UpdateInfo { version: u.version, notes: u.body }))
+}
+
+/// Downloads the newer version, checks its signature, and installs it. On
+/// Windows the installer closes the app and opens the new one.
+#[tauri::command]
+async fn update_install(app: tauri::AppHandle) -> Result<(), String> {
+    use tauri_plugin_updater::UpdaterExt;
+    let update = app.updater().map_err(|e| e.to_string())?.check().await.map_err(|e| e.to_string())?;
+    let Some(update) = update else {
+        return Err("no-update".into());
+    };
+    update.download_and_install(|_, _| {}, || {}).await.map_err(|e| e.to_string())?;
+    app.restart();
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(Sharing::default())
-        .invoke_handler(tauri::generate_handler![save_file, fetch_subscription, share_start, share_status, share_stop])
+        .invoke_handler(tauri::generate_handler![save_file, fetch_subscription, share_start, share_status, share_stop, update_check, update_install])
         .run(tauri::generate_context!())
         .expect("Clash Configurator failed to start");
 }

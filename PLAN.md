@@ -316,6 +316,25 @@ entry gives the question number and date. Nothing here is built yet.
   - The end: "Make it and review", "Make it and keep editing" (Simple) or
     "Make it, open in Advanced": the config becomes an ordinary session.
 
+- **Q36 (2026-11-12, my pick, overrule freely): updates and releases.**
+  - The check runs once at start and is silent when there's nothing new or
+    it can't check (offline, repo still private). A banner offers "Update
+    and restart"; the version is at the bottom of the sidebar.
+  - Tauri's updater, from the app's own two commands (the page gets no
+    updater permissions), with `requireSignedVersion` on so an old signed
+    release can't be served as a new one. Installs quietly ("passive").
+  - One key, made by `tools\release` on the owner's PC the first time
+    (password protected, in `%USERPROFILE%\.clash-configurator\`), signs
+    the installer and `SHA256SUMS.txt`. Losing it means installed copies
+    can't update themselves, hence the backup warning.
+  - Releases are full releases, not pre-releases: GitHub's "latest" link,
+    which the update check reads, skips pre-releases. 0.x versions say
+    it's early.
+  - Each release: the installer (and .sig), a portable zip, `latest.json`,
+    `SHA256SUMS.txt` (and .sig), notes from CHANGELOG's Unreleased section.
+  - Art: a config sheet with sliders and a green safety shield, on the
+    teal square of the placeholder; the banner reuses it.
+
 - **Q29 (2026-11-12): many kinds of subscription.** "There are a plethora
   of different subscription URL types, don't just focus on Wannaflix." So
   besides full Clash configs (as Wannaflix sends), an input may be a Clash

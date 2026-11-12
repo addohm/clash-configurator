@@ -32,12 +32,47 @@ To roll back, check out an older commit (`git checkout <commit>`), then pick
 **2** (build and install what's here). `git checkout main` goes back.
 Uninstall from Windows Settings, Apps, like any app.
 
-Releases (signed checksums, the update file, the GitHub release) come with
-build step 9 in ROADMAP.md. TODO: write that up then.
+## Making a release
+
+On the PC, with everything for the release pushed and CHANGELOG.md's
+*Unreleased* section saying what changed, run `tools\release`. It asks
+before each step and before anything leaves the PC:
+
+1. Checks the checkout (main, clean, the same as GitHub) and the tools, and
+   that the GitHub CLI is signed in (`winget install GitHub.cli`, then
+   `gh auth login`).
+2. The signing key: the first time, it makes one in
+   `%USERPROFILE%\.clash-configurator\` (you choose a password) and puts
+   its public half in `src-tauri\tauri.conf.json`. **Back up the key file
+   and its password** somewhere safe, off GitHub: installed copies only
+   accept updates signed with it.
+3. The version (suggested; type another if you like). The *Unreleased*
+   notes become that version's.
+4. Sets the version everywhere, runs the checks, builds, and signs the
+   installer (it asks for the key's password).
+5. Puts the files in `release\v<version>\`: the installer and its
+   signature, a portable zip, `latest.json` (what the app's update check
+   reads), `SHA256SUMS.txt` and its signature.
+6. Commits "Release v<version>", tags it, and (if you say yes) pushes and
+   creates the GitHub release with those files.
+
+The app's update check reads
+`https://github.com/addohm/clash-configurator/releases/latest/download/latest.json`,
+so it only sees releases once the repository is public, and only full
+releases (not drafts or pre-releases).
+
+To publish a release made earlier without publishing: `git push origin main
+--follow-tags`, then the `gh release create` line the script printed.
 
 ## Configuration
 
-None. The app has no settings files or environment variables yet.
+The app has no settings files or environment variables. Releases read the
+signing key from `%USERPROFILE%\.clash-configurator\updater.key`;
+`tools\release` sets `TAURI_SIGNING_PRIVATE_KEY` and its password only
+while it builds and signs, and clears them after.
+
+The repo's art (icon, banner) is drawn by `tools/art/make_art.py`; see its
+header to redraw them and remake the icon sizes.
 
 ## Troubleshooting
 

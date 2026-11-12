@@ -1,13 +1,15 @@
 # clash-configurator
 
-A free, public, one-page tool: bring a Clash config (pasted, uploaded or by
-subscription URL), it checks it's safe, fills the page with what's in it,
-guides you through changes with plain-English tooltips, and gives back a file
-for your app (mihomo apps, Stash or Shadowrocket). Everything stays on your
-device. It's planned as a Windows app first, then Linux and a website.
+A free, open-source Windows app: bring a Clash config (pasted, opened or by
+subscription URL), it checks it's safe, lays out what's in it, guides you
+through changes with plain-English tooltips, and gives back a file for your
+app (mihomo apps, Stash or Shadowrocket). Or build one from scratch.
+Everything stays on your PC. Linux and a website version come later.
 
-Early days: the app opens, but there's nothing to edit yet. The design is in
-[PLAN.md](PLAN.md), and the build order in [ROADMAP.md](ROADMAP.md).
+It's an alpha: every part is built, and the newest (Stash and Shadowrocket
+files, Send to phone, Scratch mode, updates) still needs trying on real
+devices. The design is in [PLAN.md](PLAN.md), the build order in
+[ROADMAP.md](ROADMAP.md), and the pitch in [LISTING.md](LISTING.md).
 
 ## Getting started
 
@@ -69,8 +71,8 @@ npm test          # unit tests
 ## Usage
 
 The steps are in a sidebar on the left (finished ones can be reopened by
-clicking them); the open step fills the window. So far, Simple mode covers
-these steps:
+clicking them); the open step fills the window. Simple mode, the default,
+has five steps:
 
 1. **Pick your app:** mihomo apps (Clash Verge Rev, FlClash, Clash Meta for
    Android, Clash Party), Stash or Shadowrocket.
@@ -143,6 +145,11 @@ DNS, TUN and sniffing, the remote control and its password, the dashboard,
 and geo data. A bar at the top has the app the config is for, Undo and
 **Review and save**; the sidebar jumps to each part.
 
+When a new version is out, the app says so at the top of the window when it
+starts. **Update and restart** downloads it, checks its signature and
+installs it; nothing is downloaded until you click. The version you have is
+at the bottom of the sidebar.
+
 **Scratch mode** builds a new config from nothing, explaining each part as
 you go: your app, your servers (share links, or a subscription URL), the
 groups to choose them (by hand, fastest, per country), ready-made rule lists
@@ -153,7 +160,9 @@ Simple or Advanced mode.
 ## Docs
 
 - [CHANGELOG.md](CHANGELOG.md): what changed in each version
-- [DEPLOY.md](DEPLOY.md): how it's deployed
+- [DEPLOY.md](DEPLOY.md): how it's built, installed and released
+- [LISTING.md](LISTING.md): the description, images and FAQ for the GitHub
+  page and release posts
 - [SECURITY.md](SECURITY.md): secrets, access, reporting problems
 - [ROADMAP.md](ROADMAP.md): what's done and what's next
 - [PLAN.md](PLAN.md): the design decisions, question by question

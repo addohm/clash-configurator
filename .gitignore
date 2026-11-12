@@ -20,3 +20,6 @@ fetcher/target/
 
 # The sharer crate (Send to phone) builds and tests on its own here too
 sharer/target/
+
+# Release files made by tools\release (the installer, zip, latest.json, checksums)
+release/

@@ -584,6 +584,19 @@ export const en = {
     },
   },
 
+  // Updates (PLAN.md Q20).
+  updates: {
+    label: 'Update',
+    available: 'Version {version} is out.',
+    what: "Update and restart downloads it, checks it's really from this project (its signature), installs it and opens it again. Your remembered work stays.",
+    installing: 'Downloading and checking it…',
+    notes: "What's new",
+    install: 'Update and restart',
+    later: 'Not now',
+    failed: "Couldn't update: {reason}",
+    version: 'Version {version}',
+  },
+
   // Scratch mode (PLAN.md Q23, Q35): building a config from nothing.
   scratch: {
     steps: { app: 'Pick your app', servers: 'Your servers', groups: 'Groups', rules: 'Rules', dns: 'DNS', done: 'Make it' },

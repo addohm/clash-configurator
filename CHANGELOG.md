@@ -6,6 +6,21 @@ All notable changes to clash-configurator. The format follows
 
 ## [Unreleased]
 
+- Updates and releases (roadmap step 9, PLAN.md Q20, Q36, 2026-11-12):
+  - The app checks this project's GitHub releases when it starts and says
+    when there's a newer version; **Update and restart** downloads it,
+    checks its signature and installs it. The version is shown at the
+    bottom of the sidebar.
+  - `tools\release` makes a release on the owner's PC: the signing key
+    (first time), the version, the checks, a signed build, the files
+    (installer, portable zip, `latest.json`, signed `SHA256SUMS.txt`), and
+    the tag and GitHub release, asking before anything is published.
+  - The release kit: LISTING.md (GitHub About, description, FAQ, release
+    post), a new icon (a config sheet with sliders and a safety shield) and
+    a banner, drawn by `tools/art/make_art.py`.
+- Docs reviewed for the alpha: README's intro and usage, DEPLOY's release
+  steps, SECURITY's signing key and updates, the roadmap's test list.
+
 - Scratch mode (roadmap step 7, PLAN.md Q23, Q35, 2026-11-12): build a
   config from nothing, each step opening with what that part is for:
   pick the app; servers (share links, a server list or a config, pasted or

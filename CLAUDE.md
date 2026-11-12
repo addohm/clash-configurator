@@ -36,6 +36,10 @@ build order. The owner said go on 2026-11-11; build one step at a time.
     rule providers
   - core/src/edit/dns.ts: checks for DNS servers and site patterns, and the
     DNS list and per-site changes
+- fetcher/: the Rust library that fetches subscription URLs (checks in
+  `src/lib.rs`), its own crate so it builds and tests here without Tauri:
+  `cd fetcher && CARGO_TARGET_DIR=$PWD/target nice -n 19 cargo test`
+  (`-- --ignored` adds a live HTTPS fetch). src-tauri uses it by path
 - tests/: tests that need Node, with their own `tsconfig.json` (Node types).
   `mihomo.test.ts` runs `mihomo -t` on every output
 - app/: the page (Svelte 5). `app/src/i18n/en.ts` holds every piece of text
@@ -44,7 +48,8 @@ build order. The owner said go on 2026-11-11; build one step at a time.
     session), `Info.svelte` (the ⓘ tooltip), `Step.svelte` (a numbered step)
   - app/src/steps/: one component per Simple-mode step (`Review.svelte`
     is step 5); `lib/save.ts` saves through the app's `save_file` command,
-    or downloads in a browser
+    or downloads in a browser; `lib/fetch.ts` asks the app's
+    `fetch_subscription` (only in the app)
   - app/src/edit/: the edit step (`EditStep.svelte`) and one card per part
     (`Basics.svelte`, `Servers.svelte`, `Groups.svelte`, `Rules.svelte`,
     `Dns.svelte`); `lib/StringList.svelte` is the editable list they share
@@ -52,7 +57,8 @@ build order. The owner said go on 2026-11-11; build one step at a time.
     path with Object.prototype frozen, as the app does
 - src-tauri/: the Windows app shell (Tauri 2, Rust): `tauri.conf.json` (CSP,
   window, installer), `capabilities/` (what the page may ask for), `icons/`,
-  `src/main.rs` (the `save_file` command: Save dialog, then write)
+  `src/main.rs` (the `save_file` command: Save dialog, then write; and
+  `fetch_subscription`, which calls ../fetcher)
 - tools/update.cmd + update.ps1: the owner's build script (menu: update,
   build, checks, dev mode)
 - tools/art/: the placeholder icon and the script that draws it
@@ -103,6 +109,10 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   options, in revtunnel's style (say/ok/warn/bad/step/banner/ask).
 - Packages: exact versions (`.npmrc` save-exact), no install scripts
   (ignore-scripts). TypeScript stays on 6.x until svelte-check supports 7.
+- Rust TLS: rustls with the ring backend (`rustls-no-provider` + ring), never
+  reqwest's default aws-lc, which can need CMake and NASM on Windows. After
+  a Cargo change, check `cargo tree -i reqwest -e features --target
+  x86_64-pc-windows-msvc` for aws-lc.
 - Heavy jobs (installs, builds) run under `nice -n 19`: the CPU is shared.
 - Svelte 5 runes (`$state`, `onclick=`), strict TypeScript. Comments say why,
   briefly.

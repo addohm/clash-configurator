@@ -26,6 +26,14 @@ None yet. Never commit them (`.env`, keys, tokens).
   plugins: no file, shell or network access from the page
   (`src-tauri/capabilities/default.json`). Each feature that needs more adds
   one narrow permission, noted here.
+- **Fetching:** the page's only way to reach the network is the app's
+  `fetch_subscription` command, for a URL the user typed. `fetcher/`
+  allows http(s) only and public addresses only (names are resolved there,
+  and redirects are checked again, at most 5), reads at most 8 MB counted
+  after decompression, gives up after 30 s, and accepts text only. Errors
+  never echo the URL, which can hold the user's token. The system proxy is
+  used if set; through a proxy, only addresses written in the URL are
+  checked, since the proxy resolves names.
 - **Saving:** the page's only way to write a file is the app's `save_file`
   command (`src-tauri/src/main.rs`): it shows a Save dialog and writes only
   where the user chose, a file name with no folders in it, up to 64 MB.

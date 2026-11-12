@@ -33,9 +33,11 @@
     input:
       store.source?.kind === 'file'
         ? format(t.input.loaded, { name: store.source.name ?? '' })
-        : store.source
-          ? format(t.input.loaded, { name: t.input.pasted })
-          : '',
+        : store.source?.kind === 'url'
+          ? format(t.input.loaded, { name: t.input.fetched })
+          : store.source
+            ? format(t.input.loaded, { name: t.input.pasted })
+            : '',
     report: store.checked?.ok ? format(t.report.summary, {
       problems: store.checked.findings.filter((f) => f.severity !== 'info').length,
       notes: store.checked.findings.filter((f) => f.severity === 'info').length,

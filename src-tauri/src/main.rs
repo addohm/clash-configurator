@@ -1,7 +1,10 @@
 // The Windows app: a window showing the page built into dist/. The page has
 // no plugins of its own (no file, shell or network access); see
-// capabilities/default.json. Its only way to touch the disk is `save_file`
-// below, which writes nothing until the user picks a place in a Save dialog.
+// capabilities/default.json. It can ask the app for two things only:
+// `save_file`, which writes nothing until the user picks a place in a Save
+// dialog, and `fetch_subscription`, which fetches one URL the user gave,
+// through the checks in ../fetcher (public addresses only, size and time
+// limits, text only).
 
 // Release builds on Windows open without a console window behind the app.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
@@ -58,10 +61,16 @@ async fn save_file(app: tauri::AppHandle, kind: SaveKind, name: String, contents
     Ok(Some(path.display().to_string()))
 }
 
+/// Fetches a subscription URL the user typed (see ../fetcher for the checks).
+#[tauri::command]
+async fn fetch_subscription(url: String) -> Result<cc_fetcher::Fetched, cc_fetcher::FetchError> {
+    cc_fetcher::fetch(&url).await
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
-        .invoke_handler(tauri::generate_handler![save_file])
+        .invoke_handler(tauri::generate_handler![save_file, fetch_subscription])
         .run(tauri::generate_context!())
         .expect("Clash Configurator failed to start");
 }

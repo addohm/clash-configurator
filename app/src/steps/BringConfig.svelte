@@ -1,8 +1,24 @@
 <script lang="ts">
   import { LIMITS } from '../../../core/src';
   import { format, strings as t } from '../i18n';
+  import { inApp } from '../lib/save';
   import Info from '../lib/Info.svelte';
   import { store } from '../lib/store.svelte';
+
+  let url = $state('');
+  let fetching = $state(false);
+  const canFetch = inApp();
+
+  async function fetchUrl() {
+    error = '';
+    fetching = true;
+    try {
+      const r = await store.checkUrl(url);
+      if (!r.ok) error = format(t.input.fetchErrors[r.code], { detail: r.detail });
+    } finally {
+      fetching = false;
+    }
+  }
 
   let text = $state('');
   let error = $state('');
@@ -66,6 +82,24 @@
   ondrop={drop}
 ></textarea>
 <p class="hint">{t.input.dropHint}</p>
+
+<div class="url">
+  <label class="label" for="config-url">{t.input.urlLabel} <Info text={t.input.urlInfo} /></label>
+  {#if canFetch}
+    <form
+      class="url-row"
+      onsubmit={(e) => {
+        e.preventDefault();
+        void fetchUrl();
+      }}
+    >
+      <input id="config-url" type="url" bind:value={url} placeholder={t.input.urlPlaceholder} spellcheck="false" autocomplete="off" />
+      <button type="submit" disabled={url.trim() === '' || fetching}>{fetching ? t.input.fetching : t.input.fetch}</button>
+    </form>
+  {:else}
+    <p class="hint">{t.input.fetchErrors['not-in-app']}</p>
+  {/if}
+</div>
 
 {#if error}<p class="error" role="alert">{error}</p>{/if}
 
@@ -143,6 +177,25 @@
     align-items: center;
     gap: 0.5rem;
     margin-top: 1rem;
+  }
+
+  .url {
+    margin-top: 1rem;
+  }
+
+  .url-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .url-row input {
+    flex: 1;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font: inherit;
+    color: var(--text);
+    background: var(--bg);
   }
 
   .with-info {

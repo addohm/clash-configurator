@@ -317,10 +317,16 @@ function Get-Mihomo {
 }
 
 function Invoke-Checks {
-    Step 'Run the checks' @('Type checks, then the tests. mihomo loads every config the tests make.')
+    Step 'Run the checks' @('Type checks, then the tests (mihomo loads every config the tests make), then the fetcher tests.')
     Get-Mihomo
     Invoke-Tool 'npm' @('run', 'check') 'The type checks failed (see above).'
     Invoke-Tool 'npm' @('test') 'Some tests failed (see above).'
+    # The subscription fetcher's own tests (Rust; the first run compiles for a few minutes).
+    if (Get-Command cargo -ErrorAction SilentlyContinue) {
+        Invoke-Tool 'cargo' @('test', '--quiet', '--manifest-path', (Join-Path $root 'fetcher\Cargo.toml')) 'The fetcher tests failed (see above).'
+    } else {
+        Warn 'Rust is not installed, so the fetcher tests were skipped.'
+    }
     Ok 'All checks passed.'
 }
 

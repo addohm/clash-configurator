@@ -15,6 +15,8 @@ tauri = { version = "2", features = [] }
 # dialog or file permissions of its own.
 tauri-plugin-dialog = "2"
 serde = { version = "1", features = ["derive"] }
+# Fetches subscription URLs safely (../fetcher, tested on its own).
+cc-fetcher = { path = "../fetcher" }
 
 [profile.release]
 # A smaller app: one codegen unit, link-time optimisation, no unwinding tables.

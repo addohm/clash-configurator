@@ -14,3 +14,6 @@ src-tauri/gen/
 # Real configs hold working credentials: never commit them (PLAN.md Q26)
 fixtures/private/*
 !fixtures/private/README.md
+
+# The fetcher crate builds and tests on its own here
+fetcher/target/

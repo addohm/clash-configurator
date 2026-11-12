@@ -1,10 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { FINDING_IDS, LIMITS, REFUSAL_CODES, SETTINGS_ERRORS } from '../../../core/src';
+import { FETCH_ERRORS } from '../lib/fetch';
 import { strings as t, format, refusalText } from '.';
 
 describe('English text', () => {
   it('explains every refusal', () => {
     for (const code of REFUSAL_CODES) expect(t.refusals[code]).toBeTruthy();
+  });
+
+  it('explains every fetch error', () => {
+    for (const code of FETCH_ERRORS) expect(t.input.fetchErrors[code]).toBeTruthy();
   });
 
   it('explains every settings-file error', () => {

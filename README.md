@@ -72,8 +72,8 @@ So far, Simple mode covers these steps:
 
 1. **Pick your app:** mihomo apps (Clash Verge Rev, FlClash, Clash Meta for
    Android, Clash Party), Stash or Shadowrocket.
-2. **Bring your config:** paste it, open or drop the file, or open settings
-   you saved before.
+2. **Bring your config:** paste it, open or drop the file, give your
+   subscription URL (in the Windows app), or open settings you saved before.
 3. **Safety report:** anything that can't be used is refused, with the
    reason. Risky settings are listed with a fix: dangerous ones start
    ticked, and you can untick any.

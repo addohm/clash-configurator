@@ -27,6 +27,7 @@ import {
   startSession,
   writeYaml,
 } from '../../../core/src';
+import { type FetchResult, fetchSubscription, readUsage, type Usage } from './fetch';
 
 export const STEPS = ['app', 'input', 'report', 'edit', 'review'] as const;
 export type StepId = (typeof STEPS)[number];
@@ -47,6 +48,8 @@ class Store {
   source: Source | null = $state.raw(null);
   original: string | null = $state.raw(null);
   checked: Intake | null = $state.raw(null);
+  /** What the provider said about the subscription's data and end date, if fetched. */
+  usage: Usage | null = $state.raw(null);
   /** Which findings' fixes are ticked, by position in checked.findings. */
   ticked: readonly boolean[] = $state.raw([]);
 
@@ -109,8 +112,19 @@ class Store {
     this.session = null;
     this.doc = null;
     this.edits = [];
+    this.usage = null;
     this.reached = STEPS.indexOf('report');
     this.step = 'report';
+  }
+
+  /** Fetches a subscription URL and runs intake on what comes back. */
+  async checkUrl(url: string): Promise<FetchResult> {
+    const r = await fetchSubscription(url.trim());
+    if (r.ok) {
+      this.check(r.body, { kind: 'url', url: url.trim() });
+      this.usage = readUsage(r.userinfo);
+    }
+    return r;
   }
 
   toggleFix(index: number): void {

@@ -136,6 +136,22 @@ All notable changes to clash-configurator. The format follows
   - Stash and Shadowrocket users are told their own files come later; they
     get the mihomo config for now.
 
+- Subscription URLs, step 5a (2026-11-12):
+  - Step 2 has a box for your subscription URL. The Windows app fetches it
+    itself, with a Clash User-Agent so providers send a Clash config, then
+    it goes through the same checks as a pasted config. The provider's data
+    usage and end date, when it sends them, show in the safety report.
+  - `fetcher/`, a Rust library (also for the website later, PLAN.md Q14):
+    http(s) only; public addresses only, checked on every redirect (at most
+    5), so a link can't reach this PC or the local network; at most 8 MB,
+    counted after decompression; 30 s; text only. Clash's fake-IP range is
+    allowed, so fetching works while Clash runs. It uses the system proxy
+    (often the user's Clash app). It builds with rustls on the ring crypto
+    backend, which needs no extra tools on Windows.
+  - Its tests (10, including a gzip bomb and a real HTTPS fetch) run here
+    and in `tools\update`.
+  - Keeping the servers linked to the URL after saving (Q8) is 5b.
+
 ### Fixed
 
 - Output now keeps everything that didn't change exactly as it was. Before,

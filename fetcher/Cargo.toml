@@ -1,0 +1,19 @@
+[package]
+name = "cc-fetcher"
+version = "0.1.0"
+description = "Fetches a subscription URL safely: size and time limits, public addresses only, no decompression bombs."
+license = "MIT"
+edition = "2021"
+publish = false
+
+[dependencies]
+# rustls with the ring crypto backend: it builds with just the Visual C++
+# tools on Windows (reqwest's default, aws-lc, can need CMake and NASM).
+reqwest = { version = "0.13", default-features = false, features = ["rustls-no-provider", "gzip", "system-proxy", "http2"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12", "logging"] }
+tokio = { version = "1", features = ["net", "time"] }
+url = "2"
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["net", "time", "macros", "rt-multi-thread", "io-util"] }

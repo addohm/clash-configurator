@@ -24,8 +24,11 @@ change.
 
 The build order from PLAN.md:
 
+- Step 5, subscription URLs:
+  - 5a, done (2026-11-12): the Rust fetcher and the URL box
+  - 5b: keep servers linked to the subscription after saving (Q8)
 
-5. Subscription fetcher
+
 6. Stash and Shadowrocket output
 7. Advanced and Scratch modes
 8. Send to phone

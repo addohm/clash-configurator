@@ -1,7 +1,19 @@
 <script lang="ts">
   import type { Finding } from '../../../core/src';
   import { format, refusalText, strings as t } from '../i18n';
+  import { size } from '../lib/fetch';
   import { store } from '../lib/store.svelte';
+
+  const usage = $derived(store.usage);
+  const usageText = $derived(
+    usage
+      ? format(t.input.usage, {
+          used: size(usage.used),
+          total: size(usage.total),
+          expires: usage.expires ? format(t.input.usageExpires, { date: usage.expires.toLocaleDateString() }) : '',
+        })
+      : '',
+  );
 
   const checked = $derived(store.checked);
   const findings = $derived(checked?.ok ? checked.findings : []);
@@ -26,6 +38,7 @@
     <button type="button" class="primary" onclick={() => store.restart()}>{t.report.tryAgain}</button>
   </div>
 {:else if checked}
+  {#if usageText}<p class="usage">{usageText}</p>{/if}
   {#if findings.length === 0}
     <p class="clean">{t.report.clean}</p>
   {:else}
@@ -75,6 +88,11 @@
 
   .clean {
     color: var(--ok);
+  }
+
+  .usage {
+    font-size: 0.9rem;
+    color: var(--muted);
   }
 
   .hint {

@@ -22,16 +22,21 @@
   import StringList from '../lib/StringList.svelte';
 
   const data = $derived(store.data);
+  /** Advanced mode shows the expert settings too (PLAN.md Q31). */
+  let { advanced = false }: { advanced?: boolean } = $props();
+
   const dns = $derived(dnsOf(data));
   const strings = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : []);
   const mode = $derived(typeof dns['enhanced-mode'] === 'string' ? dns['enhanced-mode'] : '');
 
-  // Always shown: the main servers and the ones for finding proxy servers.
-  // The others only when the config has them.
+  // Simple mode: the main servers only. Advanced: also the ones for finding
+  // proxy servers, and default, backup and direct ones when the config has them.
   const shownLists: DnsList[] = $derived(
-    (['nameserver', 'proxy-server-nameserver', 'default-nameserver', 'fallback', 'direct-nameserver'] as const).filter(
-      (k) => k === 'nameserver' || k === 'proxy-server-nameserver' || k in dns,
-    ),
+    advanced
+      ? (['nameserver', 'proxy-server-nameserver', 'default-nameserver', 'fallback', 'direct-nameserver'] as const).filter(
+          (k) => k === 'nameserver' || k === 'proxy-server-nameserver' || k in dns,
+        )
+      : ['nameserver'],
   );
 
   /** Makes an edit; returns why it was refused, or null. */
@@ -106,7 +111,7 @@
   />
 {/each}
 
-{#if mode === 'fake-ip' || 'fake-ip-filter' in dns}
+{#if advanced && (mode === 'fake-ip' || 'fake-ip-filter' in dns)}
   <StringList
     label={t.dns.lists['fake-ip-filter']}
     info={t.dns.listInfo['fake-ip-filter']}
@@ -119,6 +124,9 @@
 {/if}
 </div>
 
+{#if !advanced}
+  <p class="more">{t.dns.moreInAdvanced}</p>
+{:else}
 <div class="policies">
   <p class="label">{t.dns.policies} <Info text={t.dns.policiesInfo} name="dns.nameserver-policy" /></p>
   {#if policies.length === 0}<p class="muted">{t.dns.empty}</p>{/if}
@@ -161,8 +169,15 @@
   {/if}
   {#if policyError}<p class="error" role="alert">{policyError}</p>{/if}
 </div>
+{/if}
 
 <style>
+  .more {
+    margin: 0.5rem 0 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
   .intro {
     margin: 0 0 1rem;
     color: var(--muted);

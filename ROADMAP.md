@@ -31,7 +31,8 @@ The build order from PLAN.md:
 
 
 6. Stash and Shadowrocket output
-7. Advanced and Scratch modes
+7. Advanced and Scratch modes. Advanced also holds the expert DNS settings
+   (PLAN.md Q31), which Simple mode no longer shows.
 8. Send to phone
 9. Updates, release script and release kit
 

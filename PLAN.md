@@ -229,6 +229,13 @@ entry gives the question number and date. Nothing here is built yet.
   search box; servers, rules and long lists can be ticked for bulk actions
   (remove selected, keep only selected); groups show the list and the
   chosen group's details side by side. Narrow windows stack it.
+- **Q31 (2026-11-12): expert DNS settings in Advanced mode only.** Changes
+  Q10's DNS part. Simple mode's DNS keeps: on/off, fake or real addresses,
+  and the main DNS servers. Per-site DNS (nameserver-policy), the servers
+  for finding proxy servers (proxy-server-nameserver), default, backup and
+  direct servers, and fake-IP exceptions are shown only in Advanced mode
+  (owner's pick over folding them in Simple), so they can't be edited until
+  Advanced mode exists. They stay in the config untouched meanwhile.
 
 - **Q29 (2026-11-12): many kinds of subscription.** "There are a plethora
   of different subscription URL types, don't just focus on Wannaflix." So

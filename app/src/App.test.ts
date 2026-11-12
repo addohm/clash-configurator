@@ -3,6 +3,7 @@ import { flushSync, mount, unmount } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { writeSettings, type Session } from '../../core/src';
 import App from './App.svelte';
+import Dns from './edit/Dns.svelte';
 import { strings as t } from './i18n';
 import { store } from './lib/store.svelte';
 
@@ -440,22 +441,24 @@ describe('editing: DNS', () => {
     expect(card()?.getAttribute('aria-label')).toBe(t.edit.sections.dns);
   };
   const dns = () => store.data['dns'] as Record<string, unknown>;
-  const listFor = (label: string) => {
-    const l = [...(card()?.querySelectorAll('.list') ?? [])].find((x) => x.querySelector('.label')?.textContent?.includes(label));
+  const listFor = (label: string, scope: Element | null = card()) => {
+    const l = [...(scope?.querySelectorAll('.list') ?? [])].find((x) => x.querySelector('.label')?.textContent?.includes(label));
     if (!l) throw new Error(`no list ${label}`);
     return l;
   };
 
-  it("shows the config's DNS: on, fake addresses, its servers and exceptions", () => {
+  it('shows only the basics in Simple mode (PLAN.md Q31)', () => {
     toDns();
     expect(inputIn(card(), 'label.check input').checked).toBe(true);
     expect(card()?.querySelector<HTMLSelectElement>('#dns-mode')?.value).toBe('fake-ip');
     expect(listFor(t.dns.lists.nameserver).textContent).toContain('https://doh.pub/dns-query');
-    expect(listFor(t.dns.lists['fake-ip-filter']).textContent).toContain('+.msftconnecttest.com');
-    expect(card()?.textContent).toContain('geosite:cn');
+    expect(card()?.textContent).toContain(t.dns.moreInAdvanced);
+    // Only the main servers' list, and no per-site section.
+    expect([...(card()?.querySelectorAll('.list .label') ?? [])].map((l) => l.textContent?.trim().replace(/\s*ⓘ$/, ''))).toEqual([t.dns.lists.nameserver]);
+    expect(card()?.querySelector('.policies')).toBeNull();
   });
 
-  it('adds a server, refuses a bad one, and moves and removes', () => {
+  it('adds a server, refuses a bad one, and removes', () => {
     toDns();
     const list = listFor(t.dns.lists.nameserver);
     const input = inputIn(list, 'input[type="text"]');
@@ -472,22 +475,48 @@ describe('editing: DNS', () => {
     expect(dns()['nameserver']).toEqual(['https://dns.alidns.com/dns-query', 'tls://1.1.1.1']);
   });
 
-  it('adds and edits per-site DNS', () => {
-    toDns();
-    click(t.dns.addPolicy);
-    const inputs = [...(card()?.querySelectorAll<HTMLInputElement>('.policy-form input') ?? [])];
-    change(inputs[0]!, '+.corp.example');
-    change(inputs[1]!, '10.0.0.53, 10.0.0.54');
-    click(t.edit.save);
-    expect((dns()['nameserver-policy'] as Record<string, unknown>)['+.corp.example']).toEqual(['10.0.0.53', '10.0.0.54']);
-  });
-
   it('switches to real addresses', () => {
     toDns();
     const mode = card()?.querySelector<HTMLSelectElement>('#dns-mode');
     if (!mode) throw new Error('no mode');
     change(mode, 'redir-host');
     expect(dns()['enhanced-mode']).toBe('redir-host');
+  });
+
+  describe('the expert settings (as Advanced mode will show them)', () => {
+    let advancedTarget: HTMLElement;
+    let advanced: ReturnType<typeof mount>;
+    const openAdvanced = () => {
+      toEditing('configs/provider-basic.yaml');
+      advancedTarget = document.createElement('div');
+      document.body.appendChild(advancedTarget);
+      advanced = mount(Dns, { target: advancedTarget, props: { advanced: true } });
+      flushSync();
+    };
+    afterEach(() => {
+      if (advanced) unmount(advanced);
+      advancedTarget?.remove();
+    });
+
+    it('shows fake-IP exceptions, proxy-server DNS and per-site DNS', () => {
+      openAdvanced();
+      expect(listFor(t.dns.lists['fake-ip-filter'], advancedTarget).textContent).toContain('+.msftconnecttest.com');
+      expect(listFor(t.dns.lists['proxy-server-nameserver'], advancedTarget).textContent).toContain('https://doh.pub/dns-query');
+      expect(advancedTarget.textContent).toContain('geosite:cn');
+    });
+
+    it('adds and edits per-site DNS', () => {
+      openAdvanced();
+      const add = [...advancedTarget.querySelectorAll('button')].find((b) => b.textContent?.trim() === t.dns.addPolicy);
+      add?.click();
+      flushSync();
+      const inputs = [...advancedTarget.querySelectorAll<HTMLInputElement>('.policy-form input')];
+      change(inputs[0]!, '+.corp.example');
+      change(inputs[1]!, '10.0.0.53, 10.0.0.54');
+      [...advancedTarget.querySelectorAll('button')].find((b) => b.textContent?.trim() === t.edit.save)?.click();
+      flushSync();
+      expect((dns()['nameserver-policy'] as Record<string, unknown>)['+.corp.example']).toEqual(['10.0.0.53', '10.0.0.54']);
+    });
   });
 });
 

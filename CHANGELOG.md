@@ -27,6 +27,11 @@ All notable changes to clash-configurator. The format follows
     folded away below.
   - DNS: the lists side by side on wide windows; any list longer than 12
     gets its own search box.
+- Simple mode's DNS part keeps only DNS on/off, fake or real addresses and
+  the main DNS servers (PLAN.md Q31, 2026-11-12). Per-site DNS, the servers
+  for finding proxy servers, default/backup/direct servers and fake-IP
+  exceptions are expert settings for Advanced mode (not built yet); the
+  config keeps them as they are, and the DNS part says where they went.
 
 - `tools\update` offers to install each new build (quietly, for your user,
   with a Start menu entry) and start it. A new menu option, **Start the

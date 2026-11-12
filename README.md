@@ -89,8 +89,10 @@ these steps:
      and members, rename, remove; or add one.
    - **Rules:** search, tick and remove, change where a rule goes, move,
      add one; the rule lists they use.
-   - **DNS:** on or off, fake or real addresses, the DNS servers, sites
-     that get their real address, and per-site DNS.
+   - **DNS:** on or off, fake or real addresses, and the main DNS servers.
+     The expert DNS settings (per-site DNS, the servers for finding proxy
+     servers, backup servers, sites that get their real address) will be in
+     Advanced mode.
 
 5. **Review and save:** what changed, shown line by line next to your
    original; anything still flagged; then **Save the config** (a Save

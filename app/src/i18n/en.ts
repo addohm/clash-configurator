@@ -285,6 +285,8 @@ export const en = {
     up: 'Move up',
     down: 'Move down',
     remove: 'Remove',
+    moreInAdvanced:
+      'Per-site DNS, the servers for finding your proxy servers, backup servers and the sites that get their real address are expert settings: they are in Advanced mode (coming in a later build). Your config keeps them as they are.',
     policies: 'Per-site DNS',
     policiesInfo:
       'Send lookups for some sites to particular DNS servers: Chinese sites to a Chinese server, work sites to your company server. Several patterns can share a line, separated by commas.',

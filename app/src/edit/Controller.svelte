@@ -21,6 +21,7 @@
   } from '../../../core/src';
   import { format, strings as t } from '../i18n';
   import Info from '../lib/Info.svelte';
+  import Unused from '../lib/Unused.svelte';
   import { store } from '../lib/store.svelte';
 
   type Map = Record<string, unknown>;
@@ -76,6 +77,7 @@
 </script>
 
 <p class="intro">{t.controller.intro}</p>
+<Unused keys={['external-controller', 'external-ui', 'geodata-mode']} part />
 
 <div class="columns">
   <fieldset>

@@ -450,7 +450,7 @@ export const en = {
   review: {
     intro: 'Check what changed, then save your new config.',
     changes: '{count} {count|change|changes} made.',
-    noChanges: 'No changes: the new config is the same as the original.',
+    noChanges: "You haven't changed anything.",
     compare: 'What changed',
     compareInfo:
       'Your original on the left of each pair (−, red) and the new config (+, green), only where they differ, with a couple of lines around each change for context. Line numbers are from each file.',
@@ -462,8 +462,8 @@ export const en = {
     refused: "The new config can't be used: {reason}",
     link: 'Keep servers updating from my subscription',
     linkInfo:
-      "Your saved config gets its servers from your subscription URL whenever your app updates it, so new and replaced servers arrive by themselves. Your groups, rules and other settings stay as you made them. Switch it off to write the servers into the file instead: every edit is kept, but the servers won't update.",
-    linkLosses: "These edits won't carry over while servers are linked. Switch it off to keep them:",
+      "Your saved config gets its servers from your subscription URL whenever your app updates it, so new and replaced servers arrive by themselves. Your groups, rules and other settings stay as you made them. Untick it to write the servers into the file instead: every edit is kept, but the servers won't update.",
+    linkLosses: "These edits won't carry over while servers are linked. Untick it to keep them:",
     losses: {
       first: '{group} would start on {now} instead of {was}',
       order: "{group} would try its servers in your provider's order, not yours",
@@ -481,7 +481,23 @@ export const en = {
       'no-servers': 'none of the servers come from the subscription',
       format: "this kind of subscription (SIP008) can't be read by your app on its own",
     },
-    appNote: 'Stash and Shadowrocket files of their own come in a later build. For now you get the Clash (mihomo) config, which Stash can usually read.',
+    dropped: {
+      title: 'Left out for {app}',
+      info: "Parts of your config {app} doesn't have. Everything else is written as it was.",
+      settings: '{count} {count|setting|settings} {app} sets itself or lacks: {keys}',
+      rules: '{count} {count|rule|rules} of a kind {app} can\'t run (they\'re skipped; the rules after them still work):',
+      showRules: 'Show them',
+      server: 'The server {name} ({reason}): {app} can\'t take it as a share link',
+      group: {
+        nested: '{name} picks the fastest of other groups, which Shadowrocket advises against, so it became a pick-by-hand group',
+        filter: "{name}'s server filter has a comma, which Shadowrocket can't read, so it lists only the servers named in it",
+      },
+      providers: "Servers from your provider's subscription (proxy-providers) aren't in the server list: add the subscription in Shadowrocket itself.",
+    },
+    shadowrocket:
+      'Shadowrocket needs both files: the server list holds the servers (as share links, the only way it runs VLESS Reality), and the .conf holds your groups, rules and DNS, naming the servers in the list. Load the server list first, then the .conf (Use Config), and set Global Routing to Config.',
+    saveConf: 'Save the .conf',
+    saveServers: 'Save the server list',
     saveConfig: 'Save the config',
     saveSettings: 'Save settings',
     saveSettingsInfo:
@@ -489,6 +505,7 @@ export const en = {
     showWhole: 'Show the whole config',
     hideWhole: 'Hide it',
     wholeLabel: 'The new config (select all and copy, if you prefer)',
+    wholeConf: 'The .conf (select all and copy, if you prefer)',
     saved: 'Saved to {path}.',
     downloaded: 'Downloaded {name}.',
     cancelled: 'Not saved.',
@@ -522,6 +539,13 @@ export const en = {
     scratch: 'Scratch',
     scratchHint: 'Build a new config from nothing, and learn how one works.',
   },
+  // Settings the chosen app's file leaves out (PLAN.md Q7).
+  unused: {
+    tag: 'Not used by {app}',
+    info: "{app} sets this itself or doesn't have it, so it's left out of {app}'s file. It stays in your settings file, for mihomo apps.",
+    part: "{app} sets these up itself, so they're left out of its file. They stay in your settings file, for mihomo apps.",
+  },
+
   apps: {
     mihomo: 'mihomo apps',
     mihomoHint: 'Clash Verge Rev, FlClash, Clash Meta for Android, Clash Party',

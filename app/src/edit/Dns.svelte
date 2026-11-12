@@ -20,6 +20,7 @@
   import Info from '../lib/Info.svelte';
   import { store } from '../lib/store.svelte';
   import StringList from '../lib/StringList.svelte';
+  import Unused from '../lib/Unused.svelte';
 
   const data = $derived(store.data);
   /** Advanced mode shows the expert settings too (PLAN.md Q31). */
@@ -84,10 +85,11 @@
   <input type="checkbox" checked={dns['enable'] === true} onchange={(e) => attempt(() => [{ op: 'set', path: ['dns', 'enable'], value: e.currentTarget.checked }])} />
   {t.dns.enable}
   <Info text={t.dns.enableInfo} name="dns.enable" />
+  <Unused keys={['dns.enable']} />
 </label>
 
 <div class="field">
-  <label for="dns-mode">{t.dns.mode} <Info text={t.dns.modeInfo} name="dns.enhanced-mode" /></label>
+  <label for="dns-mode">{t.dns.mode} <Info text={t.dns.modeInfo} name="dns.enhanced-mode" /> <Unused keys={['dns.enhanced-mode']} /></label>
   <select id="dns-mode" value={mode} onchange={(e) => attempt(() => [{ op: 'set', path: ['dns', 'enhanced-mode'], value: e.currentTarget.value }])}>
     {#if mode === ''}<option value="" disabled>{t.edit.notSetPlain}</option>{/if}
     {#if mode !== '' && mode !== 'fake-ip' && mode !== 'redir-host'}<option value={mode}>{mode}</option>{/if}

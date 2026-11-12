@@ -29,8 +29,10 @@ The build order from PLAN.md:
   - 5b, done (2026-11-12): servers linked to the subscription when saving,
     chosen at save (Q28); other kinds of subscription (Q29)
 
+- Step 6, done (2026-11-12): Stash and Shadowrocket files (PLAN.md Q33),
+  what each leaves out listed at review, and the settings the chosen app
+  doesn't use tagged in the edit cards (Q7).
 
-6. Stash and Shadowrocket output
 7. Advanced and Scratch modes:
    - Advanced, part 1, done (2026-11-12): every part on one page, the
      expert DNS settings (PLAN.md Q31)
@@ -40,9 +42,6 @@ The build order from PLAN.md:
    - Scratch mode (Q23)
 8. Send to phone
 9. Updates, release script and release kit
-
-Moved from step 4 to step 6: greying out the settings the chosen app can't
-use (PLAN.md Q7). That needs each app's own format, which step 6 builds.
 
 - Update from my subscription (PLAN.md Q32), done (2026-11-12): the core,
   the button, the questions, the report with Undo update, and the

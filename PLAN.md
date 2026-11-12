@@ -250,6 +250,30 @@ entry gives the question number and date. Nothing here is built yet.
   re-applied and what couldn't be (e.g. a server the provider removed);
   "Undo update" restores the session from before. Also: the save-time
   warning when linked servers depend on the provider's own DNS.
+- **Q33 (2026-11-12, my pick; the owner asked me to take the initiative on
+  the alpha, so overrule any of it): Stash and Shadowrocket files.**
+  - Stash: the mihomo file, laid out the same, minus what Stash sets
+    itself or lacks (ports, LAN sharing, controller and dashboard, TUN,
+    sniffing, geo data, listeners; DNS keys other than its eight; rule
+    types like SUB-RULE and IN-PORT), with Hysteria2's `password` as `auth`
+    and VLESS/VMess `servername` as `sni` (stash.wiki).
+  - Shadowrocket: a `.conf` and a server list (base64 share links), as Q6.
+    The `.conf`'s `proxy-dns-server` is the DNS mihomo would use for the
+    servers' own names (proxy-server-nameserver-policy, then
+    proxy-server-nameserver, then the per-site DNS entry covering the most
+    of them), one entry's servers only, as addohm.net learned on devices.
+    Rules it can't run (GEOSITE, DOMAIN-REGEX, PROCESS-*, SRC-*, rule lists
+    in mihomo's own formats) are left out; NETWORK becomes PROTOCOL, MATCH
+    becomes FINAL. An auto group over other groups becomes pick-by-hand.
+    Groups using a provider or every server get `policy-regex-filter`.
+  - Review lists everything each app's file left out; edit cards tag the
+    settings the chosen app doesn't use ("Not used by Stash") but keep
+    them editable, since they stay in the settings file.
+  - Linking servers to the subscription (Q8, Q28) is offered for mihomo
+    apps only for now: the provider entry uses mihomo's own fields. For
+    Stash and Shadowrocket the servers are written out. Linking for them
+    (Stash's provider fields; the provider's URL as Shadowrocket's
+    subscription when names are unchanged) is for after the alpha.
 
 - **Q29 (2026-11-12): many kinds of subscription.** "There are a plethora
   of different subscription URL types, don't just focus on Wannaflix." So

@@ -5,7 +5,8 @@
  */
 import { invoke } from '@tauri-apps/api/core';
 
-export type SaveKind = 'config' | 'settings';
+/** Shadowrocket's two files are `conf` and `servers` (its server list). */
+export type SaveKind = 'config' | 'settings' | 'conf' | 'servers';
 
 export type SaveResult =
   | { status: 'saved'; path: string }
@@ -25,7 +26,7 @@ export async function saveFile(kind: SaveKind, name: string, contents: string): 
       return { status: 'failed', reason: String(e) };
     }
   }
-  const type = kind === 'config' ? 'application/yaml' : 'application/json';
+  const type = kind === 'config' ? 'application/yaml' : kind === 'settings' ? 'application/json' : 'text/plain';
   const url = URL.createObjectURL(new Blob([contents], { type: `${type};charset=utf-8` }));
   const a = document.createElement('a');
   a.href = url;

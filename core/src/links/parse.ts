@@ -130,7 +130,7 @@ function vless(rest: string): Server {
   const q = a.query;
   const enc = q.get('encryption');
   if (enc && enc !== 'none') throw new LinkError('unsupported-option', `encryption=${enc}`);
-  const s: Server = { name: a.name, type: 'vless', server: a.host, port: a.port, uuid: a.user.toLowerCase(), udp: true };
+  const s: Server = { name: a.name, type: 'vless', server: a.host, port: a.port, uuid: a.user, udp: true };
   const security = q.get('security') ?? 'none';
   if (security === 'tls' || security === 'reality') {
     s['tls'] = true;
@@ -289,7 +289,7 @@ function vmess(rest: string): Server {
     type: 'vmess',
     server: host(str('add')),
     port: port(str('port')),
-    uuid: id.toLowerCase(),
+    uuid: id,
     alterId: Number(str('aid') || '0') || 0,
     cipher: text(str('scy') || 'auto', 'scy'),
     udp: true,

@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { writeSettings, type Session } from '../../core/src';
 import App from './App.svelte';
 import Dns from './edit/Dns.svelte';
-import { strings as t } from './i18n';
+import { format, strings as t } from './i18n';
 import { store } from './lib/store.svelte';
 
 const FIXTURES = import.meta.glob<string>('../../fixtures/{configs,hostile}/*', {
@@ -576,13 +576,59 @@ describe('review and save', () => {
     expect(reviewCard()?.querySelector<HTMLTextAreaElement>('.whole textarea')?.value).toBe(fixture('configs/indentless.yaml'));
   });
 
-  it('tells Stash and Shadowrocket users their own files come later', () => {
-    click(t.apps.shadowrocket);
-    paste(fixture('configs/indentless.yaml'));
+  const toAppReview = (app: 'stash' | 'shadowrocket') => {
+    click(t.apps[app]);
+    paste(fixture('configs/provider-basic.yaml'));
     click(t.input.check);
     click(t.report.continue);
     for (let i = 0; i < 4; i++) click(t.edit.next);
     toReview();
-    expect(reviewCard()?.textContent).toContain(t.review.appNote);
+  };
+  const saved = async (label: string) => {
+    click(label);
+    await new Promise((r) => setTimeout(r, 0));
+    flushSync();
+  };
+
+  it("gives Stash its own file, and says what it leaves out", async () => {
+    toAppReview('stash');
+    const text = reviewCard()?.textContent ?? '';
+    expect(text).toContain(format(t.review.dropped.title, { app: t.apps.stash }));
+    expect(text).toContain('mixed-port, allow-lan, unified-delay, external-controller, secret, dns.enable');
+    const removed = [...(reviewCard()?.querySelectorAll('tr.removed .text') ?? [])].map((td) => td.textContent);
+    expect(removed).toContain('mixed-port: 7897');
+    expect(removed).toContain('    password: fake-password-2');
+    expect(reviewCard()?.querySelector('.link-servers')).toBeNull();
+    await saved(t.review.saveConfig);
+    expect(reviewCard()?.textContent).toContain('Downloaded config (edited).yaml.');
+  });
+
+  it("marks the settings the chosen app doesn't use", () => {
+    click(t.apps.stash);
+    paste(fixture('configs/provider-basic.yaml'));
+    click(t.input.check);
+    click(t.report.continue);
+    const tags = [...(card()?.querySelectorAll('.unused-tag') ?? [])].map((e) => e.closest('legend, label')?.textContent ?? '');
+    expect(tags).toHaveLength(2); // ports and LAN sharing; Stash has the mode
+    expect(tags[0]).toContain(t.basics.ports);
+    expect(tags[1]).toContain(t.basics.allowLan);
+    expect(card()?.textContent).toContain(format(t.unused.tag, { app: t.apps.stash }));
+  });
+
+  it('gives Shadowrocket a .conf and a server list', async () => {
+    toAppReview('shadowrocket');
+    const text = reviewCard()?.textContent ?? '';
+    expect(text).toContain(t.review.shadowrocket);
+    expect(text).toContain(format(t.review.dropped.rules, { count: 1, app: t.apps.shadowrocket }));
+    expect(reviewCard()?.querySelector('.dropped .rules')?.textContent).toBe('GEOSITE,cn,DIRECT');
+    expect(buttons().some((b) => b.textContent?.trim() === t.review.saveConfig)).toBe(false);
+    await saved(t.review.saveConf);
+    expect(reviewCard()?.textContent).toContain('Downloaded config (edited).conf.');
+    await saved(t.review.saveServers);
+    expect(reviewCard()?.textContent).toContain('Downloaded config (servers).txt.');
+    click(t.review.showWhole);
+    const conf = reviewCard()?.querySelector<HTMLTextAreaElement>('.whole textarea')?.value ?? '';
+    expect(conf).toContain('[Rule]\nDOMAIN-SUFFIX,local,DIRECT');
+    expect(conf).toContain('FINAL,Proxy');
   });
 });

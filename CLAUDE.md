@@ -35,7 +35,12 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   - core/src/subscription/: server lists (share links, SIP008) made into a
     basic config (Q29)
   - core/src/links/: share links (vless, trojan, ss, hysteria2, vmess) to
-    mihomo server entries; refuses what it can't convert faithfully
+    mihomo server entries; refuses what it can't convert faithfully.
+    `write.ts` is the reverse (server entries to links)
+  - core/src/export/: each app's own files (PLAN.md Q33): `stash.ts` (the
+    mihomo file minus what Stash lacks), `shadowrocket.ts` (`.conf` plus a
+    base64 server list), `uses.ts` (which settings each app leaves out).
+    Both list what they dropped
   - core/src/edit/servers.ts: adding servers (into chosen groups) and
     removing them (refused when a rule, a dialer-proxy or an emptied group
     would break)
@@ -61,9 +66,11 @@ build order. The owner said go on 2026-11-11; build one step at a time.
     one page (the same part cards; `Dns advanced`, plus `Tun.svelte` and
     `Controller.svelte`, Advanced only), with its top bar
   - app/src/lib/: `store.svelte.ts` (the page's state: steps, intake result,
-    session, and the update flow: startUpdate/finishUpdate/undoUpdate),
+    session, the update flow: startUpdate/finishUpdate/undoUpdate, and
+    `review`, which holds the chosen app's files),
     `Info.svelte` (the ⓘ tooltip), `UpdatePanel.svelte` (the update's
-    questions and report)
+    questions and report), `Unused.svelte` ("Not used by Stash" on a
+    setting, or a note over a whole part)
   - app/src/steps/: one component per Simple-mode step (`Review.svelte`
     is step 5); `lib/save.ts` saves through the app's `save_file` command,
     or downloads in a browser; `lib/fetch.ts` asks the app's
@@ -78,7 +85,8 @@ build order. The owner said go on 2026-11-11; build one step at a time.
     path with Object.prototype frozen, as the app does
 - src-tauri/: the Windows app shell (Tauri 2, Rust): `tauri.conf.json` (CSP,
   window, installer), `capabilities/` (what the page may ask for), `icons/`,
-  `src/main.rs` (the `save_file` command: Save dialog, then write; and
+  `src/main.rs` (the `save_file` command: Save dialog, then write, with a
+  file type per kind: config, settings, Shadowrocket's conf and servers; and
   `fetch_subscription`, which calls ../fetcher)
 - tools/update.cmd + update.ps1: the owner's build script (menu: update,
   build, checks, dev mode)

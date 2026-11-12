@@ -6,6 +6,24 @@ All notable changes to clash-configurator. The format follows
 
 ## [Unreleased]
 
+- Stash and Shadowrocket files (roadmap step 6, PLAN.md Q33, 2026-11-12):
+  - **Stash** gets its own YAML: the mihomo file laid out the same, without
+    the settings Stash sets itself (ports, LAN sharing, controller, TUN,
+    sniffing, geo data, some DNS keys) or rule types it lacks, and with
+    Hysteria2 and VLESS fields under Stash's names.
+  - **Shadowrocket** gets a `.conf` (DNS, including the DNS for the
+    servers' own names; groups; rules, MATCH as FINAL; hosts) and a server
+    list of share links, saved as two files.
+  - Review lists what each app's file left out (rules in a fold-out), and
+    compares the original with the Stash file itself.
+  - Edit cards tag settings the chosen app doesn't use ("Not used by
+    Stash"); TUN and the controller say so for the whole part.
+  - Share links can be written as well as read (`writeLink`), and a link
+    read in keeps its UUID's case.
+  - Linking servers to the subscription is for mihomo apps only for now.
+  - Wording: "You haven't changed anything" when there are no edits;
+    linking's notes say "untick" rather than "switch it off".
+
 - Advanced mode, part 1 (roadmap step 7, 2026-11-12): every part of the
   config on one page (PLAN.md Q11), no step-by-step guidance. A bar at the
   top holds which app the config is for, the change count, Undo and

@@ -19,6 +19,7 @@
   import Info from '../lib/Info.svelte';
   import { store } from '../lib/store.svelte';
   import StringList from '../lib/StringList.svelte';
+  import Unused from '../lib/Unused.svelte';
 
   type Map = Record<string, unknown>;
   const isMap = (v: unknown): v is Map => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -89,6 +90,7 @@
 </script>
 
 <p class="intro">{t.tun.intro}</p>
+<Unused keys={['tun', 'sniffer']} part />
 
 <div class="columns">
   <fieldset>

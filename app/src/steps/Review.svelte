@@ -4,7 +4,7 @@
   settings file.
 -->
 <script lang="ts">
-  import { compareConfigs, type LinkBlocker, type LinkLoss, outputNames, writeSettings } from '../../../core/src';
+  import { compareConfigs, type Dropped, type LinkBlocker, type LinkLoss, outputNames, writeSettings } from '../../../core/src';
   import { format, refusalText, strings as t } from '../i18n';
   import Info from '../lib/Info.svelte';
   import { saveFile, type SaveKind } from '../lib/save';
@@ -33,6 +33,15 @@
   const flagged = $derived(review?.result.ok ? review.result.findings.filter((f) => f.severity !== 'info') : []);
   const names = $derived(outputNames(store.source ?? { kind: 'paste' }));
   const changes = $derived(store.session?.changes.length ?? 0);
+  const appName = $derived(store.app ? t.apps[store.app] : '');
+  const shadowrocket = $derived(review?.shadowrocket ?? null);
+  /** What the chosen app's files leave out, by kind. */
+  const dropped = $derived.by(() => {
+    const all = review?.dropped ?? [];
+    const of = <K extends Dropped['kind']>(k: K) => all.filter((d): d is Extract<Dropped, { kind: K }> => d.kind === k);
+    const settings = of('setting').filter((d) => d.key !== 'proxy-providers');
+    return { any: all.length > 0, settings, rules: of('rule'), servers: of('server'), groups: of('group'), providers: all.length > settings.length + of('rule').length + of('server').length + of('group').length };
+  });
 
   let showAll = $state(false);
   let showWhole = $state(false);
@@ -41,8 +50,15 @@
 
   async function save(kind: SaveKind) {
     if (!review?.result.ok || !store.session) return;
-    const name = kind === 'config' ? names.config : names.settings;
-    const contents = kind === 'config' ? review.output : writeSettings(store.session);
+    const name = names[kind];
+    const contents =
+      kind === 'settings'
+        ? writeSettings(store.session)
+        : kind === 'conf'
+          ? (shadowrocket?.conf ?? '')
+          : kind === 'servers'
+            ? (shadowrocket?.nodes ?? '')
+            : review.output;
     const r = await saveFile(kind, name, contents);
     failed = r.status === 'failed';
     status =
@@ -96,7 +112,7 @@
     </div>
   {/if}
 
-  {#if comparison && (changes > 0 || review.linked)}
+  {#if comparison && comparison.hunks.length > 0}
     <h3>{t.review.compare} <Info text={t.review.compareInfo} /></h3>
     {#if comparison}
       <p class="muted">{format(t.review.lines, { added: comparison.added, removed: comparison.removed })}</p>
@@ -125,10 +141,38 @@
     {/if}
   {/if}
 
-  {#if store.app && store.app !== 'mihomo'}<p class="note">{t.review.appNote}</p>{/if}
+  {#if dropped.any}
+    <div class="dropped">
+      <h3>{format(t.review.dropped.title, { app: appName })} <Info text={format(t.review.dropped.info, { app: appName })} /></h3>
+      <ul>
+        {#if dropped.settings.length > 0}
+          <li>{format(t.review.dropped.settings, { count: dropped.settings.length, app: appName, keys: dropped.settings.map((d) => d.key).join(', ') })}</li>
+        {/if}
+        {#each dropped.servers as d (d.name)}<li>{format(t.review.dropped.server, { name: d.name, reason: d.reason, app: appName })}</li>{/each}
+        {#each dropped.groups as d (d.name)}<li>{format(t.review.dropped.group[d.reason], { name: d.name })}</li>{/each}
+        {#if dropped.providers}<li>{t.review.dropped.providers}</li>{/if}
+        {#if dropped.rules.length > 0}
+          <li>
+            {format(t.review.dropped.rules, { count: dropped.rules.length, app: appName })}
+            <details>
+              <summary>{t.review.dropped.showRules}</summary>
+              <ul class="rules">{#each dropped.rules.slice(0, 500) as d, i (i)}<li>{d.rule}</li>{/each}</ul>
+            </details>
+          </li>
+        {/if}
+      </ul>
+    </div>
+  {/if}
+
+  {#if shadowrocket}<p class="note">{t.review.shadowrocket}</p>{/if}
 
   <div class="actions">
-    <button type="button" class="primary" onclick={() => save('config')}>{t.review.saveConfig}</button>
+    {#if shadowrocket}
+      <button type="button" class="primary" onclick={() => save('conf')}>{t.review.saveConf}</button>
+      <button type="button" class="primary" onclick={() => save('servers')}>{t.review.saveServers}</button>
+    {:else}
+      <button type="button" class="primary" onclick={() => save('config')}>{t.review.saveConfig}</button>
+    {/if}
     <span class="with-info">
       <button type="button" onclick={() => save('settings')}>{t.review.saveSettings}</button>
       <Info text={t.review.saveSettingsInfo} />
@@ -139,8 +183,8 @@
 
   {#if showWhole}
     <label class="whole">
-      <span>{t.review.wholeLabel}</span>
-      <textarea readonly spellcheck="false" value={review.output}></textarea>
+      <span>{shadowrocket ? t.review.wholeConf : t.review.wholeLabel}</span>
+      <textarea readonly spellcheck="false" value={shadowrocket ? shadowrocket.conf : review.output}></textarea>
     </label>
   {/if}
 {/if}
@@ -248,6 +292,32 @@
     margin: 0;
     padding-left: 1.25rem;
     font-size: 0.9rem;
+  }
+
+  .dropped {
+    margin: 0.75rem 0;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    font-size: 0.9rem;
+  }
+
+  .dropped h3 {
+    margin: 0 0 0.25rem;
+    font-size: 0.95rem;
+  }
+
+  .dropped ul {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+
+  .dropped .rules {
+    max-height: 12rem;
+    overflow: auto;
+    font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+    font-size: 0.8rem;
   }
 
   .note {

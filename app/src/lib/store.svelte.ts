@@ -38,6 +38,10 @@ import {
   type ReadInput,
   readInput,
   writeYaml,
+  type Dropped,
+  type ShadowrocketFiles,
+  toShadowrocket,
+  toStash,
 } from '../../../core/src';
 import { type FetchResult, fetchSubscription, readInterval, readTitle, readUsage, type Usage } from './fetch';
 import { forget, recall, recallUrl, remember } from './memory';
@@ -113,14 +117,16 @@ class Store {
   /**
    * The new config as it will be saved, and what intake makes of it: only
    * worked out while the review step is open (writing a big config out takes
-   * a moment).
+   * a moment). `output` is the chosen app's file (Stash's YAML differs a
+   * little); Shadowrocket gets its two files in `shadowrocket`.
    */
   review = $derived.by(() => {
     void this.version;
     if (this.step !== 'review' || !this.doc || this.original === null) return null;
     const plainOutput = writeYaml(this.doc, this.original);
     // From a subscription URL: the linked version too (PLAN.md Q8, Q28).
-    const url = this.source?.kind === 'url' ? this.source.url : undefined;
+    // Linking uses mihomo's provider settings, so mihomo apps only.
+    const url = this.source?.kind === 'url' && (this.app ?? 'mihomo') === 'mihomo' ? this.source.url : undefined;
     let plan: LinkPlan | null = null;
     let linkedOutput: string | null = null;
     if (url) {
@@ -133,8 +139,17 @@ class Store {
         if (plan.ok) linkedOutput = writeYaml(linkedCopy(this.doc, plan), this.original);
       }
     }
-    const output = this.linkServers && linkedOutput !== null ? linkedOutput : plainOutput;
-    return { output, plainOutput, linkedOutput, plan, linked: output === linkedOutput, result: intake(output) };
+    const mihomo = this.linkServers && linkedOutput !== null ? linkedOutput : plainOutput;
+    const result = intake(mihomo);
+    let output = mihomo;
+    let dropped: Dropped[] = [];
+    let shadowrocket: ShadowrocketFiles | null = null;
+    if (result.ok && this.app === 'stash') ({ text: output, dropped } = toStash(result.doc, mihomo));
+    if (result.ok && this.app === 'shadowrocket') {
+      shadowrocket = toShadowrocket(result.data);
+      dropped = shadowrocket.dropped;
+    }
+    return { output, plainOutput, linkedOutput, plan, linked: mihomo === linkedOutput, result, dropped, shadowrocket };
   });
 
   /**

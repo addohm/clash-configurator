@@ -21,6 +21,10 @@ const MAX_SAVE_BYTES: usize = 64 * 1024 * 1024;
 enum SaveKind {
     Config,
     Settings,
+    /// Shadowrocket's config.
+    Conf,
+    /// Shadowrocket's server list (share links, base64).
+    Servers,
 }
 
 /// A safe file name: the last path part only, with characters Windows
@@ -51,6 +55,12 @@ async fn save_file(app: tauri::AppHandle, kind: SaveKind, name: String, contents
         SaveKind::Settings => dialog
             .set_file_name(file_name(&name, "settings.ccsettings.json"))
             .add_filter("Clash Configurator settings", &["json"]),
+        SaveKind::Conf => dialog
+            .set_file_name(file_name(&name, "config.conf"))
+            .add_filter("Shadowrocket config", &["conf"]),
+        SaveKind::Servers => dialog
+            .set_file_name(file_name(&name, "servers.txt"))
+            .add_filter("Server list", &["txt"]),
     };
     // Blocking is fine here: async commands run off the main thread.
     let Some(chosen) = dialog.blocking_save_file() else {

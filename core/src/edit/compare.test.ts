@@ -78,7 +78,12 @@ describe('comparing configs', () => {
   });
 
   it('names the saved files after the original', () => {
-    expect(outputNames({ kind: 'file', name: 'WF_SIMPLE.yaml' })).toEqual({ config: 'WF_SIMPLE (edited).yaml', settings: 'WF_SIMPLE.ccsettings.json' });
-    expect(outputNames({ kind: 'paste' })).toEqual({ config: 'config (edited).yaml', settings: 'config.ccsettings.json' });
+    expect(outputNames({ kind: 'file', name: 'WF_SIMPLE.yaml' })).toEqual({
+      config: 'WF_SIMPLE (edited).yaml',
+      settings: 'WF_SIMPLE.ccsettings.json',
+      conf: 'WF_SIMPLE (edited).conf',
+      servers: 'WF_SIMPLE (servers).txt',
+    });
+    expect(outputNames({ kind: 'paste' })).toMatchObject({ config: 'config (edited).yaml', settings: 'config.ccsettings.json' });
   });
 });

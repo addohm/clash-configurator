@@ -3,6 +3,7 @@
   import type { Change } from '../../../core/src';
   import { format, strings as t } from '../i18n';
   import Info from '../lib/Info.svelte';
+  import Unused from '../lib/Unused.svelte';
   import { store } from '../lib/store.svelte';
 
   const MODES = ['rule', 'global', 'direct'] as const;
@@ -42,7 +43,7 @@
 <p class="intro">{t.basics.intro}</p>
 
 <div class="field">
-  <label for="basics-mode">{t.basics.mode} <Info text={t.basics.modeInfo} name="mode" /></label>
+  <label for="basics-mode">{t.basics.mode} <Info text={t.basics.modeInfo} name="mode" /> <Unused keys={['mode']} /></label>
   <select id="basics-mode" value={mode} onchange={(e) => store.edit([{ op: 'set', path: ['mode'], value: e.currentTarget.value }])}>
     {#if mode === ''}<option value="" disabled>{format(t.edit.notSet, { value: t.basics.modes.rule })}</option>{/if}
     {#each MODES as m (m)}<option value={m}>{t.basics.modes[m]}</option>{/each}
@@ -50,7 +51,7 @@
 </div>
 
 <fieldset class="field">
-  <legend>{t.basics.ports} <Info text={t.basics.portsInfo} /></legend>
+  <legend>{t.basics.ports} <Info text={t.basics.portsInfo} /> <Unused keys={[...ports]} /></legend>
   {#each ports as key (key)}
     <label class="port">
       <span>{t.basics.portNames[key]}</span>
@@ -71,6 +72,7 @@
   <input type="checkbox" checked={data['allow-lan'] === true} onchange={(e) => toggle('allow-lan', e.currentTarget.checked)} />
   {t.basics.allowLan}
   <Info text={t.basics.allowLanInfo} name="allow-lan" />
+  <Unused keys={['allow-lan']} />
 </label>
 
 <label class="check">

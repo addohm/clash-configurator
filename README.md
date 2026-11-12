@@ -91,8 +91,12 @@ these steps:
      add one; the rule lists they use.
    - **DNS:** on or off, fake or real addresses, and the main DNS servers.
      The expert DNS settings (per-site DNS, the servers for finding proxy
-     servers, backup servers, sites that get their real address) will be in
+     servers, backup servers, sites that get their real address) are in
      Advanced mode.
+
+   Settings your app doesn't use are tagged (for example "Not used by
+   Stash"). You can still change them: they're kept in your settings file
+   for mihomo apps.
 
 5. **Review and save:** what changed, shown line by line next to your
    original; anything still flagged; then **Save the config** (a Save
@@ -101,7 +105,15 @@ these steps:
    original file. If the config came from a subscription URL, **Keep
    servers updating from my subscription** (on by default) makes the saved
    config fetch its servers from the URL; it lists any edits that wouldn't
-   carry over, and switching it off writes the servers into the file.
+   carry over, and unticking it writes the servers into the file. Linking
+   is for mihomo apps; Stash and Shadowrocket get the servers written out.
+   - **Stash** gets its own file: your config without what Stash sets
+     itself (ports, LAN sharing, TUN and so on).
+   - **Shadowrocket** gets two files: **Save the .conf** (DNS, groups,
+     rules) and **Save the server list** (your servers as share links).
+     Shadowrocket needs both.
+   - Anything your app's file had to leave out (rules it can't run, for
+     example) is listed above the save buttons.
 
 The app remembers your last subscription URL and your last session on this
 PC, so when you open it again you can **Carry on** where you left off (or
@@ -118,9 +130,6 @@ Subscriptions can be full Clash configs, Clash files with only servers,
 lists of share links (plain or base64) or SIP008 JSON. Server lists become a
 basic config to edit: your servers, a "Proxy" group, an "Auto" group and
 one rule.
-
-Stash and Shadowrocket files of their own come later; for now every app
-gets the Clash (mihomo) config.
 
 **Advanced mode** (the switch at the top of the sidebar) puts every part on
 one page with no step-by-step guidance, and shows the expert settings: per-site

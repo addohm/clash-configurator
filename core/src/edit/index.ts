@@ -2,6 +2,23 @@
 // produce, and the saved settings file.
 export { applyChange, ChangeError, validateChange, type Change, type Value } from './changes';
 export { detectStyle, writeYaml } from './output';
+export {
+  checkFolder,
+  checkHijack,
+  checkHostPort,
+  checkHours,
+  checkHttpsUrl,
+  checkPorts,
+  checkSecret,
+  DASHBOARDS,
+  GEO_FILES,
+  randomSecret,
+  SNIFF_PROTOCOLS,
+  TUN_STACKS,
+  type GeoFile,
+  type SniffProtocol,
+  type TunStack,
+} from './expert';
 export { compareConfigs, outputNames, type Comparison, type DiffLine, type Hunk } from './compare';
 export { exactNames, linkedCopy, planLink, plain, PROVIDER_NAME, type LinkBlocker, type LinkLoss, type LinkPlan } from './link';
 export { BUILT_IN_TARGETS, namesInUse, renameChanges, renameRuleTarget, ruleTargetOf, splitRule } from './references';

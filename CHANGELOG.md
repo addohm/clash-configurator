@@ -13,7 +13,20 @@ All notable changes to clash-configurator. The format follows
   scrolling panels. DNS shows the expert settings (Q31). Bringing the
   config and the safety report come first; with no app picked, it's for
   mihomo apps. Reviewing and saving is its own view, with Back to editing.
-  TUN, sniffing, controller, dashboard and geo data come in part 2.
+- Advanced mode, part 2 (2026-11-12): the two expert parts (PLAN.md Q10
+  parts 6 and 7), with ⓘ tooltips:
+  - **TUN and sniffing:** TUN on/off, network stack, auto-route, finding
+    the real adapter, strict route, DNS lookups to answer itself; sniffing
+    on/off, using the name it reads, which protocols (HTTP, TLS, QUIC) on
+    which ports, and sites not to read.
+  - **Controller and geo data:** the remote control's address and password
+    (shown on request, or made random), the dashboard (only well-known
+    ones offered, with a folder), the kind of country files, automatic
+    updates and their interval, and https addresses for each geo file.
+  - Values are checked as they're entered; an empty field removes a
+    setting. A new section set deep inside (`sniffer.sniff.TLS`) goes in
+    with the other settings, not after the rules.
+  - mihomo loads every test config with all of these changed.
 
 ### Changed
 

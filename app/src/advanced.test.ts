@@ -64,7 +64,7 @@ describe('Advanced mode', () => {
 
   it('shows every part on one page, with the expert DNS settings', () => {
     toAdvancedEditing();
-    for (const part of ['basics', 'servers', 'groups', 'rules', 'dns']) expect(target.querySelector(`#adv-${part}`), part).not.toBeNull();
+    for (const part of ['basics', 'servers', 'groups', 'rules', 'dns', 'tun', 'controller']) expect(target.querySelector(`#adv-${part}`), part).not.toBeNull();
     const dns = target.querySelector('#adv-dns');
     expect(dns?.textContent).toContain(t.dns.lists['fake-ip-filter']);
     expect(dns?.textContent).toContain(t.dns.policies);
@@ -103,5 +103,87 @@ describe('Advanced mode', () => {
     flushSync();
     expect(store.app).toBe('stash');
     expect(store.session?.app).toBe('stash');
+  });
+});
+
+const input = (scope: Element | null, selector: string) => {
+  const el = scope?.querySelector<HTMLInputElement | HTMLSelectElement>(selector);
+  if (!el) throw new Error(`no ${selector}`);
+  return el;
+};
+const commit = (el: HTMLInputElement | HTMLSelectElement, value: string) => {
+  el.value = value;
+  el.dispatchEvent(new Event('change', { bubbles: true }));
+  flushSync();
+};
+const tick = (el: HTMLInputElement | HTMLSelectElement) => {
+  (el as HTMLInputElement).click();
+  flushSync();
+};
+
+describe('TUN and sniffing', () => {
+  it('turns TUN on with a stack, and adds a DNS hijack', () => {
+    toAdvancedEditing();
+    const tun = target.querySelector('#adv-tun');
+    tick(input(tun, 'fieldset:first-of-type label.check input'));
+    commit(input(tun, 'select'), 'mixed');
+    const hijack = input(tun, '.list input[type="text"]');
+    hijack.value = 'any:53';
+    hijack.dispatchEvent(new Event('input', { bubbles: true }));
+    tun?.querySelector<HTMLFormElement>('.list form')?.requestSubmit();
+    flushSync();
+    expect(store.data['tun']).toEqual({ enable: true, stack: 'mixed', 'dns-hijack': ['any:53'] });
+  });
+
+  it('reads site names from TLS on chosen ports, and refuses bad ports', () => {
+    toAdvancedEditing();
+    const tun = target.querySelector('#adv-tun');
+    const tls = [...(tun?.querySelectorAll<HTMLInputElement>('.protocol input[type="checkbox"]') ?? [])][1];
+    if (!tls) throw new Error('no TLS box');
+    tick(tls);
+    expect(store.data['sniffer']).toEqual({ sniff: { TLS: { ports: [443, 8443] } } });
+    const ports = input(tun, '.protocol input[type="text"]');
+    commit(ports, '443, 99999');
+    expect(tun?.textContent).toContain(t.tun.badPorts);
+    commit(ports, '443, 8443-8445');
+    expect((store.data['sniffer'] as { sniff: { TLS: { ports: unknown } } }).sniff.TLS.ports).toEqual([443, '8443-8445']);
+  });
+});
+
+describe('controller and geo data', () => {
+  it('sets the controller address, refusing a bad one, and makes a password', () => {
+    toAdvancedEditing();
+    const c = target.querySelector('#adv-controller');
+    const address = input(c, 'input[placeholder="127.0.0.1:9090"]');
+    commit(address, 'nonsense');
+    expect(c?.textContent).toContain(t.controller.bad);
+    commit(address, '127.0.0.1:9097');
+    expect(store.data['external-controller']).toBe('127.0.0.1:9097');
+    [...(c?.querySelectorAll('button') ?? [])].find((b) => b.textContent?.trim() === t.controller.random)?.click();
+    flushSync();
+    expect(store.data['secret']).toMatch(/^[0-9a-f]{36}$/);
+    expect(input(c, 'input[type="password"]').value).toBe(store.data['secret']);
+  });
+
+  it('picks a known dashboard, with a folder', () => {
+    toAdvancedEditing();
+    const c = target.querySelector('#adv-controller');
+    commit(input(c, 'fieldset:nth-of-type(2) select'), 'zashboard');
+    expect(store.data['external-ui-url']).toBe('https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip');
+    expect(store.data['external-ui']).toBe('ui');
+    commit(input(c, 'fieldset:nth-of-type(2) select'), '');
+    expect(store.data['external-ui-url']).toBeUndefined();
+  });
+
+  it('takes geo data addresses over https only, and empty removes one', () => {
+    toAdvancedEditing();
+    const c = target.querySelector('#adv-controller');
+    const geoip = input(c, 'fieldset:nth-of-type(3) .field.wide input');
+    commit(geoip, 'http://geo.example.com/geoip.dat');
+    expect(c?.textContent).toContain(t.controller.httpsOnly);
+    commit(geoip, 'https://geo.example.com/geoip.dat');
+    expect(store.data['geox-url']).toEqual({ geoip: 'https://geo.example.com/geoip.dat' });
+    commit(geoip, '');
+    expect(store.data['geox-url']).toEqual({});
   });
 });

@@ -34,7 +34,8 @@ The build order from PLAN.md:
 7. Advanced and Scratch modes:
    - Advanced, part 1, done (2026-11-12): every part on one page, the
      expert DNS settings (PLAN.md Q31)
-   - Advanced, part 2: TUN and sniffing; controller, dashboard and geo data
+   - Advanced, part 2, done (2026-11-12): TUN and sniffing; controller,
+     dashboard and geo data
    - Scratch mode (Q23)
 8. Send to phone
 9. Updates, release script and release kit

@@ -117,8 +117,9 @@ Stash and Shadowrocket files of their own come later; for now every app
 gets the Clash (mihomo) config.
 
 **Advanced mode** (the switch at the top of the sidebar) puts every part on
-one page with no step-by-step guidance, and shows the expert settings, such
-as per-site DNS. A bar at the top has the app the config is for, Undo and
+one page with no step-by-step guidance, and shows the expert settings: per-site
+DNS, TUN and sniffing, the remote control and its password, the dashboard,
+and geo data. A bar at the top has the app the config is for, Undo and
 **Review and save**; the sidebar jumps to each part. Scratch mode comes
 later.
 

@@ -158,6 +158,25 @@ describe.skipIf(!mihomo)('mihomo loads every output', () => {
     const via = groupsOf(data)[0]?.name;
     de = [...de, ...setPolicyChanges(data, '+.example.org,example.net', [via ? `https://dns.google/dns-query#${via}` : 'https://dns.google/dns-query', '8.8.8.8'])];
     sessions.push([`${name}-dns`, { ...s, changes: [...s.changes, ...de] }]);
+
+    // The expert parts (Advanced mode): TUN, sniffing, controller, dashboard, geo data.
+    const expert: Change[] = [
+      { op: 'set', path: ['tun', 'enable'], value: true },
+      { op: 'set', path: ['tun', 'stack'], value: 'mixed' },
+      { op: 'set', path: ['tun', 'auto-route'], value: true },
+      { op: 'insert', path: ['tun', 'dns-hijack'], value: 'any:53' },
+      { op: 'set', path: ['sniffer', 'enable'], value: true },
+      { op: 'set', path: ['sniffer', 'sniff', 'TLS'], value: { ports: [443, '8443-8445'] } },
+      { op: 'insert', path: ['sniffer', 'skip-domain'], value: '+.push.apple.com' },
+      { op: 'set', path: ['external-controller'], value: '127.0.0.1:9097' },
+      { op: 'set', path: ['secret'], value: 'fake-secret' },
+      { op: 'set', path: ['external-ui'], value: 'ui' },
+      { op: 'set', path: ['external-ui-url'], value: 'https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip' },
+      { op: 'set', path: ['geo-auto-update'], value: true },
+      { op: 'set', path: ['geo-update-interval'], value: 24 },
+      { op: 'set', path: ['geox-url', 'geoip'], value: 'https://geo.example.com/geoip.dat' },
+    ];
+    sessions.push([`${name}-expert`, { ...s, changes: [...s.changes, ...expert] }]);
   }
 
   // As if each had come from a subscription URL: servers linked (Q28).

@@ -114,13 +114,30 @@ export function validateChange(input: unknown): Change {
   }
 }
 
+/**
+ * Sets a value whose top-level section doesn't exist yet: the section is
+ * made, with the maps on the way, and goes above the servers, groups and
+ * rules, with the other settings, not after thousands of rules. Returns
+ * false if the section exists (the caller sets the value normally).
+ */
+function setInNewSection(doc: Document, path: Path, value: Value): boolean {
+  const [key, ...rest] = path;
+  if (typeof key !== 'string' || !isMap(doc.contents) || doc.has(key)) return false;
+  if (rest.some((p) => typeof p !== 'string')) return false;
+  const nested = (rest as string[]).reduceRight<Value>((acc, k) => ({ [k]: acc }), value);
+  const items = doc.contents.items;
+  const at = items.findIndex((p) => isScalar(p.key) && typeof p.key.value === 'string' && BIG_SECTIONS.has(p.key.value));
+  items.splice(at === -1 ? items.length : at, 0, doc.createPair(key, nested));
+  return true;
+}
+
 function seqAt(doc: Document, path: Path, create: boolean): YAMLSeq {
   const node = path.length === 0 ? doc.contents : doc.getIn(path, true);
   if (isSeq(node)) return node;
   if (node === undefined && create && path.length > 0) {
-    const seq = doc.createNode([]) as YAMLSeq;
-    doc.setIn(path, seq);
-    return seq;
+    if (!setInNewSection(doc, path, [])) doc.setIn(path, doc.createNode([]));
+    const made = doc.getIn(path, true);
+    if (isSeq(made)) return made;
   }
   throw new ChangeError(`not a list: ${path.join('.')}`);
 }
@@ -131,15 +148,7 @@ export function applyChange(doc: Document, change: Change): void {
     case 'set': {
       const node = doc.getIn(change.path, true);
       const v = change.value;
-      const [key] = change.path;
-      if (change.path.length === 1 && typeof key === 'string' && node === undefined && isMap(doc.contents)) {
-        // A new top-level setting goes above the servers, groups and rules,
-        // with the other settings, not after thousands of rules.
-        const items = doc.contents.items;
-        const at = items.findIndex((p) => isScalar(p.key) && typeof p.key.value === 'string' && BIG_SECTIONS.has(p.key.value));
-        items.splice(at === -1 ? items.length : at, 0, doc.createPair(key, v));
-        return;
-      }
+      if (node === undefined && setInNewSection(doc, change.path, v)) return;
       const scalar = v === null || typeof v !== 'object';
       // Setting a scalar over a scalar keeps the node's comments and quoting.
       if (scalar && isScalar(node)) node.value = v;

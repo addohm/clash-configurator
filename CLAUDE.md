@@ -40,6 +40,9 @@ build order. The owner said go on 2026-11-11; build one step at a time.
     rule providers
   - core/src/edit/dns.ts: checks for DNS servers and site patterns, and the
     DNS list and per-site changes
+  - core/src/edit/expert.ts: checks for Advanced mode's expert settings
+    (controller address, https downloads, folders, ports, DNS hijack),
+    and the well-known dashboards
 - fetcher/: the Rust library that fetches subscription URLs (checks in
   `src/lib.rs`), its own crate so it builds and tests here without Tauri:
   `cd fetcher && CARGO_TARGET_DIR=$PWD/target nice -n 19 cargo test`
@@ -51,7 +54,8 @@ build order. The owner said go on 2026-11-11; build one step at a time.
   - `App.svelte`: the frame (PLAN.md Q30): the sidebar (modes, steps, edit
     parts, Forget) and the open step filling the window
   - app/src/advanced/`AdvancedPage.svelte`: Advanced mode, every part on
-    one page (the same part cards; `Dns advanced`), with its top bar
+    one page (the same part cards; `Dns advanced`, plus `Tun.svelte` and
+    `Controller.svelte`, Advanced only), with its top bar
   - app/src/lib/: `store.svelte.ts` (the page's state: steps, intake result,
     session), `Info.svelte` (the ⓘ tooltip)
   - app/src/steps/: one component per Simple-mode step (`Review.svelte`

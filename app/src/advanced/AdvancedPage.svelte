@@ -9,10 +9,12 @@
 <script lang="ts">
   import { TARGET_APPS, type AppId } from '../../../core/src';
   import Basics from '../edit/Basics.svelte';
+  import Controller from '../edit/Controller.svelte';
   import Dns from '../edit/Dns.svelte';
   import Groups from '../edit/Groups.svelte';
   import Rules from '../edit/Rules.svelte';
   import Servers from '../edit/Servers.svelte';
+  import Tun from '../edit/Tun.svelte';
   import { format, strings as t } from '../i18n';
   import { ADVANCED_PARTS, store } from '../lib/store.svelte';
   import BringConfig from '../steps/BringConfig.svelte';
@@ -76,8 +78,12 @@
             <Groups />
           {:else if part === 'rules'}
             <Rules />
-          {:else}
+          {:else if part === 'dns'}
             <Dns advanced />
+          {:else if part === 'tun'}
+            <Tun />
+          {:else}
+            <Controller />
           {/if}
         </section>
       {/each}

@@ -44,8 +44,9 @@ export type StepId = (typeof STEPS)[number];
 export const SECTIONS = ['basics', 'servers', 'groups', 'rules', 'dns'] as const;
 export type SectionId = (typeof SECTIONS)[number];
 
-/** The parts Advanced mode shows, all on one page (Q11, Q31). */
-export const ADVANCED_PARTS = [...SECTIONS] as const;
+/** The parts Advanced mode shows, all on one page (Q10 parts 6 and 7, Q11, Q31). */
+export const ADVANCED_PARTS = [...SECTIONS, 'tun', 'controller'] as const;
+export type PartId = (typeof ADVANCED_PARTS)[number];
 
 class Store {
   mode: Mode = $state(DEFAULT_MODE);

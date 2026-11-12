@@ -297,6 +297,21 @@ describe('the saved settings file', () => {
   });
 });
 
+describe('new sections', () => {
+  it('go above the big lists even when set deep inside', () => {
+    const s = session('configs/indentless.yaml', [
+      { op: 'set', path: ['sniffer', 'sniff', 'TLS', 'ports'], value: [443] },
+      { op: 'insert', path: ['tun', 'dns-hijack'], value: 'any:53' },
+    ]);
+    const d = built(s).doc.toJS();
+    const keys = Object.keys(d);
+    expect(keys.indexOf('sniffer')).toBeLessThan(keys.indexOf('proxies'));
+    expect(keys.indexOf('tun')).toBeLessThan(keys.indexOf('proxies'));
+    expect(d.sniffer).toEqual({ sniff: { TLS: { ports: [443] } } });
+    expect(d.tun).toEqual({ 'dns-hijack': ['any:53'] });
+  });
+});
+
 describe('new top-level settings', () => {
   it('go above the servers, groups and rules', () => {
     const s = session('configs/indentless.yaml', [{ op: 'set', path: ['ipv6'], value: false }]);

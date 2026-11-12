@@ -10,6 +10,7 @@ import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
 import {
   addGroupChanges,
+  applyChange,
   addToDnsList,
   setPolicyChanges,
   addRuleChanges,
@@ -28,6 +29,8 @@ import {
   linkedCopy,
   parseLinks,
   planLink,
+  planRebase,
+  removeManyChanges,
   readInput,
   writeYaml,
   renameChanges,
@@ -216,6 +219,34 @@ describe.skipIf(!mihomo || Object.keys(PRIVATE).length === 0)('mihomo loads real
       const s = startSession(text, { kind: 'paste' }, 'mihomo', 'simple', defaultFixes(r.findings));
       // Only mihomo's error lines are shown, never the config.
       expect(mihomoTest(`private-${name}`, output(s))).toBeNull();
+    });
+    it(`${name} (updated from a newer version, edits re-applied)`, () => {
+      const r = intake(text);
+      if (!r.ok) throw new Error(`refused: ${r.refusal.code}`);
+      // The user's edits: keep 4 servers, a new group of them, the safety fixes.
+      const s = startSession(text, { kind: 'url', url: 'https://sub.example.com/x' }, 'mihomo', 'simple', defaultFixes(r.findings));
+      const b = buildDoc(s);
+      if (!b.ok) throw new Error('build failed');
+      const d0 = b.doc.toJS() as Record<string, unknown>;
+      const names = ((d0['proxies'] as { name: string }[]) ?? []).map((p) => p.name);
+      const keep = names.slice(0, 4);
+      const edited = buildDoc({ ...s, changes: [...s.changes, ...removeManyChanges(d0, names.filter((n) => !keep.includes(n))), ...addGroupChanges(d0, { name: 'Mine', type: 'url-test', members: keep })] });
+      if (!edited.ok) throw new Error('edit failed');
+      // A newer version from the provider: one more rule near the top.
+      const newer = text.replace(/\nrules:(\r?\n)/, `\nrules:$1    - 'DOMAIN-SUFFIX,newer.example,DIRECT'$1`);
+      const t0 = performance.now();
+      const plan = planRebase(r.data, edited.doc.toJS() as Record<string, unknown>, newer);
+      if ('ok' in plan) throw new Error(`refused: ${plan.refusal.code}`);
+      const out = plan.apply();
+      if (!out.ok) throw new Error(`failed: ${out.refusal.code}`);
+      expect(performance.now() - t0).toBeLessThan(20_000);
+      const n = intake(newer);
+      if (!n.ok) throw new Error('newer refused');
+      for (const c of out.changes) applyChange(n.doc, c);
+      const result = n.doc.toJS() as Record<string, unknown>;
+      expect(((result['proxies'] as { name: string }[]) ?? []).map((p) => p.name)).toEqual(keep);
+      expect(result['rules']).toContain('DOMAIN-SUFFIX,newer.example,DIRECT');
+      expect(mihomoTest(`private-updated-${name}`, writeYaml(n.doc, newer))).toBeNull();
     });
     it(`${name} (servers linked)`, () => {
       const r = intake(text);

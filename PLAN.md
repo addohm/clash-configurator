@@ -236,6 +236,20 @@ entry gives the question number and date. Nothing here is built yet.
   direct servers, and fake-IP exceptions are shown only in Advanced mode
   (owner's pick over folding them in Simple), so they can't be edited until
   Advanced mode exists. They stay in the config untouched meanwhile.
+- **Q32 (2026-11-12): Update from my subscription.** For a config from a
+  URL: fetch the provider's latest full config and re-apply the user's
+  edits to it, worked out by meaning (servers and groups by name, rules by
+  kind and value, settings by name), not by line. Where only one side
+  changed something, it's taken without asking. Where both did, the owner's
+  rule: user changes are never overwritten silently, so it asks, with a
+  pre-selected answer by kind: what the connection needs (server
+  addresses, ports, keys and passwords, per-site DNS, the DNS for finding
+  servers and DNS servers, hosts, proxy providers) defaults to the
+  provider's; preferences (rules, groups, basics, other DNS, TUN, sniffing,
+  controller, geo data) default to the user's. A report lists what was
+  re-applied and what couldn't be (e.g. a server the provider removed);
+  "Undo update" restores the session from before. Also: the save-time
+  warning when linked servers depend on the provider's own DNS.
 
 - **Q29 (2026-11-12): many kinds of subscription.** "There are a plethora
   of different subscription URL types, don't just focus on Wannaflix." So

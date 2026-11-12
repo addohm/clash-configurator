@@ -28,6 +28,10 @@ build order. The owner said go on 2026-11-11; build one step at a time.
     -> built config), `settings.ts` (the saved settings file)
   - core/src/edit/link.ts: linking servers to the subscription (a proxy
     provider): the plan, what's lost, what blocks it (PLAN.md Q28)
+  - core/src/edit/rebase.ts: Update from my subscription (Q32): the user's
+    edits worked out by meaning (old original vs edited) and applied to the
+    provider's new config; conflicts with a suggested answer by kind
+    (`categoryOf`), notes for what couldn't be applied
   - core/src/subscription/: server lists (share links, SIP008) made into a
     basic config (Q29)
   - core/src/links/: share links (vless, trojan, ss, hysteria2, vmess) to
